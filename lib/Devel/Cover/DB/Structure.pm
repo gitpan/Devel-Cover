@@ -16,7 +16,7 @@ use Storable;
 
 use Devel::Cover::DB;
 
-our $VERSION = "0.51";
+our $VERSION = "0.52";
 our $AUTOLOAD;
 
 sub new
@@ -39,7 +39,8 @@ sub AUTOLOAD
     my ($function, $criterion) = $func =~ /^(add|get)_(.*)/;
     croak "Undefined subroutine $func called"
         unless $criterion &&
-               grep $_ eq $criterion, $self->criteria, qw( time sub_name file line );
+               grep $_ eq $criterion, @Devel::Cover::DB::Criteria,
+                                      qw( sub_name file line );
     no strict "refs";
     if ($function eq "get")
     {
@@ -291,7 +292,7 @@ Huh?
 
 =head1 VERSION
 
-Version 0.51 - 29th November 2004
+Version 0.52 - 13th December 2004
 
 =head1 LICENCE
 
