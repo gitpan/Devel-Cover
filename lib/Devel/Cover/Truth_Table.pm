@@ -124,11 +124,12 @@ sub new {
 	my $proto = shift;
 	my $class = ref($proto) || $proto;
 	my @args = @_;
+        # use Data::Dumper; print Dumper \@args;
 	return bless {
-		inputs  => $args[0],
-		result  => $args[1],
-		covered => $args[2],
-		error   => $args[3],  # TODO - pass this in
+		inputs    => $args[0],
+		result    => $args[1],
+		covered   => $args[2],
+		criterion => $args[2],
 	}, $class;
 }
 
@@ -172,14 +173,14 @@ sub covered {
 }
 
 sub error {
-        return 0;
+        return 1;
 	return $_[0]{error}[$_[1]];
 }
 
 package Devel::Cover::Truth_Table;
 use warnings;
 use strict;
-our $VERSION = "0.50";
+our $VERSION = "0.51";
 
 #-------------------------------------------------------------------------------
 # Subroutine : new()
@@ -566,7 +567,7 @@ None that I'm aware of...
 
 =head1 VERSION
 
-Version 0.50 - 25th October 2004
+Version 0.51 - 29th November 2004
 
 =head1 LICENSE
 
