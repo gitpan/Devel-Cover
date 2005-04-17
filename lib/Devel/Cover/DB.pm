@@ -1,4 +1,4 @@
-# Copyright 2001-2004, Paul Johnson (pjcj@cpan.org)
+# Copyright 2001-2005, Paul Johnson (pjcj@cpan.org)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -10,11 +10,11 @@ package Devel::Cover::DB;
 use strict;
 use warnings;
 
-our $VERSION = "0.52";
+our $VERSION = "0.53";
 
-use Devel::Cover::Criterion     0.52;
-use Devel::Cover::DB::File      0.52;
-use Devel::Cover::DB::Structure 0.52;
+use Devel::Cover::Criterion     0.53;
+use Devel::Cover::DB::File      0.53;
+use Devel::Cover::DB::Structure 0.53;
 
 use Carp;
 use File::Path;
@@ -133,7 +133,7 @@ sub merge_runs
         $self->merge($r);
     }
     $self->write($db) if @runs;
-    rmtree($_) for @runs;
+    rmtree(\@runs);
     $self
 }
 
@@ -344,6 +344,7 @@ sub print_summary
     my $fw = 77 - $n * 7;
     $fw = 28 if $fw < 28;
 
+    no warnings "uninitialized";
     my $fmt = "%-${fw}s" . " %6s" x $n . "\n";
     printf $fmt, "-" x $fw, ("------") x $n;
     printf $fmt, "File",
@@ -839,11 +840,11 @@ Huh?
 
 =head1 VERSION
 
-Version 0.52 - 13th December 2004
+Version 0.53 - 17th April 2005
 
 =head1 LICENCE
 
-Copyright 2001-2004, Paul Johnson (pjcj@cpan.org)
+Copyright 2001-2005, Paul Johnson (pjcj@cpan.org)
 
 This software is free.  It is licensed under the same terms as Perl itself.
 

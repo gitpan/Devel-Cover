@@ -1,4 +1,4 @@
-# Copyright 2001-2004, Paul Johnson (pjcj@cpan.org)
+# Copyright 2001-2005, Paul Johnson (pjcj@cpan.org)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -10,7 +10,7 @@ package Devel::Cover::Condition;
 use strict;
 use warnings;
 
-our $VERSION = "0.52";
+our $VERSION = "0.53";
 
 use base "Devel::Cover::Branch";
 
@@ -18,8 +18,8 @@ sub pad         { $_[0][0][$_] ||= 0 for 0 .. $_[0]->count - 1 }
 sub values      { $_[0]->pad; @{$_[0][0]} }
 sub text        { "$_[0][1]{left} $_[0][1]{op} $_[0][1]{right}" }
 sub type        { $_[0][1]{type} }
-sub count       { require Carp; Carp::confess "count() must be overridden" }
-sub headers     { require Carp; Carp::confess "headers() must be overridden" }
+sub count       { require Carp; Carp::confess("count() must be overridden") }
+sub headers     { require Carp; Carp::confess("headers() must be overridden") }
 
 sub calculate_summary
 {
@@ -84,11 +84,11 @@ Huh?
 
 =head1 VERSION
 
-Version 0.52 - 13th December 2004
+Version 0.53 - 17th April 2005
 
 =head1 LICENCE
 
-Copyright 2001-2004, Paul Johnson (pjcj@cpan.org)
+Copyright 2001-2005, Paul Johnson (pjcj@cpan.org)
 
 This software is free.  It is licensed under the same terms as Perl itself.
 

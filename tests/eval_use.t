@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# Copyright 2004, Paul Johnson (pjcj@cpan.org)
+# Copyright 2004-2005, Paul Johnson (pjcj@cpan.org)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -12,7 +12,7 @@
 use strict;
 use warnings;
 
-use Devel::Cover::Test 0.52;
+use Devel::Cover::Test 0.53;
 
 my $t = "eval2";
 my $g = "eval_use.t";

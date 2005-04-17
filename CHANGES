@@ -1,5 +1,17 @@
 Devel::Cover.pm history
 
+Release 0.53 - 17th April 2005
+ - Clean up database directories.
+ - Allow require File::Spec->catfile('t', 'common.pl'); (from an example by
+   Randy W. Sims).
+ - Fix core dump associated with sort subs and add test case supplied by
+   Leif Eriksen.
+ - Add extra options for coverage criteria.
+ - Allow pod coverage options to be specified.
+ - Update copyrights.
+ - Allow Test::Differences output to be displayed usefully.
+ - Test against perl-5.9.3.
+
 Release 0.52 - 13th December 2004
  - Fix thread locking bug (Ruslan Zakirov).
  - Make valgrind happy.

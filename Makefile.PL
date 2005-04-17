@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# Copyright 2001-2004, Paul Johnson (pjcj@cpan.org)
+# Copyright 2001-2005, Paul Johnson (pjcj@cpan.org)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -19,8 +19,8 @@ use File::Copy;
 
 $| = 1;
 
-my $Version  = "0.52";
-my $Date     = "13th December 2004";
+my $Version  = "0.53";
+my $Date     = "17th April 2005";
 my $Author   = 'pjcj@cpan.org';
 
 my @perlbug  = ("perlbug", "-a", $Author,
@@ -39,7 +39,7 @@ my @inc      = sort keys %inc;
 open I, ">lib/Devel/Cover/Inc.pm"
     or die "Cannot open lib/Devel/Cover/Inc.pm: $!";
 print I <<"EOI";
-# Copyright 2001-2004, Paul Johnson (pjcj\@cpan.org)
+# Copyright 2001-2005, Paul Johnson (pjcj\@cpan.org)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -106,7 +106,7 @@ for my $t (readdir D)
     print T <<EOT;
 #!$^X
 
-# Copyright 2002-2004, Paul Johnson (pjcj\@cpan.org)
+# Copyright 2002-2005, Paul Johnson (pjcj\@cpan.org)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
