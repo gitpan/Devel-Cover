@@ -19,8 +19,8 @@ use File::Copy;
 
 $| = 1;
 
-my $Version  = "0.53";
-my $Date     = "17th April 2005";
+my $Version  = "0.54";
+my $Date     = "13th September 2005";
 my $Author   = 'pjcj@cpan.org';
 
 my @perlbug  = ("perlbug", "-a", $Author,
@@ -123,8 +123,7 @@ use lib "$base/t";
 
 use Devel::Cover::Test $Version;
 
-my \$test = Devel::Cover::Test->new("$t");
-\$test->run_test
+Devel::Cover::Test->new("$t");
 EOT
     close T or die "Cannot open t/a$t.t: $!";
 }
@@ -134,7 +133,7 @@ print "done\n\n";
 
 my $e;
 
-print "checking for Storable.pm                   ........ ";
+print "checking for Storable.pm                    ........ ";
 
 $e = <<EOM;
 
@@ -154,7 +153,7 @@ else
     print "not found\n\n$e\n";
 }
 
-print "checking for Digest::MD5.pm                ........ ";
+print "checking for Digest::MD5.pm                 ........ ";
 
 $e = <<EOM;
 
@@ -174,11 +173,11 @@ else
     print "not found\n\n$e\n";
 }
 
-print "checking for Template.pm      version 2.00 ........ ";
+print "checking for Template.pm       version 2.00 ........ ";
 
 $e = <<EOM;
 
-Template.pm 2.00 is required to run the old HTML backends to cover and
+Template.pm 2.00 is required to run the some HTML backends to cover and
 for cpancover.  Unless you have specific requirements this should not be
 a problem, but you will not be able to use these reports until you
 install the Template Toolkit, available from CPAN.  In the meantime you
@@ -197,7 +196,7 @@ else
     print "not found\n\n$e\n";
 }
 
-print "checking for Pod::Coverage.pm version 0.06 ........ ";
+print "checking for Pod::Coverage.pm  version 0.06 ........ ";
 
 $e = <<EOM;
 
@@ -212,13 +211,35 @@ if (my $m = $INC{"Pod/Coverage.pm"})
 {
     my $v = eval { no warnings; $Pod::Coverage::VERSION };
     print $v < 0.06 ? "$v\n\n$e\n" : "$v $m\n";
+
+    print "checking for Pod::Coverage::CountParents.pm ........ ";
+
+    $e = <<EOM;
+
+    Pod::Coverage::CountParents.pm is used for Pod coverage if it is available.
+    We will fall back to using Pod::Coverage.pm.  If you want to use
+    Pod::Coverage::CountParents.pm, just install it from CPAN.
+EOM
+
+    eval "use Pod::Coverage::CountParents";
+    if (my $m = $INC{"Pod/Coverage/CountParents.pm"})
+    {
+        my $v = eval { no warnings; $Pod::Coverage::CountParents::VERSION };
+        $v ||= "    ";
+        print "$v $m\n";
+    }
+    else
+    {
+        print "not found\n\n$e\n";
+    }
+
 }
 else
 {
     print "not found\n\n$e\n";
 }
 
-print "checking for Test::Differences.pm          ........ ";
+print "checking for Test::Differences.pm           ........ ";
 
 $e = <<EOM;
 
@@ -242,7 +263,7 @@ else
     print "not found\n\n$e\n";
 }
 
-my $latest_tested = 5.008006;
+my $latest_tested = 5.008007;
 print <<EOM if $] > $latest_tested;
 
 Devel::Cover $Version has not been tested with perl $].
@@ -380,10 +401,13 @@ UNCOVERABLE = \$(PERL) -e 'print "-uncoverable \$\$1 " if qx|grep __COVER__ \$\$
 html : _run
 \t \$(PERL) -Mblib cover `\$(UNCOVERABLE)` -report html
 
-_out : _run
+basic : _run
+\t \$(PERL) -Mblib cover `\$(UNCOVERABLE)` -report html_basic
+
+out : _run
 \t \$(PERL) -Mblib cover `\$(UNCOVERABLE)` -report text > \$(TEST).out
 
-text : _out
+text : out
 \t gvim -d \$(TEST).out
 
 wrun : pure_all
@@ -398,9 +422,9 @@ FONT = 8x13
 FONT = -sun-screen-medium-r-normal-*-*-70-*-*-m-*-sun-fontspecific
 FONT = "Bitstream Vera Sans Mono 8"
 
-diff : _out
+diff : out
 \t \$(PERL) -i -pe '\$\$t = index \$\$_, "time   code" if !defined \$\$t || \$\$t < 0; substr \$\$_, \$\$t, 7, "" if /^line  err   stmt/ ..  /^Branches/ and length > \$\$t' \$(TEST).out
-\t gvim -d -font \$(FONT) `\$(PERL) -Mblib -MDevel::Cover::Test -e '\$\$t = Devel::Cover::Test->new("\$(TEST)"); print \$\$t->cover_gold'` \$(TEST).out
+\t gvim -d -font \$(FONT) `\$(PERL) -Mblib -MDevel::Cover::Test -e '\$\$t = Devel::Cover::Test->new("\$(TEST)", run_test_at_end => 0); print \$\$t->cover_gold'` \$(TEST).out
 
 gold : pure_all
 \t \$(PERL) create_gold \$(TEST)

@@ -10,7 +10,7 @@ package Devel::Cover::Pod;
 use strict;
 use warnings;
 
-our $VERSION = "0.53";
+our $VERSION = "0.54";
 
 use base "Devel::Cover::Criterion";
 
@@ -45,10 +45,10 @@ sub calculate_summary
         $s->{Total}{total}{covered}++;
     }
 
-    $s->{$file}{pod}{error}   ||= $e;
-    $s->{$file}{total}{error} ||= $e;
-    $s->{Total}{pod}{error}   ||= $e;
-    $s->{Total}{total}{error} ||= $e;
+    $s->{$file}{pod}{error}   += $e;
+    $s->{$file}{total}{error} += $e;
+    $s->{Total}{pod}{error}   += $e;
+    $s->{Total}{total}{error} += $e;
 }
 
 1
@@ -79,7 +79,7 @@ Huh?
 
 =head1 VERSION
 
-Version 0.53 - 17th April 2005
+Version 0.54 - 13th September 2005
 
 =head1 LICENCE
 

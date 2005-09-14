@@ -10,14 +10,16 @@ package Devel::Cover::Test;
 use strict;
 use warnings;
 
-our $VERSION = "0.53";
+our $VERSION = "0.54";
 
 use Carp;
 
 use File::Spec;
 use Test;
 
-use Devel::Cover::Inc 0.53;
+use Devel::Cover::Inc 0.54;
+
+my $Test;
 
 sub new
 {
@@ -33,16 +35,17 @@ sub new
 
     my $self =
     {
-        test        => $test,
-        criteria    => $criteria,
-        skip        => "",
-        uncoverable => "",
-        select      => "",
-        ignore      => "",
+        test            => $test,
+        criteria        => $criteria,
+        skip            => "",
+        uncoverable     => "",
+        select          => "",
+        ignore          => "",
+        run_test_at_end => 1,
         %params
     };
 
-    bless $self, $class;
+    $Test = bless $self, $class;
 
     $self->get_params
 }
@@ -52,28 +55,32 @@ sub get_params
     my $self = shift;
 
     my $test = $self->test_file;
-    open T, $test or die "Cannot open $test: $!";
-    while (<T>)
+    if (open T, $test)
     {
-        $self->{$1} = $2 if /__COVER__\s+(\w+)\s+(.*)/;
-        $self->{$1} =~ s/-.*// if $1;
+        while (<T>)
+        {
+            $self->{$1} = $2 if /__COVER__\s+(\w+)\s+(.*)/;
+        }
+        close T or die "Cannot close $test: $!";
     }
-    close T or die "Cannot close $test: $!";
 
     $self->{select}         ||= "-select $self->{test}";
     $self->{test_parameters}  = "$self->{select}"
                               . " -ignore blib Devel/Cover $self->{ignore}"
                               . " -merge 0 -coverage $self->{criteria}";
+    $self->{criteria} =~ s/-\w+//g;
     $self->{cover_parameters} = join(" ", map "-coverage $_",
                                               split " ", $self->{criteria})
                               . " -report text";
     $self->{cover_parameters} .= " -uncoverable $self->{uncoverable}"
         if $self->{uncoverable};
     $self->{skip}             = $self->{skip_reason}
-        if exists $self->{skip_test} && eval $self->{skip_test};
+        if exists $self->{skip_test} && eval "{$self->{skip_test}}";
 
     $self
 }
+
+sub test { $Test }
 
 sub shell_quote
 {
@@ -183,6 +190,8 @@ sub run_test
 {
     my $self = shift;
 
+    $self->{run_test_at_end} = 0;
+
     my $debug = $ENV{DEVEL_COVER_DEBUG} || 0;
 
     my $gold = $self->cover_gold;
@@ -195,33 +204,21 @@ sub run_test
     eval "use Test::Differences";
     my $differences = $INC{"Test/Differences.pm"};
 
-    my $skip = $self->{skip};
-    if (!$skip && $self->{criteria} =~ /\bpod\b/)
-    {
-        eval "use Pod::Coverage";
-        $skip = $INC{"Pod/Coverage.pm"} ? "" : "Pod::Coverage unavailable";
-    }
-
-    plan tests => ($differences || $skip)
+    plan tests => ($differences || $self->{skip})
                   ? 1
                   : exists $self->{tests}
                     ? $self->{tests}->(scalar @cover)
                     : scalar @cover;
 
-    if ($skip)
+    if ($self->{skip})
     {
-        skip($skip, 1);
+        skip($self->{skip}, 1);
         return;
     }
 
-    if ($self->{run_test})
-    {
-        $self->{run_test}->($self)
-    }
-    else
-    {
-        $self->run_command($self->test_command);
-    }
+    $self->{run_test}
+        ? $self->{run_test}->($self)
+        : $self->run_command($self->test_command);
 
     my $cover_com = $self->cover_command;
     print "Running cover [$cover_com]\n" if $debug;
@@ -289,11 +286,14 @@ sub run_test
         ok 1 for @cover;
     }
     close T or die "Cannot close $cover_com: $!";
+    $self->{end}->() if $self->{end};
 }
 
 sub create_gold
 {
     my $self = shift;
+
+    $self->{run_test_at_end} = 0;
 
     # Pod::Coverage not available on all versions, but it must be there on 5.6.1
     return if $self->{criteria} =~ /\bpod\b/ && $] != 5.006001;
@@ -311,40 +311,48 @@ sub create_gold
         open my $g, ">$new_gold" or die "Can't open $new_gold: $!";
     }
 
-    my $test_com = $self->test_command;
-    print "Running test [$test_com]\n" if $debug;
-
-    system $test_com;
-    die "Cannot run $test_com: $?" if $?;
+    $self->{run_test}
+        ? $self->{run_test}->($self)
+        : $self->run_command($self->test_command);
 
     my $cover_com = $self->cover_command;
     print "Running cover [$cover_com]\n" if $debug;
 
     open G, ">$new_gold" or die "Cannot open $new_gold: $!";
-
     open T, "$cover_com|" or die "Cannot run $cover_com: $!";
     while (my $l = <T>)
     {
         next if $l =~ /^Devel::Cover: merging run/;
         $l =~ s/^($_: ).*$/$1.../
             for "Run", "Perl version", "OS", "Start", "Finish";
-        # print;
+        print $l if $debug;
         print G $l;
         $ng .= $l;
     }
     close T or die "Cannot close $cover_com: $!";
-
     close G or die "Cannot close $new_gold: $!";
 
-    return if $gv eq "5.0" || $gv eq $];
-
-    open G, "$gold" or die "Cannot open $gold: $!";
-    my $g = do { local $/; <G> };
-    close G or die "Cannot close $gold: $!";
-
-    if ($ng eq $g)
+    unless ($gv eq "5.0" || $gv eq $])
     {
-        print "Output from $new_gold matches $gold\n";
-        unlink $new_gold;
+        open G, "$gold" or die "Cannot open $gold: $!";
+        my $g = do { local $/; <G> };
+        close G or die "Cannot close $gold: $!";
+
+        # print "checking $new_gold against $gold\n";
+        if ($ng eq $g)
+        {
+            print "Output from $new_gold matches $gold\n";
+            unlink $new_gold;
+        }
     }
+
+    $self->{end}->() if $self->{end};
 }
+
+END
+{
+    my $self = $Test;
+    $self->run_test  if $self->{run_test_at_end};
+}
+
+1;

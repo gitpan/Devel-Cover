@@ -13,14 +13,10 @@
   - Create a base class for Devel::Cover::Branch and Devel::Cover::Condition.
   - Handle C< $y || "${p}qqq" >.
 - Reports:
-  - Refactor output routines to use common template data.
   - Improve textual output.
-  - Separate output for pod coverage, like subroutine coverage.
   - Allow thresholds to be customisable in HTML output.
-  - Fix up html_basic and html_subtle for subs.
   - Move HTML version and platform info to main page and allow for multiples.
   - Add -db option to cover.
-  - Add annotations to html reports.
 - Bugs:
   - Work with memoize.  Is this still a problem?
   - See if the XS code leaks, and fix it if it does.
@@ -36,6 +32,7 @@
   - Overhaul test system.  Include patt?
   - Tests for INIT and END blocks included in required files when the
     files are used in some runs.
+  - Make sure dor is handled correctly and add more tests to cond_or.
 - Build:
   - meta.yaml file to control pause indexing.
   - Fix up make text and friends for module_ignore.

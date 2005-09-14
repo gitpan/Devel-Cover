@@ -1,8 +1,8 @@
-Reading database from /home/pjcj/g/perl/svk/dc/cover_db
+Reading database from /home/pjcj/g/perl/Devel-Cover/cover_db
 
 
 ------------------------------------------ ------ ------ ------ ------ ------
-File                                         stmt branch   cond    sub  total
+File                                         stmt   bran   cond    sub  total
 ------------------------------------------ ------ ------ ------ ------ ------
 tests/cond_and                               95.2   50.0   50.0  100.0   71.7
 Total                                        95.2   50.0   50.0  100.0   71.7
@@ -17,10 +17,10 @@ Finish: ...
 
 tests/cond_and
 
-line  err   stmt branch   cond    sub   code
+line  err   stmt   bran   cond    sub   code
 1                                       #!/usr/bin/perl
 2                                       
-3                                       # Copyright 2002-2004, Paul Johnson (pjcj@cpan.org)
+3                                       # Copyright 2002-2005, Paul Johnson (pjcj@cpan.org)
 4                                       
 5                                       # This software is free.  It is licensed under the same terms as Perl itself.
 6                                       
@@ -75,7 +75,7 @@ line  err   stmt branch   cond    sub   code
 53                                      
 54                                      sub pas
 55                                      {
-56    ***     11     50           100       $y && $z
+56    ***     11     50            11       $y && $z
 57                                      }
 58                                      
 59                                      # print join(", ", @x), "\n";

@@ -1,8 +1,8 @@
-Reading database from /home/pjcj/g/perl/svk/dc/cover_db
+Reading database from /home/pjcj/g/perl/Devel-Cover/cover_db
 
 
 ------------------------------------------ ------ ------ ------ ------ ------
-File                                         stmt branch   cond    sub  total
+File                                         stmt   bran   cond    sub  total
 ------------------------------------------ ------ ------ ------ ------ ------
 tests/inc_sub                               100.0   50.0    n/a  100.0   93.8
 Total                                       100.0   50.0    n/a  100.0   93.8
@@ -17,10 +17,10 @@ Finish: ...
 
 tests/inc_sub
 
-line  err   stmt branch   cond    sub   code
+line  err   stmt   bran   cond    sub   code
 1                                       #!/bin/perl
 2                                       
-3              1                  100   use lib ();
+3              1                    1   use lib ();
                1                        
                1                        
 4                                       
@@ -35,9 +35,9 @@ line  err   stmt branch   cond    sub   code
 13             1                                    $fh
 14                                              }
 15                                          )
-16             1                  100   }
+16             1                    1   }
 17                                      
-18             1                  100   use IncSub;
+18             1                    1   use IncSub;
                1                        
                1                        
 19                                      

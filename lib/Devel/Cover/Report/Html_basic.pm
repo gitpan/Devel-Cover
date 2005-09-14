@@ -10,20 +10,19 @@ package Devel::Cover::Report::Html_basic;
 use strict;
 use warnings;
 
-our $VERSION = "0.53";
+our $VERSION = "0.54";
 
-use Devel::Cover::DB 0.53;
+use Devel::Cover::DB 0.54;
 
+use Getopt::Long;
 use Template 2.00;
 
 my $Template;
-my %Filenames;
-my %File_exists;
+my %R;
 
 sub print_stylesheet
 {
-    my ($db) = @_;
-    my $file = "$db->{db}/cover.css";
+    my $file = "$R{options}{outputdir}/cover.css";
     open CSS, '>', $file or return;
     my $p = tell DATA;
     print CSS <DATA>;
@@ -31,64 +30,58 @@ sub print_stylesheet
     close CSS;
 }
 
-sub print_summary
+sub oclass
 {
-    my ($db, $options) = @_;
+    my ($o, $criterion) = @_;
+    $o ? class($o->percentage, $o->error, $criterion) : ""
+}
 
-    my @showing = grep $options->{show}{$_}, $db->all_criteria;
-    my @headers = map { ($db->all_criteria_short)[$_] }
-                  grep { $options->{show}{($db->all_criteria)[$_]} }
-                  (0 .. $db->all_criteria - 1);
-    my @files   = (grep($db->{summary}{$_}, @{$options->{file}}), "Total");
+sub class
+{
+    my ($pc, $err, $criterion) = @_;
+    return "" if $criterion eq "time";
+    !$err ? "c3"
+          : $pc <  75 ? "c0"
+          : $pc <  90 ? "c1"
+          : $pc < 100 ? "c2"
+          : "c3"
+}
+
+sub get_summary
+{
+    my ($file, $criterion) = @_;
 
     my %vals;
+    @vals{"pc", "class"} = ("n/a", "");
 
-    for my $file (@files)
-    {
-        my %pvals;
-        my $part = $db->{summary}{$file};
-        for my $criterion (@showing)
-        {
-            my $pc = exists $part->{$criterion}
-                ? sprintf "%4.1f", $part->{$criterion}{percentage}
-                : "n/a";
+    my $part = $R{db}->summary($file);
+    return \%vals unless exists $part->{$criterion};
+    my $c = $part->{$criterion};
+    $vals{class} = class($c->{percentage}, $c->{error}, $criterion);
 
-            my $bg = "";
-            if ($pc ne "n/a")
-            {
-                if ($criterion ne 'time') {
-                    $vals{$file}{$criterion}{class} = cvg_class($pc);
-                }
-                if (exists $Filenames{$file}) {
-                    if ($criterion eq 'branch') {
-                        $vals{$file}{$criterion}{link} = "$Filenames{$file}--branch.html";
-                    }
-                    elsif ($criterion eq 'condition') {
-                        $vals{$file}{$criterion}{link} = "$Filenames{$file}--condition.html";
-                    }
-                    elsif ($criterion eq 'subroutine') {
-                        $vals{$file}{$criterion}{link} = "$Filenames{$file}--subroutine.html";
-                    }
-                }
-            }
-            $vals{$file}{$criterion}{pc} = $pc;
-            $vals{$file}{$criterion}{bg} = $bg;
-        }
-    }
+    return \%vals unless defined $c->{percentage};
+    $vals{pc}       = sprintf "%4.1f", $c->{percentage};
+    $vals{covered}  = $c->{covered} || 0;
+    $vals{total}    = $c->{total};
+    $vals{details}  = "$vals{covered} / $vals{total}";
 
+    my $cr = $criterion eq "pod" ? "subroutine" : $criterion;
+    return \%vals
+      if $cr !~ /^branch|condition|subroutine$/ || !exists $R{filenames}{$file};
+    $vals{link} = "$R{filenames}{$file}--$cr.html";
+
+    \%vals
+};
+
+sub print_summary
+{
     my $vars =
     {
-        title       => "Coverage Summary",
-        dbname      => $db->{db},
-        showing     => \@showing,
-        headers     => \@headers,
-        files       => \@files,
-        filenames   => \%Filenames,
-        file_exists => \%File_exists,
-        vals        => \%vals,
+        R     => \%R,
+        files => [ grep($R{db}->summary($_), @{$R{options}{file}}), "Total" ],
     };
 
-    my $html = "$options->{outputdir}/coverage.html";
+    my $html = "$R{options}{outputdir}/$R{options}{option}{outputfile}";
     $Template->process("summary", $vars, $html) or die $Template->error();
 
     print "HTML output sent to $html\n";
@@ -96,31 +89,23 @@ sub print_summary
 
 sub print_file
 {
-    my ($db, $file, $options) = @_;
-
     my @lines;
-    my $cover = $db->cover;
-    my @showing = grep $options->{show}{$_}, $db->criteria;
-    my @headers = map { ($db->all_criteria_short)[$_] }
-                  grep { $options->{show}{($db->criteria)[$_]} }
-                  (0 .. $db->criteria - 1);
+    my $f = $R{db}->cover->file($R{file});
 
-    my $f = $cover->file($file);
-
-    open F, $file or warn("Unable to open $file: $!\n"), next;
+    open F, $R{file} or warn("Unable to open $R{file}: $!\n"), next;
     LINE: while (defined(my $l = <F>))
     {
         my $n = $.;
         chomp $l;
 
         my %criteria;
-        for my $c (@showing)
+        for my $c (@{$R{showing}})
         {
             my $criterion = $f->$c();
             if ($criterion)
             {
                 my $l = $criterion->location($n);
-                $criteria{$c} = $l ? [@$l] : $l;
+                $criteria{$c} = $l ? [@$l] : undef;
             }
         }
 
@@ -131,26 +116,39 @@ sub print_file
             my %line;
 
             $count++;
-            $line{number} = $n;
-            $line{text}   = $l;
+            $line{number} = length $n ? $n : "&nbsp;";
+            $line{text}   = length $l ? $l : "&nbsp;";
 
             my $error = 0;
             $more = 0;
-            for my $c (@showing)
+            for my $ann (@{$R{options}{annotations}})
+            {
+                for my $a (0 .. $ann->count - 1)
+                {
+                    my $text = $ann->text ($R{file}, $n, $a);
+                    $text = "&nbsp;" unless length $text;
+                    push @{$line{criteria}},
+                    {
+                        text  => $text,
+                        class => $ann->class($R{file}, $n, $a),
+                    };
+                    $error ||= $ann->error($R{file}, $n, $a);
+                }
+            }
+            for my $c (@{$R{showing}})
             {
                 my $o = shift @{$criteria{$c}};
                 $more ||= @{$criteria{$c}};
-                my $details = $c !~ /statement|pod|time/;
-                my $text = $o ? $details ? $o->percentage : $o->covered : "";
-                my $bg = $o ? $o->error ? "error" : "ok" : "default";
-                my %criterion = ( text => $text, bg => $bg );
-                $criterion{link} = "$Filenames{$file}--$c.html#$n-$count"
-                    if $details;
+                my $link = $c !~ /statement|time/;
+                my $pc = $link && $c !~ /subroutine|pod/;
+                my $text = $o ? $pc ? $o->percentage : $o->covered : "&nbsp;";
+                my %criterion = ( text => $text, class => oclass($o, $c) );
+                my $cr = $c eq "pod" ? "subroutine" : $c;
+                $criterion{link} = "$R{filenames}{$R{file}}--$cr.html#$n-$count"
+                    if $o && $link;
                 push @{$line{criteria}}, \%criterion;
                 $error ||= $o->error if $o;
             }
-
-            $line{bg} = $error ? "error" : "default";
 
             push @lines, \%line;
 
@@ -158,28 +156,21 @@ sub print_file
             $n = $l = "";
         }
     }
-    close F or die "Unable to close $file: $!";
+    close F or die "Unable to close $R{file}: $!";
 
     my $vars =
     {
-        title       => "Coverage report for $file",
-        showing     => \@showing,
-        headers     => \@headers,
-        filenames   => \%Filenames,
-        file_exists => \%File_exists,
-        lines       => \@lines,
+        R     => \%R,
+        lines => \@lines,
     };
 
-    my $html = "$options->{outputdir}/$Filenames{$file}.html";
+    my $html = "$R{options}{outputdir}/$R{filenames}{$R{file}}.html";
     $Template->process("file", $vars, $html) or die $Template->error();
 }
 
 sub print_branches
 {
-    my ($db, $file, $options) = @_;
-
-    my $branches = $db->cover->file($file)->branch;
-
+    my $branches = $R{db}->cover->file($R{file})->branch;
     return unless $branches;
 
     my @branches;
@@ -191,12 +182,14 @@ sub print_branches
             $count++;
             push @branches,
                 {
-                    ref        => "$location-$count",
                     number     => $count == 1 ? $location : "",
-                    bg         => $b->error ? "error" : "ok",
-                    percentage => $b->percentage,
-                    parts      => [ map {text => $_, bg => $_ ? "ok" : "error"},
-                                        $b->values ],
+                    parts      =>
+                    [
+                        map { text  => $b->value($_),
+                              class => class($b->value($_), $b->error($_),
+                                             "branch") },
+                            0 .. $b->total - 1
+                    ],
                     text       => $b->text,
                 };
         }
@@ -204,63 +197,115 @@ sub print_branches
 
     my $vars =
     {
-        title    => "Branch coverage report for $file",
+        R        => \%R,
         branches => \@branches,
     };
 
-    my $html = "$options->{outputdir}/$Filenames{$file}--branch.html";
+    my $html = "$R{options}{outputdir}/$R{filenames}{$R{file}}--branch.html";
     $Template->process("branches", $vars, $html) or die $Template->error();
 }
 
 sub print_conditions
 {
-    my ($db, $file, $options) = @_;
-
-    my $conditions = $db->cover->file($file)->condition;
-
+    my $conditions = $R{db}->cover->file($R{file})->condition;
     return unless $conditions;
 
     my %r;
     for my $location (sort { $a <=> $b } $conditions->items)
     {
-        my $count = 0;
+        my %count;
         for my $c (@{$conditions->location($location)})
         {
-            $count++;
+            $count{$c->type}++;
+            # print "-- [$count{$c->type}][@{[$c->text]}]}]\n";
             push @{$r{$c->type}},
                 {
-                    ref        => "$location-$count",
-                    number     => $count == 1 ? $location : "",
+                    number     => $count{$c->type} == 1 ? $location : "",
                     condition  => $c,
-                    bg         => $c->error ? "error" : "ok",
-                    percentage => $c->percentage,
-                    parts      => [ map {text => $c->value($_),
-                                         bg   => $c->error($_) ? "error" : "ok"},
-                                        0 .. $c->total - 1 ],
+                    parts      =>
+                    [
+                        map { text  => $c->value($_),
+                              class => class($c->value($_), $c->error($_),
+                                             "condition") },
+                            0 .. $c->total - 1
+                    ],
                     text       => $c->text,
                 };
         }
     }
 
     my @types = map
-        {
-            name       => do { my $n = $_; $n =~ s/_/ /g; $n },
-            headers    => $r{$_}[0]{condition}->headers,
-            conditions => $r{$_},
-        }, sort keys %r;
+               {
+                   name       => do { my $n = $_; $n =~ s/_/ /g; $n },
+                   headers    => $r{$_}[0]{condition}->headers,
+                   conditions => $r{$_},
+               }, sort keys %r;
 
     my $vars =
     {
-        title  => "Condition coverage report for $file",
-        types  => \@types,
+        R     => \%R,
+        types => \@types,
     };
 
-    # use Data::Dumper;
-    # print Dumper $vars;
+    # use Data::Dumper; print Dumper \@types;
 
-    my $html = "$options->{outputdir}/$Filenames{$file}--condition.html";
-    $Template->process("conditions", $vars, $html)
-        or die $Template->error();
+    my $html = "$R{options}{outputdir}/$R{filenames}{$R{file}}--condition.html";
+    $Template->process("conditions", $vars, $html) or die $Template->error();
+}
+
+sub print_subroutines
+{
+    my $subroutines = $R{db}->cover->file($R{file})->subroutine;
+    return unless $subroutines;
+    my $s = $R{options}{show}{subroutine};
+
+    my $pods;
+    $pods = $R{db}->cover->file($R{file})->pod if $R{options}{show}{pod};
+
+    my $subs;
+    for my $line (sort { $a <=> $b } $subroutines->items)
+    {
+        my @p;
+        if ($pods)
+        {
+            my $l = $pods->location($line);
+            @p = @$l if $l;
+        }
+        for my $o (@{$subroutines->location($line)})
+        {
+            my $p = shift @p;
+            push @$subs,
+            {
+                line   => $line,
+                name   => $o->name,
+                count  => $s ? $o->covered : "",
+                class  => $s ? oclass($o, "subroutine") : "",
+                pod    => $p ? $p->covered ? "Yes" : "No" : "n/a",
+                pclass => $p ? oclass($p, "pod") : "",
+            };
+        }
+    }
+
+    my $vars =
+    {
+        R    => \%R,
+        subs => $subs,
+    };
+
+    my $html =
+        "$R{options}{outputdir}/$R{filenames}{$R{file}}--subroutine.html";
+    $Template->process("subroutines", $vars, $html) or die $Template->error();
+}
+
+sub get_options
+{
+    my ($self, $opt) = @_;
+    $opt->{option}{outputfile} = "coverage.html";
+    die "Bad option" unless
+        GetOptions($opt->{option},
+                   qw(
+                       outputfile=s
+                     ));
 }
 
 sub report
@@ -275,18 +320,42 @@ sub report
         ],
     });
 
-    %Filenames   = map { $_ => do { (my $f = $_) =~ s/\W/-/g; $f } }
-                       @{$options->{file}};
-    %File_exists = map { $_ => -e } @{$options->{file}};
+    %R =
+    (
+        db      => $db,
+        options => $options,
+        showing => [ grep $options->{show}{$_}, $db->criteria ],
+        headers =>
+        [
+            map { ($db->criteria_short)[$_] }
+                grep { $options->{show}{($db->criteria)[$_]} }
+                     (0 .. $db->criteria - 1)
+        ],
+        annotations =>
+        [
+            map { my $a = $_; map $a->header($_), 0 .. $a->count - 1 }
+                @{$options->{annotations}}
+        ],
+        filenames =>
+        {
+            map { $_ => do { (my $f = $_) =~ s/\W/-/g; $f } }
+                @{$options->{file}}
+        },
+        exists      => { map { $_ => -e } @{$options->{file}} },
+        get_summary => \&get_summary,
+    );
 
-    print_stylesheet($db);
-    print_summary($db, $options);
+    print_stylesheet;
+    print_summary;
 
-    for my $file (@{$options->{file}})
+    for (@{$options->{file}})
     {
-        print_file      ($db, $file, $options);
-        print_branches  ($db, $file, $options) if $options->{show}{branch};
-        print_conditions($db, $file, $options) if $options->{show}{condition};
+        $R{file} = $_;
+        my $show = $options->{show};
+        print_file;
+        print_branches    if $show->{branch};
+        print_conditions  if $show->{condition};
+        print_subroutines if $show->{subroutine} || $show->{pod};
     }
 }
 
@@ -297,7 +366,7 @@ package Devel::Cover::Report::Html_basic::Template::Provider;
 use strict;
 use warnings;
 
-our $VERSION = "0.53";
+our $VERSION = "0.54";
 
 use base "Template::Provider";
 
@@ -314,7 +383,7 @@ sub fetch
 $Templates{html} = <<'EOT';
 <!--
 
-This file was generated by Devel::Cover Version 0.53
+This file was generated by Devel::Cover Version 0.54
 
 Devel::Cover is copyright 2001-2002, Paul Johnson (pjcj@cpan.org)
 
@@ -342,55 +411,129 @@ http://www.pjcj.net
 </html>
 EOT
 
+$Templates{header} = <<'EOT';
+<table>
+    <tr>
+        <th colspan=4>[% R.file %]</th>
+    </tr>
+    <tr class="hblank"><td class="dblank"></td></tr>
+    <tr>
+        <th class="hh">Criterion</th>
+        <th class="hh">Covered</th>
+        <th class="hh">Total</th>
+        <th class="hh">%</th>
+    </tr>
+    [% FOREACH criterion = criteria %]
+        [% vals = R.get_summary(R.file, criterion) %]
+        <tr>
+            <td class="h">[% criterion %]</td>
+            <td>[% vals.covered %]</td>
+            <td>[% vals.total %]</td>
+            <td class="[% vals.class %]" title="[% vals.details %]">
+                [% IF vals.link.defined %]
+                    <a href="[% vals.link %]"> [% vals.pc %] </a>
+                [% ELSE %]
+                    [% vals.pc %]
+                [% END %]
+            </td>
+        </tr>
+    [% END %]
+</table>
+<div><br></br></div>
+EOT
+
 $Templates{summary} = <<'EOT';
 [% WRAPPER html %]
 
-<h1>[% title %]</h1>
+<h1> Coverage Summary </h1>
 <table>
     <tr>
-        <td class="header" align="right">Database:</td>
-        <td>[% dbname %]</td>
+        <td class="h" align="right">Database:</td>
+        <td>[% R.db.db %]</td>
     </tr>
 </table>
 <div><br></br></div>
 <table>
-
     <tr>
-    <th align="left" class="header"> File </th>
-    [% FOREACH header = headers %]
-        <th class="header"> [% header %] </th>
+    <th> file </th>
+    [% FOREACH header = R.headers %]
+        <th> [% header %] </th>
     [% END %]
+    <th> total </th>
     </tr>
 
     [% FOREACH file = files %]
         <tr align="center" valign="top">
             <td align="left">
-                [% IF file_exists.$file %]
-                   <a href="[%- filenames.$file -%].html"> [% file %] </a>
+                [% IF R.exists.$file %]
+                   <a href="[% R.filenames.$file %].html"> [% file %] </a>
                 [% ELSE %]
                     [% file %]
                 [% END %]
             </td>
 
-            [% FOREACH criterion = showing %]
-                [% IF vals.$file.$criterion.class %]
-                    <td class="[%- vals.$file.$criterion.class -%]"
-                        title="[%- vals.$file.$criterion.details -%]">
+            [% FOREACH criterion = R.showing %]
+                [% vals = R.get_summary(file, criterion) %]
+                [% IF vals.class %]
+                    <td class="[% vals.class %]" title="[% vals.details %]">
                 [% ELSE %]
                     <td>
                 [% END %]
-                [% IF vals.$file.$criterion.link.defined %]
-                    <a href="[% vals.$file.$criterion.link %]">
-                        [% vals.$file.$criterion.pc %]
-                    </a>
+                [% IF vals.link.defined %]
+                    <a href="[% vals.link %]"> [% vals.pc %] </a>
                 [% ELSE %]
-                    [% vals.$file.$criterion.pc %]
+                    [% vals.pc %]
                 [% END %]
                 </td>
             [% END %]
+
+            [% vals = R.get_summary(file, "total") %]
+            <td class="[% vals.class %]" title="[% vals.details %]">
+                [% vals.pc %]
+            </td>
         </tr>
     [% END %]
+</table>
 
+[% END %]
+EOT
+
+$Templates{file} = <<'EOT';
+[% WRAPPER html %]
+
+<h1> File Coverage </h1>
+
+[%
+   crit = [];
+   FOREACH criterion = R.showing;
+       crit.push(criterion) UNLESS criterion == "time";
+   END;
+   crit.push("total");
+   PROCESS header criteria = crit;
+%]
+
+<table>
+    <tr>
+        <th> line </th>
+        [% FOREACH header = R.annotations.merge(R.headers) %]
+            <th> [% header %] </th>
+        [% END %]
+        <th> code </th>
+    </tr>
+
+    [% FOREACH line = lines %]
+        <tr>
+            <td [% IF line.number %] class="h" [% END %]>[% line.number %]</td>
+            [% FOREACH cr = line.criteria %]
+                <td [% IF cr.class %] class="[% cr.class %]" [% END %]>
+                    [% IF cr.link.defined %] <a href="[% cr.link %]"> [% END %]
+                    [% cr.text %]
+                    [% IF cr.link.defined %] </a> [% END %]
+                </td>
+            [% END %]
+            <td class="s"> [% line.text %] </td>
+        </tr>
+    [% END %]
 </table>
 
 [% END %]
@@ -399,32 +542,28 @@ EOT
 $Templates{branches} = <<'EOT';
 [% WRAPPER html %]
 
-<h1> [% title %] </h1>
+<h1> Branch Coverage </h1>
+
+[% PROCESS header criteria = [ "branch" ] %]
 
 <table>
-
-    <tr align="RIGHT" valign="CENTER">
+    <tr>
         <th> line </th>
-        <th> % </th>
         <th> true </th>
         <th> false </th>
-        <th align="CENTER"> branch </th>
+        <th> branch </th>
     </tr>
 
     [% FOREACH branch = branches %]
         <a name="[% branch.ref %]"> </a>
-        <tr align="RIGHT" valign="CENTER">
-            <td [% bg(colour = "number") %]> [% branch.number %] </td>
-            <td [% bg(colour = branch.bg) %]> [% branch.percentage %] </td>
+        <tr>
+            <td class="h"> [% branch.number %] </td>
             [% FOREACH part = branch.parts %]
-                <td [% bg(colour = part.bg) %]> [% part.text %] </td>
+                <td class="[% part.class %]"> [% part.text %] </td>
             [% END %]
-            <td [% bg(colour = branch.bg) %] align="LEFT">
-                <pre> [% branch.text %]</pre>
-            </td>
+            <td class="s"> [% branch.text %] </td>
         </tr>
     [% END %]
-
 </table>
 
 [% END %]
@@ -433,81 +572,73 @@ EOT
 $Templates{conditions} = <<'EOT';
 [% WRAPPER html %]
 
-<h1> [% title %] </h1>
+<h1> Condition Coverage </h1>
+
+[% PROCESS header criteria = [ "condition" ] %]
 
 [% FOREACH type = types %]
-
     <h2> [% type.name %] conditions </h2>
 
     <table>
-
-        <tr align="RIGHT" valign="CENTER">
+        <tr>
             <th> line </th>
-            <th> % </th>
             [% FOREACH header = type.headers %]
                 <th> [% header %] </th>
             [% END %]
-            <th align="CENTER"> condition </th>
+            <th> condition </th>
         </tr>
 
         [% FOREACH condition = type.conditions %]
             <a name="[% condition.ref %]"> </a>
-            <tr align="RIGHT" valign="CENTER">
-                <td [% bg(colour = "number") %]> [% condition.number %] </td>
-                <td [% bg(colour = condition.bg) %]>
-                    [% condition.percentage %]
-                </td>
+            <tr>
+                <td class="h"> [% condition.number %] </td>
                 [% FOREACH part = condition.parts %]
-                    <td [% bg(colour = part.bg) %]> [% part.text %] </td>
+                    <td class="[% part.class %]"> [% part.text %] </td>
                 [% END %]
-                <td [% bg(colour = condition.bg) %] align="LEFT">
-                    <pre> [% condition.text %]</pre>
-                </td>
+                <td class="s"> [% condition.text %] </td>
             </tr>
         [% END %]
-
     </table>
-
 [% END %]
 
 [% END %]
 EOT
 
-$Templates{file} = <<'EOT';
+$Templates{subroutines} = <<'EOT';
 [% WRAPPER html %]
 
-<h1> [% title %] </h1>
+<h1> Subroutine Coverage </h1>
+
+[%
+   crit = [];
+   crit.push("subroutine") IF R.options.show.subroutine;
+   crit.push("pod")        IF R.options.show.pod;
+   PROCESS header criteria = crit;
+%]
 
 <table>
-
-    <tr align="RIGHT" valign="CENTER">
-        <th> </th>
-        [% FOREACH header = headers %]
-            <th> [% header %] </th>
+    <tr>
+        <th> line </th>
+        [% IF R.options.show.subroutine %]
+            <th> count </th>
         [% END %]
-        <th align="CENTER"> code </th>
+        [% IF R.options.show.pod %]
+            <th> pod </th>
+        [% END %]
+        <th> subroutine </th>
     </tr>
-
-    [% FOREACH line = lines %]
-        <tr align="RIGHT" valign="CENTER">
-            <td [% bg(colour = "number") %]> [% line.number %] </td>
-            [% FOREACH cr = line.criteria %]
-                <td [% bg(colour = cr.bg) %]>
-                    [% IF cr.link.defined && cr.text %]
-                    <a href="[% cr.link %]">
-                    [% END %]
-                    [% cr.text %]
-                    [% IF cr.link.defined && cr.text %]
-                    </a>
-                    [% END %]
-                </td>
+    [% FOREACH sub = subs %]
+        <tr>
+            <td class="h"> [% sub.line %] </td>
+            [% IF R.options.show.subroutine %]
+                <td class="[% sub.class %]"> [% sub.count %] </td>
             [% END %]
-            <td [% bg(colour = line.bg) %] align="LEFT">
-                <pre> [% line.text %]</pre>
-            </td>
+            [% IF R.options.show.pod %]
+                <td class="[% sub.pclass %]"> [% sub.pod %] </td>
+            [% END %]
+            <td> [% sub.name %] </td>
         </tr>
     [% END %]
-
 </table>
 
 [% END %]
@@ -544,7 +675,7 @@ Huh?
 
 =head1 VERSION
 
-Version 0.53 - 17th April 2005
+Version 0.54 - 13th September 2005
 
 =head1 LICENCE
 
@@ -560,6 +691,7 @@ http://www.pjcj.net
 package Devel::Cover::Report::Html_basic;
 
 __DATA__
+
 /* Stylesheet for Devel::Cover HTML reports */
 
 /* You may modify this file to alter the appearance of your coverage
@@ -574,9 +706,11 @@ body {
 }
 
 h1 {
-    background-color: #3399ff;
+    text-align : center;
+    background-color: #cc99ff;
     border: solid 1px #999999;
     padding: 0.2em;
+    -moz-border-radius: 10px;
 }
 
 a {
@@ -586,44 +720,62 @@ a:visited {
     color: #333333;
 }
 
-code {
-    white-space: pre;
-}
-
 table {
-/*    border: solid 1px #000000;*/
-/*    border-collapse: collapse;*/
+    border-spacing: 1px;
 }
-td,th {
-    border: solid 1px #cccccc;
+tr {
+    text-align : center;
+    vertical-align: top;
 }
-
-/* Classes for color-coding coverage information:
- *   header    : column/row header
- *   uncovered : path not covered or coverage < 75%
- *   covered75 : coverage >= 75%
- *   covered90 : coverage >= 90%
- *   covered   : path covered or coverage = 100%
- */
-.header {
-    background-color:  #cccccc;
+th,.h,.hh {
+    background-color: #cccccc;
     border: solid 1px #333333;
     padding-left:  0.2em;
     padding-right: 0.2em;
+    width: 2.5em;
+    -moz-border-radius: 4px;
 }
-.uncovered {
-    background-color:  #ff9999;
+.hh {
+    width: 25%;
+}
+td {
+    border: solid 1px #cccccc;
+    -moz-border-radius: 4px;
+}
+.hblank {
+    height: 0.5em;
+}
+.dblank {
+    border: none;
+}
+
+/* source code */
+pre,.s {
+    text-align: left;
+    font-family: monospace;
+    white-space: pre;
+    padding: 0.2em 0.5em 0em 0.5em;
+}
+
+/* Classes for color-coding coverage information:
+ *   c0  : path not covered or coverage < 75%
+ *   c1  : coverage >= 75%
+ *   c2  : coverage >= 90%
+ *   c3  : path covered or coverage = 100%
+ */
+.c0 {
+    background-color: #ff9999;
     border: solid 1px #cc0000;
 }
-.covered75 {
-    background-color:  #ffcc99;
+.c1 {
+    background-color: #ffcc99;
     border: solid 1px #ff9933;
 }
-.covered90 {
-    background-color:  #ffff99;
+.c2 {
+    background-color: #ffff99;
     border: solid 1px #cccc66;
 }
-.covered {
-    background-color:  #99ff99;
+.c3 {
+    background-color: #99ff99;
     border: solid 1px #009900;
 }

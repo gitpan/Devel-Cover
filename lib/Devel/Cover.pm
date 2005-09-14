@@ -10,13 +10,13 @@ package Devel::Cover;
 use strict;
 use warnings;
 
-our $VERSION = "0.53";
+our $VERSION = "0.54";
 
 use DynaLoader ();
 our @ISA = "DynaLoader";
 
-use Devel::Cover::DB  0.53;
-use Devel::Cover::Inc 0.53;
+use Devel::Cover::DB  0.54;
+use Devel::Cover::Inc 0.54;
 
 use B qw( class ppname main_cv main_start main_root walksymtable OPf_KIDS );
 use B::Debug;
@@ -27,7 +27,13 @@ use Config;
 use Cwd "abs_path";
 use File::Spec;
 
-BEGIN { eval "use Pod::Coverage 0.06" }  # We'll use this if it is available.
+BEGIN
+{
+    # Use Pod::Coverage if it is available.
+    eval "use Pod::Coverage 0.06";
+    # We'll prefer Pod::Coverage::CountParents
+    eval "use Pod::Coverage::CountParents";
+}
 
 # $SIG{__DIE__} = \&Carp::confess;
 
@@ -46,7 +52,9 @@ my @Ignore_re;                           # Packages to ignore.
 my @Inc_re;                              # Original @INC to ignore.
 my @Select_re;                           # Packages to select.
 
-my $Pod     = $INC{"Pod/Coverage.pm"};   # Do pod coverage.
+my $Pod = $INC{"Pod/Coverage/CountParents.pm"} ? "Pod::Coverage::CountParents" :
+          $INC{"Pod/Coverage.pm"}              ? "Pod::Coverage"               :
+          "";                            # Type of pod coverage available.
 my %Pod;                                 # Pod coverage data.
 
 my @Cvs;                                 # All the Cvs we want to cover.
@@ -438,10 +446,13 @@ sub get_location
     ($File, $Line) = ($1, $2) if $File =~ /^\(eval \d+\)\[(.*):(\d+)\]/;
     $File = normalised_file($File);
 
-    unless (exists $Run{vec}{$File})
+    if (!exists $Run{vec}{$File} && $Run{collected})
     {
-        @{$Run{vec}{$File}{$_}}{"vec", "size"} = ("", 0)
-            for grep $_ ne "time", @{$Run{collected}};
+        my %vec;
+        @vec{@{$Run{collected}}} = ();
+        delete $vec{time};
+        $vec{subroutine}++ if exists $vec{pod};
+        @{$Run{vec}{$File}{$_}}{"vec", "size"} = ("", 0) for keys %vec;
     }
 }
 
@@ -581,7 +592,7 @@ sub report
     $Structure      = Devel::Cover::DB::Structure->new(base => $DB);
     $Structure->read_all;
     $Structure->add_criteria(@collected);
-    # use Data::Dumper; print STDERR Dumper $Structure;
+    # use Data::Dumper; print STDERR "Start structure", Dumper $Structure;
 
     # print STDERR "Processing cover data\n@Inc\n";
     $Coverage = coverage(1) || die "No coverage data available.\n";
@@ -593,14 +604,15 @@ sub report
     get_cover($_) for B::begin_av()->isa("B::AV") ? B::begin_av()->ARRAY : ();
     if (exists &B::check_av)
     {
-        get_cover($_) for B::check_av()->isa("B::AV") ? B::check_av()->ARRAY : ();
+        get_cover($_)
+            for B::check_av()->isa("B::AV") ? B::check_av()->ARRAY : ();
     }
     get_cover($_) for get_ends()->isa("B::AV") ? get_ends()->ARRAY : ();
     get_cover($_) for @Cvs;
 
     my %files;
     $files{$_}++ for keys %{$Run{count}}, keys %{$Run{vec}};
-    for my $file (keys %files)
+    for my $file (sort keys %files)
     {
         # print "looking at $file\n";
         unless (use_file($file))
@@ -612,7 +624,7 @@ sub report
             next;
         }
 
-        $Structure->add_digest($file, \%Run);
+        # $Structure->add_digest($file, \%Run);
 
         for my $run (keys %{$Run{vec}{$file}})
         {
@@ -621,6 +633,8 @@ sub report
 
         $Structure->store_counts($file);
     }
+
+    # use Data::Dumper; print STDERR "End structure", Dumper $Structure;
 
     my $run = time . ".$$." . sprintf "%05d", rand 2 ** 16;
     my $cover = Devel::Cover::DB->new
@@ -673,9 +687,9 @@ sub add_statement_cover
     get_location($op);
     return unless $File;
 
-    # print STDERR "Stmt $File:$Line: <$deparse> $op $$op ", $op->name, "\n";
+    # print STDERR "Stmt $File:$Line: $op $$op ", $op->name, "\n";
 
-    $Structure->set_file($File);
+    $Run{digests}{$File} ||= $Structure->set_file($File);
     my $key = get_key($op);
     my $val = $Coverage->{statement}{$key} || 0;
     my ($n, $new) = $Structure->add_count("statement");
@@ -760,6 +774,7 @@ sub add_condition_cover
 
     my $type = $op->name;
     $type =~ s/assign$//;
+    $type = "or" if $type eq "dor";
 
     my $c = $Coverage->{condition}{$key};
 
@@ -774,7 +789,7 @@ sub add_condition_cover
         $name = $r->first->name if $name eq "sassign";
         # TODO - exec?  any others?
         # print STDERR "Name [$name]\n";
-        if ($name =~ /^const|s?refgen|gelem|die|undef$/)
+        if ($name =~ /^const|s?refgen|gelem|die|undef|bless$/)
         {
             $c = [ $c->[3], $c->[1] + $c->[2] ];
             $count = 2;
@@ -1023,7 +1038,8 @@ sub get_cover
         else
         {
             $Structure->set_subroutine($Sub_name, $File, $Line);
-            add_subroutine_cover($start) if $Coverage{subroutine};
+            add_subroutine_cover($start)
+                if $Coverage{subroutine} || $Coverage{pod};  # pod requires subs
         }
     }
 
@@ -1035,12 +1051,13 @@ sub get_cover
             my $pkg   = $stash->NAME;
             my $file  = $cv->FILE;
             my %opts;
+            $Run{digests}{$File} ||= $Structure->set_file($File);
             if (ref $Coverage_options{pod})
             {
                 my $p;
                 for (@{$Coverage_options{pod}})
                 {
-                    if (/^package|private|also_private|trust_me|pod_from$/)
+                    if (/^package|private|also_private|trust_me|pod_from|nocp$/)
                     {
                         $opts{$p = $_} = [];
                     }
@@ -1055,8 +1072,9 @@ sub get_cover
                     $_ = qr/$_/ for @{$opts{$p}};
                 }
             }
-            # use Data::Dumper; print Dumper \%opts;
-            if ($Pod{$file} ||= Pod::Coverage->new(package => $pkg, %opts))
+            $Pod = "Pod::Coverage" if delete $opts{nocp};
+            # use Data::Dumper; print "$Pod, ", Dumper \%opts;
+            if ($Pod{$file} ||= $Pod->new(package => $pkg, %opts))
             {
                 my $covered;
                 for ($Pod{$file}->covered)
@@ -1141,8 +1159,9 @@ reported.  Statement coverage data should be reasonable, although there may be
 some statements which are not reported.  Branch and condition coverage data
 should be mostly accurate too, although not always what one might initially
 expect.  Subroutine coverage should be as accurate as statement coverage.  Pod
-coverage comes from L<Pod::Coverage>.  Coverage data for path coverage are not
-yet collected.
+coverage comes from L<Pod::Coverage>.  If L<Pod::Coverage::CountParents> is
+available it will be used instead.  Coverage data for path coverage are not yet
+collected.
 
 The F<gcov2perl> program can be used to convert gcov files to
 C<Devel::Cover> databases.
@@ -1163,9 +1182,9 @@ now defunct.  See L<http://lists.perl.org/showlist.cgi?name=perl-qa>.
 Perl 5.7.0 is unsupported.  Perl 5.8.2 or greater is recommended.
 Whilst Perl 5.6 should mostly work you will probably miss out on
 coverage information which would be available using a more modern
-version and will likely run into bugs in perl.  Perl 5.8.0 and 5.8.1
-will give slightly different results to more recent versions due to
-changes in the op tree.
+version and will likely run into bugs in perl.  Perl 5.8.0 will give
+slightly different results to more recent versions due to changes in the
+op tree.
 
 =item * The ability to compile XS extensions.
 
@@ -1331,7 +1350,7 @@ See the BUGS file.  And the TODO file.
 
 =head1 VERSION
 
-Version 0.53 - 17th April 2005
+Version 0.54 - 13th September 2005
 
 =head1 LICENCE
 

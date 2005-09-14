@@ -10,7 +10,7 @@ package Devel::Cover::Annotation::Random;
 use strict;
 use warnings;
 
-our $VERSION = "0.53";
+our $VERSION = "0.54";
 
 use Getopt::Long;
 
@@ -31,38 +31,49 @@ sub get_options
                      ));
 }
 
-sub number_of_annotations
+sub count
 {
     my $self = shift;
     $self->{count}
 }
 
-sub get_header
+sub header
 {
     my $self = shift;
     my ($annotation) = @_;
-    "rand$annotation"
+    "rnd$annotation"
 }
 
-sub get_width
+sub width
 {
     my $self = shift;
     my ($annotation) = @_;
-    length $self->get_header($self->number_of_annotations)
+    length $self->header($annotation)
 }
 
-sub get_annotation
+sub text
 {
     my $self = shift;
-    my ($line, $annotation) = @_;
-    int rand 10
+    my ($file, $line, $annotation) = @_;
+    return "" unless $line;
+    $self->{annotation}{$file}[$line][$annotation] = int rand 10
+        unless defined $self->{annotation}{$file}[$line][$annotation];
+    $self->{annotation}{$file}[$line][$annotation]
 }
 
 sub error
 {
     my $self = shift;
-    my ($line, $annotation) = @_;
-    rand() < 0.2
+    my ($file, $line, $annotation) = @_;
+    !$self->text($file, $line, $annotation)
+}
+
+sub class
+{
+    my $self = shift;
+    my ($file, $line, $annotation) = @_;
+    return "" unless $line;
+    "c" . int(($self->text($file, $line, $annotation) + 2) / 3)
 }
 
 1
@@ -92,7 +103,7 @@ Huh?
 
 =head1 VERSION
 
-Version 0.53 - 17th April 2005
+Version 0.54 - 13th September 2005
 
 =head1 LICENCE
 

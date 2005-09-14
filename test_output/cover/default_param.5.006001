@@ -1,8 +1,8 @@
-Reading database from /home/pjcj/g/perl/svk/dc/cover_db
+Reading database from /home/pjcj/g/perl/Devel-Cover/cover_db
 
 
 ------------------------------------------ ------ ------ ------ ------ ------
-File                                         stmt branch   cond    sub  total
+File                                         stmt   bran   cond    sub  total
 ------------------------------------------ ------ ------ ------ ------ ------
 tests/default_param                         100.0    n/a  100.0  100.0  100.0
 Total                                       100.0    n/a  100.0  100.0  100.0
@@ -17,10 +17,10 @@ Finish: ...
 
 tests/default_param
 
-line  err   stmt branch   cond    sub   code
+line  err   stmt   bran   cond    sub   code
 1                                       #!/usr/bin/perl
 2                                       
-3                                       # Copyright 2004, Paul Johnson (pjcj@cpan.org)
+3                                       # Copyright 2004-2005, Paul Johnson (pjcj@cpan.org)
 4                                       
 5                                       # This software is free.  It is licensed under the same terms as Perl itself.
 6                                       
@@ -32,7 +32,7 @@ line  err   stmt branch   cond    sub   code
 12                                      
 13                                      sub p
 14                                      {
-15             2           100    100       my $x = shift || 11;
+15             2           100      2       my $x = shift || 11;
 16             2           100              my $y = shift || [];
 17             2           100              my $z = shift || {};
 18                                      }
