@@ -10,11 +10,11 @@ package Devel::Cover::DB;
 use strict;
 use warnings;
 
-our $VERSION = "0.54";
+our $VERSION = "0.55";
 
-use Devel::Cover::Criterion     0.54;
-use Devel::Cover::DB::File      0.54;
-use Devel::Cover::DB::Structure 0.54;
+use Devel::Cover::Criterion     0.55;
+use Devel::Cover::DB::File      0.55;
+use Devel::Cover::DB::Structure 0.55;
 
 use Carp;
 use File::Path;
@@ -462,6 +462,12 @@ sub add_subroutine
 {
     my $self = shift;
     my ($cc, $sc, $fc, $uc) = @_;
+    # use Data::Dumper; print STDERR "add_subroutine():\n", Dumper $cc, $sc, $fc, $uc;
+    # $cc = { line_number => [ [ count, sub_name, uncoverable ], [ ... ] ], .. }
+    # $sc = [ [ line_number, sub_name ], [ ... ] ]
+    # $fc = [ count, ... ]
+    # $cc = { line_number => [ [ ??? ], [ ... ] ], ... }
+    # length @$sc == length @$fc
     my %line;
     for my $i (0 .. $#$fc)
     {
@@ -860,7 +866,7 @@ Huh?
 
 =head1 VERSION
 
-Version 0.54 - 13th September 2005
+Version 0.55 - 22nd September 2005
 
 =head1 LICENCE
 
