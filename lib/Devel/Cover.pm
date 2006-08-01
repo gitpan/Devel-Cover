@@ -1,4 +1,4 @@
-# Copyright 2001-2005, Paul Johnson (pjcj@cpan.org)
+# Copyright 2001-2006, Paul Johnson (pjcj@cpan.org)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -10,13 +10,13 @@ package Devel::Cover;
 use strict;
 use warnings;
 
-our $VERSION = "0.55";
+our $VERSION = "0.56";
 
 use DynaLoader ();
 our @ISA = "DynaLoader";
 
-use Devel::Cover::DB  0.55;
-use Devel::Cover::Inc 0.55;
+use Devel::Cover::DB  0.56;
+use Devel::Cover::Inc 0.56;
 
 use B qw( class ppname main_cv main_start main_root walksymtable OPf_KIDS );
 use B::Debug;
@@ -288,8 +288,8 @@ sub import
     unless (-d $DB)
     {
         # Nasty hack to keep 5.6.1 happy.
-        mkdir $DB, 0777 or croak "Can't mkdir $DB: $!\n";
-        chmod 0777, $DB or croak "Can't chmod $DB: $!\n";
+        mkdir $DB, 0700 or croak "Can't mkdir $DB: $!\n";
+        chmod 0700, $DB or croak "Can't chmod $DB: $!\n";
     }
     $DB = $1 if Cwd::abs_path($DB) =~ /(.*)/;
     Devel::Cover::DB->delete($DB) unless $Merge;
@@ -647,8 +647,8 @@ sub report
     $DB .= "/runs";
     unless (-d $DB)
     {
-        mkdir $DB, 0777 or croak "Can't mkdir $DB: $!\n";
-        chmod 0777, $DB or croak "Can't chmod $DB: $!\n";
+        mkdir $DB, 0700 or croak "Can't mkdir $DB: $!\n";
+        chmod 0700, $DB or croak "Can't chmod $DB: $!\n";
     }
     $DB .= "/$run";
 
@@ -789,7 +789,7 @@ sub add_condition_cover
         $name = $r->first->name if $name eq "sassign";
         # TODO - exec?  any others?
         # print STDERR "Name [$name]\n";
-        if ($name =~ /^const|s?refgen|gelem|die|undef|bless$/)
+        if ($c->[5] || $name =~ /^const|s?refgen|gelem|die|undef|bless$/)
         {
             $c = [ $c->[3], $c->[1] + $c->[2] ];
             $count = 2;
@@ -1137,13 +1137,21 @@ To test an uninstalled module:
  HARNESS_PERL_SWITCHES=-MDevel::Cover make test
  cover
 
+To test an uninstalled module which uses Module::Build (0.26 or later):
+
+ ./Build testcover
+
 If the module does not use the t/*.t framework:
 
  PERL5OPT=-MDevel::Cover make test
 
 =head1 DESCRIPTION
 
-This module provides code coverage metrics for Perl.
+This module provides code coverage metrics for Perl. Code coverage
+metrics describe how throroughly tests exercise code. By using
+Devel::Cover you can find areas of code not exercised by your tests
+and find out which tests to create to increase coverage. Code coverage
+can be considered as an indirect measure of quality.
 
 If you can't guess by the version number this is an alpha release.
 
@@ -1250,9 +1258,12 @@ You may add to the REs to select by using +select, or you may reset the
 selections using -select.  The same principle applies to the REs to
 ignore.
 
-The inc directories are initially populated with the contects of the
+The inc directories are initially populated with the contents of the
 @INC array at the time Devel::Cover was built.  You may reset these
 directories using -inc, or add to them using +inc.
+
+Although these options take regular expressions, you should not enclose the RE
+within //.
 
 =head1 ENVIRONMENT
 
@@ -1350,11 +1361,11 @@ See the BUGS file.  And the TODO file.
 
 =head1 VERSION
 
-Version 0.55 - 22nd September 2005
+Version 0.56 - 1st August 2006
 
 =head1 LICENCE
 
-Copyright 2001-2005, Paul Johnson (pjcj@cpan.org)
+Copyright 2001-2006, Paul Johnson (pjcj@cpan.org)
 
 This software is free.  It is licensed under the same terms as Perl itself.
 

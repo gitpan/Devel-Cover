@@ -1,4 +1,4 @@
-# Copyright 2004-2005, Paul Johnson (pjcj@cpan.org)
+# Copyright 2004-2006, Paul Johnson (pjcj@cpan.org)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -10,7 +10,7 @@ package Devel::Cover::Subroutine;
 use strict;
 use warnings;
 
-our $VERSION = "0.55";
+our $VERSION = "0.56";
 
 use base "Devel::Cover::Criterion";
 
@@ -20,43 +20,7 @@ sub total       { 1 }
 sub percentage  { $_[0][0] ? 100 : 0 }
 sub error       { $_[0][0] xor !$_[0][2] }
 sub name        { $_[0][1] }
-
-sub calculate_summary
-{
-    my $self = shift;
-    my ($db, $file) = @_;
-
-    my $s = $db->{summary};
-
-    $s->{$file}{subroutine}{total}++;
-    $s->{$file}{total}{total}++;
-    $s->{Total}{subroutine}{total}++;
-    $s->{Total}{total}{total}++;
-
-    if ($self->uncoverable)
-    {
-        $s->{$file}{subroutine}{uncoverable}++;
-        $s->{$file}{total}{uncoverable}++;
-        $s->{Total}{subroutine}{uncoverable}++;
-        $s->{Total}{total}{uncoverable}++;
-    }
-
-    if ($self->covered)
-    {
-        $s->{$file}{subroutine}{covered}++;
-        $s->{$file}{total}{covered}++;
-        $s->{Total}{subroutine}{covered}++;
-        $s->{Total}{total}{covered}++;
-    }
-
-    if ($self->error)
-    {
-        $s->{$file}{subroutine}{error}++;
-        $s->{$file}{total}{error}++;
-        $s->{Total}{subroutine}{error}++;
-        $s->{Total}{total}{error}++;
-    }
-}
+sub criterion   { 'subroutine' }
 
 1
 
@@ -86,11 +50,11 @@ Huh?
 
 =head1 VERSION
 
-Version 0.55 - 22nd September 2005
+Version 0.56 - 1st August 2006
 
 =head1 LICENCE
 
-Copyright 2004-2005, Paul Johnson (pjcj@cpan.org)
+Copyright 2004-2006, Paul Johnson (pjcj@cpan.org)
 
 This software is free.  It is licensed under the same terms as Perl itself.
 

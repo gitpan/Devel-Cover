@@ -1,4 +1,4 @@
-# Copyright 2004-2005, Paul Johnson (pjcj@cpan.org)
+# Copyright 2004-2006, Paul Johnson (pjcj@cpan.org)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -10,7 +10,7 @@ package Devel::Cover::Annotation::Random;
 use strict;
 use warnings;
 
-our $VERSION = "0.55";
+our $VERSION = "0.56";
 
 use Getopt::Long;
 
@@ -103,11 +103,11 @@ Huh?
 
 =head1 VERSION
 
-Version 0.55 - 22nd September 2005
+Version 0.56 - 1st August 2006
 
 =head1 LICENCE
 
-Copyright 2004-2005, Paul Johnson (pjcj@cpan.org)
+Copyright 2004-2006, Paul Johnson (pjcj@cpan.org)
 
 This software is free.  It is licensed under the same terms as Perl itself.
 

@@ -1,4 +1,4 @@
-# Copyright 2001-2005, Paul Johnson (pjcj@cpan.org)
+# Copyright 2001-2006, Paul Johnson (pjcj@cpan.org)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -10,11 +10,11 @@ package Devel::Cover::DB;
 use strict;
 use warnings;
 
-our $VERSION = "0.55";
+our $VERSION = "0.56";
 
-use Devel::Cover::Criterion     0.55;
-use Devel::Cover::DB::File      0.55;
-use Devel::Cover::DB::Structure 0.55;
+use Devel::Cover::Criterion     0.56;
+use Devel::Cover::DB::File      0.56;
+use Devel::Cover::DB::Structure 0.56;
 
 use Carp;
 use File::Path;
@@ -80,7 +80,7 @@ sub write
     croak "No db specified" unless length $self->{db};
     unless (-d $self->{db})
     {
-        mkdir $self->{db}, 0777 or croak "Can't mkdir $self->{db}: $!\n";
+        mkdir $self->{db}, 0700 or croak "Can't mkdir $self->{db}: $!\n";
     }
     $self->validate_db;
 
@@ -99,15 +99,18 @@ sub write
 sub delete
 {
     my $self = shift;
+
     my $db = "";
     $db = $self->{db} if ref $self;
     $db = shift if @_;
     $self->{db} = $db if ref $self;
     croak "No db specified" unless length $db;
+
     opendir DIR, $db or die "Can't opendir $db: $!";
     my @files = map "$db/$_", map /(.*)/ && $1, grep !/^\.\.?/, readdir DIR;
-    closedir DIR or die "Can't closedir $db/runs: $!";
-    rmtree(\@files);
+    closedir DIR or die "Can't closedir $db: $!";
+    rmtree(\@files) if @files;
+
     $self
 }
 
@@ -141,6 +144,11 @@ sub merge_runs
 sub validate_db
 {
     my $self = shift;
+
+    # Check validity of the db.  It is valid if the $DB file is there, or if it
+    # is not there but the db directory is empty.
+    # die if the db is invalid.
+
     $self
 }
 
@@ -171,7 +179,7 @@ sub merge
             while (my ($name, $run) = each %{$self->{runs}})
             {
                 # print "digests for $file: $digest, $run->{digests}{$file}\n";
-                if (exists $run->{digests}{$file} &&
+                if ($run->{digests}{$file} && $digest &&
                     $run->{digests}{$file} ne $digest)
                 {
                     # File has changed.  Delete old coverage instead of merging.
@@ -508,7 +516,13 @@ sub uncoverable
 {
     my $self = shift;
 
-    my $u = {};
+    my $u = {};  # holds all the uncoverable information
+
+    # First populate $u with the uncoverable information directly from the
+    # .uncoverable files.  Then loop through the information converting it to
+    # the format we will use later to manage the uncoverable code.  The
+    # primary changes are converting MD5 digests of lines to line numbers, and
+    # converting filenames to MD5 digests of the files.
 
     for my $file ($self->uncoverable_files)
     {
@@ -524,6 +538,7 @@ sub uncoverable
     }
 
     # use Data::Dumper; $Data::Dumper::Indent = 1; print Dumper $u;
+    # Now change the format of the uncoverable information.
 
     for my $file (sort keys %$u)
     {
@@ -533,9 +548,9 @@ sub uncoverable
             warn "Devel::Cover: Can't open file $file: $!\n";
             next;
         }
-        my $df = Digest::MD5->new;
-        my %dl;
-        my $ln = 0;
+        my $df = Digest::MD5->new;  # MD5 digest of the file
+        my %dl;                     # maps MD5 digests of lines to line numbers
+        my $ln = 0;                 # line number
         while (<F>)
         {
             # print STDERR "read [$.][$_]\n";
@@ -544,7 +559,7 @@ sub uncoverable
         }
         close F;
         my $f = $u->{$file};
-        # use Data::Dumper; $Data::Dumper::Indent = 1; print STDERR Dumper $f;
+        # use Data::Dumper; $Data::Dumper::Indent = 1; print Dumper $f;
         for my $crit (keys %$f)
         {
             my $c = $f->{$crit};
@@ -552,7 +567,10 @@ sub uncoverable
             {
                 if (exists $dl{$line})
                 {
-                    # print STDERR "Found uncoverable $file:$crit:$line -> $dl{$line}\n";
+                    # print STDERR
+                    # "Found uncoverable $file:$crit:$line -> $dl{$line}\n";
+
+                    # Change key from the MD5 digest to the actual line number.
                     $c->{$dl{$line}} = delete $c->{$line};
                 }
                 else
@@ -563,9 +581,11 @@ sub uncoverable
                 }
             }
         }
+        # Change the key from the filename to the MD5 digest of the file.
         $u->{$df->hexdigest} = delete $u->{$file};
     }
 
+    # use Data::Dumper; $Data::Dumper::Indent = 1; print Dumper $u;
     $u
 }
 
@@ -658,7 +678,7 @@ sub cover
             while (my ($criterion, $fc) = each %$f)
             {
                 my $get = "get_$criterion";
-                my $sc  = $st->$get($file);
+                my $sc  = $st->$get($digests{$digest});
                 # print STDERR "$criterion: ", Dumper $sc, $fc;
                 next unless $sc;  # TODO - why?
                 my $cc  = $cf->{$criterion} ||= {};
@@ -866,11 +886,11 @@ Huh?
 
 =head1 VERSION
 
-Version 0.55 - 22nd September 2005
+Version 0.56 - 1st August 2006
 
 =head1 LICENCE
 
-Copyright 2001-2005, Paul Johnson (pjcj@cpan.org)
+Copyright 2001-2006, Paul Johnson (pjcj@cpan.org)
 
 This software is free.  It is licensed under the same terms as Perl itself.
 

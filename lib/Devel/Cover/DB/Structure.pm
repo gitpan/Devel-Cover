@@ -1,4 +1,4 @@
-# Copyright 2004-2005, Paul Johnson (pjcj@cpan.org)
+# Copyright 2004-2006, Paul Johnson (pjcj@cpan.org)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -16,7 +16,7 @@ use Storable;
 
 use Devel::Cover::DB;
 
-our $VERSION = "0.55";
+our $VERSION = "0.56";
 our $AUTOLOAD;
 
 sub new
@@ -243,7 +243,7 @@ sub write
     $dir .= "/structure";
     unless (-d $dir)
     {
-        mkdir $dir, 0777 or croak "Can't mkdir $dir: $!\n";
+        mkdir $dir, 0700 or croak "Can't mkdir $dir: $!\n";
     }
     for my $file (sort keys %{$self->{f}})
     {
@@ -312,11 +312,11 @@ Huh?
 
 =head1 VERSION
 
-Version 0.55 - 22nd September 2005
+Version 0.56 - 1st August 2006
 
 =head1 LICENCE
 
-Copyright 2004-2005, Paul Johnson (pjcj@cpan.org)
+Copyright 2004-2006, Paul Johnson (pjcj@cpan.org)
 
 This software is free.  It is licensed under the same terms as Perl itself.
 

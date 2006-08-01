@@ -1,4 +1,4 @@
-# Copyright 2001-2005, Paul Johnson (pjcj@cpan.org)
+# Copyright 2001-2006, Paul Johnson (pjcj@cpan.org)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -10,16 +10,21 @@ package Devel::Cover::Branch;
 use strict;
 use warnings;
 
-our $VERSION = "0.55";
+our $VERSION = "0.56";
 
 use base "Devel::Cover::Criterion";
 
+sub pad         { my $self = shift; $self->[0] = [0, 0] 
+                  unless $self->[0] && @{$self->[0]}; }
 sub uncoverable { @_ > 1 ? $_[0][2][$_[1]] : scalar grep $_, @{$_[0][2]} }
 sub covered     { @_ > 1 ? $_[0][0][$_[1]] : scalar grep $_, @{$_[0][0]} }
 sub total       { scalar @{$_[0][0]} }
 sub value       { $_[0][0][$_[1]] }
 sub values      { @{$_[0][0]} }
 sub text        { $_[0][1]{text} }
+sub criterion   { 'branch' }
+
+
 sub percentage
 {
     my $t = $_[0]->total;
@@ -47,33 +52,12 @@ sub calculate_summary
     my ($db, $file) = @_;
 
     my $s = $db->{summary};
+    $self->pad;
 
-    $self->[0] = [0, 0] unless $self->[0] && @{$self->[0]};
-
-    my $t = $self->total;
-    my $u = $self->uncoverable;
-    my $c = $self->covered;
-    my $e = $self->error;
-
-    $s->{$file}{branch}{total}       += $t;
-    $s->{$file}{total}{total}        += $t;
-    $s->{Total}{branch}{total}       += $t;
-    $s->{Total}{total}{total}        += $t;
-
-    $s->{$file}{branch}{uncoverable} += $u;
-    $s->{$file}{total}{uncoverable}  += $u;
-    $s->{Total}{branch}{uncoverable} += $u;
-    $s->{Total}{total}{uncoverable}  += $u;
-
-    $s->{$file}{branch}{covered}     += $c;
-    $s->{$file}{total}{covered}      += $c;
-    $s->{Total}{branch}{covered}     += $c;
-    $s->{Total}{total}{covered}      += $c;
-
-    $s->{$file}{branch}{error}       += $e;
-    $s->{$file}{total}{error}        += $e;
-    $s->{Total}{branch}{error}       += $e;
-    $s->{Total}{total}{error}        += $e;
+    $self->aggregate($s, $file, 'total', $self->total);
+    $self->aggregate($s, $file, 'uncoverable', $self->uncoverable);
+    $self->aggregate($s, $file, 'covered', $self->covered);
+    $self->aggregate($s, $file, 'error', $self->error);
 }
 
 1
@@ -104,11 +88,11 @@ Huh?
 
 =head1 VERSION
 
-Version 0.55 - 22nd September 2005
+Version 0.56 - 1st August 2006
 
 =head1 LICENCE
 
-Copyright 2001-2005, Paul Johnson (pjcj@cpan.org)
+Copyright 2001-2006, Paul Johnson (pjcj@cpan.org)
 
 This software is free.  It is licensed under the same terms as Perl itself.
 

@@ -1,4 +1,4 @@
-# Copyright 2001-2005, Paul Johnson (pjcj@cpan.org)
+# Copyright 2001-2006, Paul Johnson (pjcj@cpan.org)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -10,7 +10,7 @@ package Devel::Cover::Statement;
 use strict;
 use warnings;
 
-our $VERSION = "0.55";
+our $VERSION = "0.56";
 
 use base "Devel::Cover::Criterion";
 
@@ -20,43 +20,8 @@ sub covered     { $_[0][0] }
 sub total       { 1 }
 sub percentage  { $_[0][0] ? 100 : 0 }
 sub error       { $_[0][0] xor !$_[0][1] }
+sub criterion   { 'statement' }
 
-sub calculate_summary
-{
-    my $self = shift;
-    my ($db, $file) = @_;
-
-    my $s = $db->{summary};
-
-    $s->{$file}{statement}{total}++;
-    $s->{$file}{total}{total}++;
-    $s->{Total}{statement}{total}++;
-    $s->{Total}{total}{total}++;
-
-    if ($self->uncoverable)
-    {
-        $s->{$file}{statement}{uncoverable}++;
-        $s->{$file}{total}{uncoverable}++;
-        $s->{Total}{statement}{uncoverable}++;
-        $s->{Total}{total}{uncoverable}++;
-    }
-
-    if ($self->covered)
-    {
-        $s->{$file}{statement}{covered}++;
-        $s->{$file}{total}{covered}++;
-        $s->{Total}{statement}{covered}++;
-        $s->{Total}{total}{covered}++;
-    }
-
-    if ($self->error)
-    {
-        $s->{$file}{statement}{error}++;
-        $s->{$file}{total}{error}++;
-        $s->{Total}{statement}{error}++;
-        $s->{Total}{total}{error}++;
-    }
-}
 
 1
 
@@ -86,11 +51,11 @@ Huh?
 
 =head1 VERSION
 
-Version 0.55 - 22nd September 2005
+Version 0.56 - 1st August 2006
 
 =head1 LICENCE
 
-Copyright 2001-2005, Paul Johnson (pjcj@cpan.org)
+Copyright 2001-2006, Paul Johnson (pjcj@cpan.org)
 
 This software is free.  It is licensed under the same terms as Perl itself.
 

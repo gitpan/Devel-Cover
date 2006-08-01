@@ -1,4 +1,4 @@
-# Copyright 2001-2005, Paul Johnson (pjcj@cpan.org)
+# Copyright 2001-2006, Paul Johnson (pjcj@cpan.org)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -10,19 +10,19 @@ package Devel::Cover::Criterion;
 use strict;
 use warnings;
 
-our $VERSION = "0.55";
+our $VERSION = "0.56";
 
-use Devel::Cover::Statement       0.55;
-use Devel::Cover::Branch          0.55;
-use Devel::Cover::Condition       0.55;
-use Devel::Cover::Condition_or_2  0.55;
-use Devel::Cover::Condition_or_3  0.55;
-use Devel::Cover::Condition_and_2 0.55;
-use Devel::Cover::Condition_and_3 0.55;
-use Devel::Cover::Condition_xor_4 0.55;
-use Devel::Cover::Subroutine      0.55;
-use Devel::Cover::Time            0.55;
-use Devel::Cover::Pod             0.55;
+use Devel::Cover::Statement       0.56;
+use Devel::Cover::Branch          0.56;
+use Devel::Cover::Condition       0.56;
+use Devel::Cover::Condition_or_2  0.56;
+use Devel::Cover::Condition_or_3  0.56;
+use Devel::Cover::Condition_and_2 0.56;
+use Devel::Cover::Condition_and_3 0.56;
+use Devel::Cover::Condition_xor_4 0.56;
+use Devel::Cover::Subroutine      0.56;
+use Devel::Cover::Time            0.56;
+use Devel::Cover::Pod             0.56;
 
 sub coverage    { $_[0][0] }
 sub information { $_[0][1] }
@@ -33,6 +33,7 @@ sub percentage  { "n/a" }
 sub error       { "n/a" }
 sub text        { "n/a" }
 sub values      { [ $_[0]->covered ] }
+sub criterion   { require Carp; Carp::confess("criterion() must be overridden") }
 
 sub calculate_percentage
 {
@@ -41,6 +42,33 @@ sub calculate_percentage
     my $errors = $s->{error} || 0;
     $s->{percentage} = $s->{total} ? 100 - $errors * 100 / $s->{total} : 100;
 }
+
+sub aggregate {
+    my ($self, $s, $file, $keyword, $t) = @_;
+
+    my $name = $self->criterion;
+    $t = int($t);
+    $s->{$file}{$name}{$keyword}       += $t;
+    $s->{$file}{total}{$keyword}       += $t;
+    $s->{Total}{$name}{$keyword}       += $t;
+    $s->{Total}{total}{$keyword}       += $t;
+}
+
+sub calculate_summary
+{
+    my $self = shift;
+    my ($db, $file) = @_;
+
+    my $s = $db->{summary};
+    $self->aggregate($s, $file, 'total', $self->total);
+    $self->aggregate($s, $file, 'uncoverable', 1)
+        if $self->uncoverable;
+    $self->aggregate($s, $file, 'covered', 1)
+        if $self->covered;
+    $self->aggregate($s, $file, 'error', 1)
+        if $self->error;
+}
+
 
 1
 
@@ -72,11 +100,11 @@ Huh?
 
 =head1 VERSION
 
-Version 0.55 - 22nd September 2005
+Version 0.56 - 1st August 2006
 
 =head1 LICENCE
 
-Copyright 2001-2005, Paul Johnson (pjcj@cpan.org)
+Copyright 2001-2006, Paul Johnson (pjcj@cpan.org)
 
 This software is free.  It is licensed under the same terms as Perl itself.
 

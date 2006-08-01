@@ -1,4 +1,4 @@
-# Copyright 2001-2005, Paul Johnson (pjcj@cpan.org)
+# Copyright 2001-2006, Paul Johnson (pjcj@cpan.org)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -10,7 +10,7 @@ package Devel::Cover::Pod;
 use strict;
 use warnings;
 
-our $VERSION = "0.55";
+our $VERSION = "0.56";
 
 use base "Devel::Cover::Criterion";
 
@@ -21,6 +21,7 @@ sub covered     { $_[0][0] ? 1 : 0 }
 sub total       { 1 }
 sub percentage  { $_[0][0] ? 100 : 0 }
 sub error       { $_[0][0] xor !$_[0][2] }
+sub criterion   { 'pod' }
 
 sub calculate_summary
 {
@@ -30,25 +31,11 @@ sub calculate_summary
     return unless $INC{"Pod/Coverage.pm"};
 
     my $s = $db->{summary};
-    my $e = $self->error;
-
-    $s->{$file}{pod}{total}++;
-    $s->{$file}{total}{total}++;
-    $s->{Total}{pod}{total}++;
-    $s->{Total}{total}{total}++;
-
-    if ($self->covered)
-    {
-        $s->{$file}{pod}{covered}++;
-        $s->{$file}{total}{covered}++;
-        $s->{Total}{pod}{covered}++;
-        $s->{Total}{total}{covered}++;
-    }
-
-    $s->{$file}{pod}{error}   += $e;
-    $s->{$file}{total}{error} += $e;
-    $s->{Total}{pod}{error}   += $e;
-    $s->{Total}{total}{error} += $e;
+    
+    $self->aggregate($s, $file, 'total', $self->total);
+    $self->aggregate($s, $file, 'covered', 1) 
+        if $self->covered;
+    $self->aggregate($s, $file, 'error', $self->error);
 }
 
 1
@@ -79,11 +66,11 @@ Huh?
 
 =head1 VERSION
 
-Version 0.55 - 22nd September 2005
+Version 0.56 - 1st August 2006
 
 =head1 LICENCE
 
-Copyright 2001-2005, Paul Johnson (pjcj@cpan.org)
+Copyright 2001-2006, Paul Johnson (pjcj@cpan.org)
 
 This software is free.  It is licensed under the same terms as Perl itself.
 

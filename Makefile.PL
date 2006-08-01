@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# Copyright 2001-2005, Paul Johnson (pjcj@cpan.org)
+# Copyright 2001-2006, Paul Johnson (pjcj@cpan.org)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -19,8 +19,8 @@ use File::Copy;
 
 $| = 1;
 
-my $Version  = "0.55";
-my $Date     = "22nd September 2005";
+my $Version  = "0.56";
+my $Date     = "1st August 2006";
 my $Author   = 'pjcj@cpan.org';
 
 my @perlbug  = ("perlbug", "-a", $Author,
@@ -39,7 +39,7 @@ my @inc      = sort keys %inc;
 open I, ">lib/Devel/Cover/Inc.pm"
     or die "Cannot open lib/Devel/Cover/Inc.pm: $!";
 print I <<"EOI";
-# Copyright 2001-2005, Paul Johnson (pjcj\@cpan.org)
+# Copyright 2001-2006, Paul Johnson (pjcj\@cpan.org)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -73,7 +73,7 @@ EOM
     eval "use Cwd";
     my \%inc = map { -d \$_ ? ((\$_ eq "." ? \$_ : Cwd::abs_path(\$_)) => 1) : () }
                    \@INC;
-    \@INC = sort keys \%inc;
+    \@Inc = sort keys \%inc;
 }
 
 # TODO - check for threadedness, 64bits etc. ?
@@ -93,7 +93,7 @@ opendir D, "tests" or die "Cannot opendir tests: $!";
 for my $t (readdir D)
 {
     next unless -f "tests/$t";
-    next if $t =~ /\.(pm|pl|version|org|bak|uncoverable)$/;
+    next if $t =~ /\.(pm|pl|org|bak|uncoverable)$/;
     next if $t =~ /~$/;
 
     if ($t =~ /\.t/)
@@ -106,7 +106,7 @@ for my $t (readdir D)
     print T <<EOT;
 #!$^X
 
-# Copyright 2002-2005, Paul Johnson (pjcj\@cpan.org)
+# Copyright 2002-2006, Paul Johnson (pjcj\@cpan.org)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -196,6 +196,30 @@ else
     print "not found\n\n$e\n";
 }
 
+print "checking for PPI::HTML         version 1.07 ........ ";
+
+$e = <<EOM;
+
+PPI::HTML 1.07 is required to add syntax highlighting to some HTML
+backends to cover and for cpancover.  Unless you have specific
+requirements this should not be a problem, but you will not be able to
+use syntax highlighting in these reports until you install the
+PPI::HTML, available from the CPAN.  In the meantime you may continue
+to use the rest of Devel::Cover.
+
+EOM
+
+eval "use PPI::HTML";
+if (my $m = $INC{"PPI/HTML.pm"})
+{
+    my $v = eval { no warnings; $PPI::HTML::VERSION };
+    print $v < 1.07 ? "$v\n\n$e\n" : "$v $m\n";
+}
+else
+{
+    print "not found\n\n$e\n";
+}
+
 print "checking for Pod::Coverage.pm  version 0.06 ........ ";
 
 $e = <<EOM;
@@ -263,7 +287,7 @@ else
     print "not found\n\n$e\n";
 }
 
-my $latest_tested = 5.008007;
+my $latest_tested = 5.008008;
 print <<EOM if $] > $latest_tested;
 
 Devel::Cover $Version has not been tested with perl $].
@@ -313,15 +337,20 @@ WriteMakefile
     AUTHOR    => 'Paul Johnson (pjcj@cpan.org)',
     ABSTRACT  => "Code coverage metrics for Perl",
     DIR       => [],
-    EXE_FILES => [ "cover", "gcov2perl" ],
+    EXE_FILES => [ qw( cover gcov2perl cpancover ) ],
     PREREQ_PM => {
                      Storable      => 0,
                      "Digest::MD5" => 0,
                  },
     dist      => { COMPRESS => "gzip --best --force" },
-    clean     => { FILES => join " ",  "t/*", map "$_.version", @versions },
-    realclean => { FILES => "lib/Devel/Cover/Inc.pm cover_db t" },
+    clean     => { FILES => join " ",  "t/*" },
     depend    => { distdir => "@files" },
+    realclean => $] < 5.008008 ?
+                 {
+                    FILES => "lib/Devel/Cover/Inc.pm",
+                    POSTOP => "\$(RM_RF) cover_db t"
+                 } :
+                 { FILES => "lib/Devel/Cover/Inc.pm cover_db t" },
 );
 
 print "\n";
@@ -360,7 +389,7 @@ sub MY::libscan
 sub MY::postamble
 {
     qq[
-SET_VERSION = \$(PERL) -pi.version \\
+SET_VERSION = \$(PERL) -pi \\
     -e 's/(^\\s*(?:our\\s+)\\\$\$VERSION = ")\\d+\\.\\d+(";)/\$\${1}$Version\$\$2/;' \\
     -e 's/(Version )\\d+\\.\\d+( - ).*/\$\${1}$Version\$\${2}$Date/;' \\
     -e 's/(Devel::Cover Version )\\d+\\.\\d+/\$\${1}$Version/;' \\
@@ -373,7 +402,7 @@ tags : @files
 \t \$(SET_VERSION) @versions
 
 README : lib/Devel/Cover.pm
-\t TERMCAP= COLUMNS=80 pod2text lib/Devel/Cover.pm | \\
+\t TERMCAP= COLUMNS=80 pod2text -s lib/Devel/Cover.pm | \\
     \$(PERL) -n \\
     -e 'print if (/NAME/         ... /^[A-Z ]+\$\$/) =~ /^\\d+\$\$/;' \\
     -e 'print if (/SYNOPSIS/     ... /^[A-Z ]+\$\$/) =~ /^\\d+\$\$/;' \\
@@ -408,7 +437,7 @@ out : _run
 \t \$(PERL) -Mblib cover `\$(UNCOVERABLE)` -report text > \$(TEST).out
 
 text : out
-\t gvim -d \$(TEST).out
+\t \$(VISUAL) \$(TEST).out
 
 wrun : pure_all
 \t \$(PERL) \$(TAINT) -Iblib/lib -Iblib/arch -MDevel::Cover=-ignore,blib,-merge,0 tests/\$(TEST)
@@ -437,7 +466,7 @@ all_gold :
 \t exec \$(PERL) all_versions make gold
 
 mani :
-\t \$(PERL) -i.bak -ne '\$\$d = "test_output/cover"; print unless /^\$\$d/; END { open M, ">>MANIFEST"; opendir D, \$\$d; print M "\$\$d/\$\$_\\n" for sort grep -f "\$\$d/\$\$_" && !/\.version\$\$/, readdir D }' MANIFEST
+\t \$(PERL) -i.bak -ne '\$\$d = "test_output/cover"; print unless /^\$\$d/; END { open M, ">>MANIFEST"; opendir D, \$\$d; print M "\$\$d/\$\$_\\n" for sort grep -f "\$\$d/\$\$_", readdir D }' MANIFEST
 
 ok :
 \t \@$Perlbug -okay  || echo "Please send your report manually to $Author"
