@@ -10,13 +10,13 @@ package Devel::Cover;
 use strict;
 use warnings;
 
-our $VERSION = "0.56";
+our $VERSION = "0.57";
 
 use DynaLoader ();
 our @ISA = "DynaLoader";
 
-use Devel::Cover::DB  0.56;
-use Devel::Cover::Inc 0.56;
+use Devel::Cover::DB  0.57;
+use Devel::Cover::Inc 0.57;
 
 use B qw( class ppname main_cv main_start main_root walksymtable OPf_KIDS );
 use B::Debug;
@@ -31,8 +31,12 @@ BEGIN
 {
     # Use Pod::Coverage if it is available.
     eval "use Pod::Coverage 0.06";
+    # If there is any error other than a failure to locate, report it.
+    die $@ if $@ && $@ !~ m/Can't locate Pod\/Coverage.+pm in \@INC/;
+
     # We'll prefer Pod::Coverage::CountParents
     eval "use Pod::Coverage::CountParents";
+    die $@ if $@ && $@ !~ m/Can't locate Pod\/Coverage.+pm in \@INC/;
 }
 
 # $SIG{__DIE__} = \&Carp::confess;
@@ -41,9 +45,10 @@ my $Initialised;                         # import() has been called.
 
 my $Dir;                                 # Directory in which coverage will be
                                          # collected.
-my $DB      = "cover_db";                # DB name.
-my $Merge   = 1;                         # Merge databases.
-my $Summary = 1;                         # Output coverage summary.
+my $DB        = "cover_db";              # DB name.
+my $Merge     = 1;                       # Merge databases.
+my $Summary   = 1;                       # Output coverage summary.
+my $Subs_only = 0;                       # Coverage only for sub bodies.
 
 my @Ignore;                              # Packages to ignore.
 my @Inc;                                 # Original @INC to ignore.
@@ -172,14 +177,15 @@ EOM
 
         set_coverage(keys %Coverage);
         @coverage = get_coverage();
-        my $last = pop @coverage;
+        my $last = pop @coverage || "";
 
         print STDOUT __PACKAGE__, " $VERSION: Collecting coverage data for ",
               join(", ", @coverage),
               @coverage ? " and " : "",
               "$last.\n",
               $nopod,
-              $ENV{MOD_PERL} ? "    Collecting under $ENV{MOD_PERL}\n" : "",
+              $Subs_only     ? "    Collecting for subroutines only.\n" : "",
+              $ENV{MOD_PERL} ? "    Collecting under $ENV{MOD_PERL}\n"  : "",
               "Selecting packages matching:", join("\n    ", "", @Select), "\n",
               "Ignoring packages matching:",  join("\n    ", "", @Ignore), "\n",
               "Ignoring packages in:",        join("\n    ", "", @Inc),    "\n"
@@ -255,12 +261,13 @@ sub import
     while (@o)
     {
         local $_ = shift @o;
-        /^-silent/    && do { $Silent  = shift @o; next };
-        /^-dir/       && do { $Dir     = shift @o; next };
-        /^-db/        && do { $DB      = shift @o; next };
-        /^-merge/     && do { $Merge   = shift @o; next };
-        /^-summary/   && do { $Summary = shift @o; next };
-        /^-blib/      && do { $blib    = shift @o; next };
+        /^-silent/    && do { $Silent    = shift @o; next };
+        /^-dir/       && do { $Dir       = shift @o; next };
+        /^-db/        && do { $DB        = shift @o; next };
+        /^-merge/     && do { $Merge     = shift @o; next };
+        /^-summary/   && do { $Summary   = shift @o; next };
+        /^-blib/      && do { $blib      = shift @o; next };
+        /^-subs_only/ && do { $Subs_only = shift @o; next };
         /^-coverage/  &&
             do { $Coverage{+shift @o} = 1 while @o && $o[0] !~ /^[-+]/; next };
         /^[-+]ignore/ &&
@@ -600,14 +607,20 @@ sub report
 
     check_files();
 
-    get_cover(main_cv, main_root);
-    get_cover($_) for B::begin_av()->isa("B::AV") ? B::begin_av()->ARRAY : ();
-    if (exists &B::check_av)
+    unless ($Subs_only)
     {
+        get_cover(main_cv, main_root);
         get_cover($_)
-            for B::check_av()->isa("B::AV") ? B::check_av()->ARRAY : ();
+            for B::begin_av()->isa("B::AV") ? B::begin_av()->ARRAY : ();
+        if (exists &B::check_av)
+        {
+            get_cover($_)
+                for B::check_av()->isa("B::AV") ? B::check_av()->ARRAY : ();
+        }
+        # get_ends includes INIT blocks
+        get_cover($_)
+            for get_ends()->isa("B::AV") ? get_ends()->ARRAY : ();
     }
-    get_cover($_) for get_ends()->isa("B::AV") ? get_ends()->ARRAY : ();
     get_cover($_) for @Cvs;
 
     my %files;
@@ -1230,6 +1243,7 @@ if the tests fail and you would like nice output telling you why.
  -select RE          - Set REs of files to select (default none).
  +select RE          - Append to REs of files to select.
  -silent val         - Don't print informational messages (default off)
+ -subs_only val      - Only cover code in subroutine bodies (default off)
  -summary val        - Print summary information iff val is true (default on).
 
 =head2 More on Coverage Options
@@ -1361,7 +1375,7 @@ See the BUGS file.  And the TODO file.
 
 =head1 VERSION
 
-Version 0.56 - 1st August 2006
+Version 0.57 - 3rd August 2006
 
 =head1 LICENCE
 

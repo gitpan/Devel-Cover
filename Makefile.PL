@@ -19,8 +19,8 @@ use File::Copy;
 
 $| = 1;
 
-my $Version  = "0.56";
-my $Date     = "1st August 2006";
+my $Version  = "0.57";
+my $Date     = "3rd August 2006";
 my $Author   = 'pjcj@cpan.org';
 
 my @perlbug  = ("perlbug", "-a", $Author,
@@ -200,12 +200,12 @@ print "checking for PPI::HTML         version 1.07 ........ ";
 
 $e = <<EOM;
 
-PPI::HTML 1.07 is required to add syntax highlighting to some HTML
-backends to cover and for cpancover.  Unless you have specific
-requirements this should not be a problem, but you will not be able to
-use syntax highlighting in these reports until you install the
-PPI::HTML, available from the CPAN.  In the meantime you may continue
-to use the rest of Devel::Cover.
+One of PPI::HTML 1.07 or Perl::Tidy 20060719 is required to add syntax 
+highlighting to some HTML backends to cover and for cpancover.  Unless 
+you have specific requirements this should not be a problem, but you will 
+not be able to use syntax highlighting in these reports until you install 
+PPI::HTML or Perl::Tidy, available from the CPAN.  In the meantime you 
+may continue to use the rest of Devel::Cover.
 
 EOM
 
@@ -214,6 +214,30 @@ if (my $m = $INC{"PPI/HTML.pm"})
 {
     my $v = eval { no warnings; $PPI::HTML::VERSION };
     print $v < 1.07 ? "$v\n\n$e\n" : "$v $m\n";
+}
+else
+{
+    print "not found\n\n$e\n";
+}
+
+print "checking for Perl::Tidy        version 20060719 .... ";
+
+$e = <<EOM;
+
+One of PPI::HTML 1.07 or Perl::Tidy 20060719 is required to add syntax 
+highlighting to some HTML backends to cover and for cpancover.  Unless 
+you have specific requirements this should not be a problem, but you will 
+not be able to use syntax highlighting in these reports until you install 
+PPI::HTML or Perl::Tidy, available from the CPAN.  In the meantime you 
+may continue to use the rest of Devel::Cover.
+
+EOM
+
+eval "use Perl::Tidy";
+if (my $m = $INC{"Perl/Tidy.pm"})
+{
+    my $v = eval { no warnings; $Perl::Tidy::VERSION };
+    print $v < 20060719 ? "$v\n\n$e\n" : "$v $m\n";
 }
 else
 {
@@ -423,18 +447,18 @@ TAINT = -T
 COVER_OPTIONS =
 
 _run : pure_all
-\t \$(PERL) \$(TAINT) -Iblib/lib -Iblib/arch -MDevel::Cover=-merge,0,`\$(PERL) -e 'qx|grep __COVER__ \$\$ARGV[0]| =~ /__COVER__\\s+criteria\\s+(.*)/; (\$\$c = \$\$1 || "all") =~ s/\\s+/,/g; print "-coverage,\$\$c"' tests/\$(TEST)`,\$(COVER_OPTIONS) tests/\$(TEST)
+\t \$(PERL) \$(TAINT) -Iblib/lib -Iblib/arch -MDevel::Cover=-merge,0,`\$(PERL) -e '\$\$l = qx|grep __COVER__ \$\$ARGV[0]|; \$\$l =~ /__COVER__\\s+criteria\\s+(.*)/; (\$\$c = \$\$1 || "all") =~ s/\\s+/,/g; \$\$p = "\$\$1," if \$\$l =~ /__COVER__\\s+test_parameters\\s+(.*)/; print "\$\$p-coverage,\$\$c"' tests/\$(TEST)`,\$(COVER_OPTIONS) tests/\$(TEST)
 
-UNCOVERABLE = \$(PERL) -e 'print "-uncoverable \$\$1 " if qx|grep __COVER__ \$\$ARGV[0]| =~ /__COVER__\\s+uncoverable\\s+(.*)/' tests/\$(TEST)
+COVER_PARAMETERS = \$(PERL) -e '\$\$l = qx|grep __COVER__ \$\$ARGV[0]|; \$\$u = "-uncoverable \$\$1" if \$\$l =~ /__COVER__\\s+uncoverable\\s+(.*)/; (\$\$p) = \$\$l =~ /__COVER__\\s+cover_parameters\\s+(.*)/; print "\$\$u \$\$p"' tests/\$(TEST)
 
 html : _run
-\t \$(PERL) -Mblib cover `\$(UNCOVERABLE)` -report html
+\t \$(PERL) -Mblib cover `\$(COVER_PARAMETERS)` -report html
 
 basic : _run
-\t \$(PERL) -Mblib cover `\$(UNCOVERABLE)` -report html_basic
+\t \$(PERL) -Mblib cover `\$(COVER_PARAMETERS)` -report html_basic
 
 out : _run
-\t \$(PERL) -Mblib cover `\$(UNCOVERABLE)` -report text > \$(TEST).out
+\t \$(PERL) -Mblib cover `\$(COVER_PARAMETERS)` -report text > \$(TEST).out
 
 text : out
 \t \$(VISUAL) \$(TEST).out
