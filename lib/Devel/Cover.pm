@@ -10,13 +10,13 @@ package Devel::Cover;
 use strict;
 use warnings;
 
-our $VERSION = "0.57";
+our $VERSION = "0.58";
 
 use DynaLoader ();
 our @ISA = "DynaLoader";
 
-use Devel::Cover::DB  0.57;
-use Devel::Cover::Inc 0.57;
+use Devel::Cover::DB  0.58;
+use Devel::Cover::Inc 0.58;
 
 use B qw( class ppname main_cv main_start main_root walksymtable OPf_KIDS );
 use B::Debug;
@@ -529,9 +529,10 @@ sub sub_info
     {
         return unless $cv->GV->can("SAFENAME");
         $name = $cv->GV->SAFENAME;
+        # print "--[$name]--\n";
         $name =~ s/(__ANON__)\[.+:\d+\]/$1/ if defined $name;
     }
-    my $root  = $cv->ROOT;
+    my $root = $cv->ROOT;
     if ($root->can("first"))
     {
         my $lineseq = $root->first;
@@ -621,6 +622,7 @@ sub report
         get_cover($_)
             for get_ends()->isa("B::AV") ? get_ends()->ARRAY : ();
     }
+    # print "--- @Cvs\n";
     get_cover($_) for @Cvs;
 
     my %files;
@@ -685,7 +687,7 @@ sub add_subroutine_cover
     my $key = get_key($op);
     my $val = $Coverage->{statement}{$key} || 0;
     my ($n, $new) = $Structure->add_count("subroutine");
-    # print STDERR "******* subroutine $n\n";
+    # print STDERR "******* subroutine $n - $new\n";
     $Structure->add_subroutine($File, [ $Line, $Sub_name ]) if $new;
     $Run{count}{$File}{subroutine}[$n] += $val;
     my $vec = $Run{vec}{$File}{subroutine};
@@ -1114,6 +1116,13 @@ sub get_cover
         }
     }
 
+    # my $dd = @_ && ref $_[0]
+                 # ? $deparse->deparse($_[0], 0)
+                 # : $deparse->deparse_sub($cv, 0);
+    # print "get_cover: <$Sub_name>\n";
+    # print "[[$File:$Line]]\n";
+    # print "<$dd>\n";
+
     no warnings "redefine";
     local *B::Deparse::deparse     = \&deparse;
     local *B::Deparse::logop       = \&logop;
@@ -1122,7 +1131,6 @@ sub get_cover
     my $de = @_ && ref $_[0]
                  ? $deparse->deparse($_[0], 0)
                  : $deparse->deparse_sub($cv, 0);
-
     # print "<$de>\n";
     $de
 }
@@ -1214,6 +1222,10 @@ This means a working compiler and make program at least.
 =item * L<Storable> and L<Digest::MD5>
 
 Both are in the core in Perl 5.8.0 and above.
+
+=item * L<Template> and L<PPI::HTML> or L<Perl::Tidy>
+
+if you want syntax highlighted HTML reports.
 
 =item * L<Pod::Coverage>
 
@@ -1367,6 +1379,12 @@ mod_perl.  You can also add any options you need at this point.  I would
 suggest adding this as early as possible in your startup script in order
 to collect as much coverage information as possible.
 
+=head2 Redefined subroutines
+
+If you redefine a subroutine you may find that the original subroutine is not
+reported on.  This is because I haven't yet found a way to locate the original
+CV.  Hints, tips or patches to resolve this will be gladly accepted.
+
 =head1 BUGS
 
 Did I mention that this is alpha code?
@@ -1375,7 +1393,7 @@ See the BUGS file.  And the TODO file.
 
 =head1 VERSION
 
-Version 0.57 - 3rd August 2006
+Version 0.58 - 6th August 2006
 
 =head1 LICENCE
 
