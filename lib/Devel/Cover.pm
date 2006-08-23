@@ -10,13 +10,13 @@ package Devel::Cover;
 use strict;
 use warnings;
 
-our $VERSION = "0.58";
+our $VERSION = "0.59";
 
 use DynaLoader ();
 our @ISA = "DynaLoader";
 
-use Devel::Cover::DB  0.58;
-use Devel::Cover::Inc 0.58;
+use Devel::Cover::DB  0.59;
+use Devel::Cover::Inc 0.59;
 
 use B qw( class ppname main_cv main_start main_root walksymtable OPf_KIDS );
 use B::Debug;
@@ -63,6 +63,7 @@ my $Pod = $INC{"Pod/Coverage/CountParents.pm"} ? "Pod::Coverage::CountParents" :
 my %Pod;                                 # Pod coverage data.
 
 my @Cvs;                                 # All the Cvs we want to cover.
+my @Subs;                                # All the subs we want to cover.
 my $Cv;                                  # Cv we are looking in.
 my $Sub_name;                            # Name of the sub we are looking in.
 
@@ -226,8 +227,8 @@ sub last_end
 
 {
     no warnings "void";  # avoid "Too late to run ... block" warning
-    INIT  {}  # dummy sub to make sure PL_endav  is set up and populated
-    END   {}  # dummy sub to make sure PL_initav is set up and populated
+    INIT  {}  # dummy sub to make sure PL_initav is set up and populated
+    END   {}  # dummy sub to make sure PL_endav  is set up and populated
     CHECK { set_first_init_and_end() }  # we really want to be first
 }
 
@@ -571,6 +572,7 @@ sub check_files
             local ($Line, $File);
             get_location($start);
             $line = $Line;
+            # print "$name - $File:$Line\n";
         }
         ($line, $name)
     };
@@ -580,6 +582,13 @@ sub check_files
            map  [ $_, $l->($_) ],
            grep !$seen_cv{$$_}++,
            @Cvs;
+
+    # Hack to bump up the refcount of the subs.  If we don't do this then the
+    # subs in some modules don't seem to be around when we get to looking at
+    # them.  I'm not sure why this is, and it seems to me that this hack could
+    # affect the order of destruction, but I've not seen any problems.  Yet.
+    # object_2svref doesn't exist before 5.8.1.
+    @Subs = map $_->object_2svref, @Cvs if $] >= 5.008001;
 }
 
 sub report
@@ -1393,7 +1402,7 @@ See the BUGS file.  And the TODO file.
 
 =head1 VERSION
 
-Version 0.58 - 6th August 2006
+Version 0.59 - 23rd August 2006
 
 =head1 LICENCE
 
