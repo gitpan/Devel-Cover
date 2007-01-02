@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# Copyright 2001-2006, Paul Johnson (pjcj@cpan.org)
+# Copyright 2001-2007, Paul Johnson (pjcj@cpan.org)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -19,8 +19,8 @@ use File::Copy;
 
 $| = 1;
 
-my $Version  = "0.59";
-my $Date     = "23rd August 2006";
+my $Version  = "0.60";
+my $Date     = "2nd January 2007";
 my $Author   = 'pjcj@cpan.org';
 
 my @perlbug  = ("perlbug", "-a", $Author,
@@ -39,7 +39,7 @@ my @inc      = sort keys %inc;
 open I, ">lib/Devel/Cover/Inc.pm"
     or die "Cannot open lib/Devel/Cover/Inc.pm: $!";
 print I <<"EOI";
-# Copyright 2001-2006, Paul Johnson (pjcj\@cpan.org)
+# Copyright 2001-2007, Paul Johnson (pjcj\@cpan.org)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -54,10 +54,12 @@ use strict;
 use warnings;
 
 our \$VERSION      = "$Version";
-our \$Perl         = '$^X';
 our \$Perl_version = '$]';
 our \$Base         = '$base';
 our \@Inc          = qw( @inc );
+chomp (our \$Perl  = <<'EOV');  # Careful with \\\\ in the path
+$^X
+EOV
 
 if (\$Perl_version ne \$])
 {
@@ -106,7 +108,7 @@ for my $t (readdir D)
     print T <<EOT;
 #!$^X
 
-# Copyright 2002-2006, Paul Johnson (pjcj\@cpan.org)
+# Copyright 2002-2007, Paul Johnson (pjcj\@cpan.org)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -200,11 +202,11 @@ print "checking for PPI::HTML         version 1.07 ........ ";
 
 $e = <<EOM;
 
-One of PPI::HTML 1.07 or Perl::Tidy 20060719 is required to add syntax 
-highlighting to some HTML backends to cover and for cpancover.  Unless 
-you have specific requirements this should not be a problem, but you will 
-not be able to use syntax highlighting in these reports until you install 
-PPI::HTML or Perl::Tidy, available from the CPAN.  In the meantime you 
+One of PPI::HTML 1.07 or Perl::Tidy 20060719 is required to add syntax
+highlighting to some HTML backends to cover and for cpancover.  Unless
+you have specific requirements this should not be a problem, but you will
+not be able to use syntax highlighting in these reports until you install
+PPI::HTML or Perl::Tidy, available from the CPAN.  In the meantime you
 may continue to use the rest of Devel::Cover.
 
 EOM
@@ -371,8 +373,8 @@ WriteMakefile
     depend    => { distdir => "@files" },
     realclean => $] < 5.008008 ?
                  {
-                    FILES => "lib/Devel/Cover/Inc.pm",
-                    POSTOP => "\$(RM_RF) cover_db t"
+                     FILES => "lib/Devel/Cover/Inc.pm",
+                     POSTOP => "\$(RM_RF) cover_db t"
                  } :
                  { FILES => "lib/Devel/Cover/Inc.pm cover_db t" },
 );
@@ -476,7 +478,7 @@ FONT = -sun-screen-medium-r-normal-*-*-70-*-*-m-*-sun-fontspecific
 FONT = "Bitstream Vera Sans Mono 8"
 
 diff : out
-\t \$(PERL) -i -pe '\$\$t = index \$\$_, "time   code" if !defined \$\$t || \$\$t < 0; substr \$\$_, \$\$t, 7, "" if /^line  err   stmt/ ..  /^Branches/ and length > \$\$t' \$(TEST).out
+\t \$(PERL) -i -pe '\$\$t = index \$\$_, "time   code" if !defined \$\$t || \$\$t < 0; substr \$\$_, \$\$t, 7, "" if /^line  err   stmt/ ..  /^--------/ and length > \$\$t' \$(TEST).out
 \t gvim -d -font \$(FONT) `\$(PERL) -Mblib -MDevel::Cover::Test -e '\$\$t = Devel::Cover::Test->new("\$(TEST)", run_test_at_end => 0); print \$\$t->cover_gold'` \$(TEST).out
 
 gold : pure_all

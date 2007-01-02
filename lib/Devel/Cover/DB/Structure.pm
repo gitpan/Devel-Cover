@@ -1,4 +1,4 @@
-# Copyright 2004-2006, Paul Johnson (pjcj@cpan.org)
+# Copyright 2004-2007, Paul Johnson (pjcj@cpan.org)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -16,7 +16,7 @@ use Storable;
 
 use Devel::Cover::DB;
 
-our $VERSION = "0.59";
+our $VERSION = "0.60";
 our $AUTOLOAD;
 
 sub new
@@ -59,7 +59,7 @@ sub AUTOLOAD
             {
                 my $self = shift;
                 my $file = shift;
-                # print "file: $file, condition: $c\n";
+                # print STDERR "file: $file, condition: $c\n";
                 # TODO - why no file?
                 return unless defined $file;
                 $self->{f}{$file}{$c}
@@ -143,7 +143,7 @@ sub set_subroutine
             for $self->criteria;
     }
     # use Data::Dumper; $Data::Dumper::Indent = 1; $Data::Dumper::Sortkeys = 1;
-    # print Dumper $self->{f}{$file}{start};
+    # print STDERR Dumper $self->{f}{$file}{start};
 }
 
 sub store_counts
@@ -156,7 +156,7 @@ sub store_counts
         $self->get_count($_)
         for $self->criteria;
     # use Data::Dumper; $Data::Dumper::Indent = 1; $Data::Dumper::Sortkeys = 1;
-    # print Dumper $self->{f}{$file}{start};
+    # print STDERR Dumper $self->{f}{$file}{start};
 }
 
 sub reuse
@@ -171,16 +171,14 @@ sub set_file
     my $self = shift;
     my ($file) = @_;
     $self->{file} = $file;
-    $self->digest($file)
-}
-
-sub add_digest_xxx
-{
-    my $self = shift;
-    my ($file, $digest) = @_;
-    print "Adding $digest for $file\n";
-    $self->{f}{$file}{digest} = $digest;
-    push @{$self->{digests}{$digest}}, $file;
+    my $digest = $self->digest($file);
+    if ($digest)
+    {
+        # print STDERR "Adding $digest for $file\n";
+        $self->{f}{$file}{digest} = $digest;
+        push @{$self->{digests}{$digest}}, $file;
+    }
+    $digest
 }
 
 sub digest
@@ -188,18 +186,11 @@ sub digest
     my $self = shift;
     my ($file) = @_;
 
-    my $f = $self->{f}{$file};
-    # return $f->{digest} if $f->{digest};
-
     my $digest;
     if (open my $fh, "<", $file)
     {
         binmode $fh;
         $digest = Digest::MD5->new->addfile($fh)->hexdigest;
-        # $self->add_digest($file, $digest);
-        # print "Adding $digest for $file\n";
-        $self->{f}{$file}{digest} = $digest;
-        push @{$self->{digests}{$digest}}, $file;
     }
     else
     {
@@ -237,7 +228,7 @@ sub write
 {
     my $self = shift;
     my ($dir) = @_;
-    # use Data::Dumper; print Dumper $self;
+    # use Data::Dumper; print STDERR Dumper $self;
     $dir .= "/structure";
     unless (-d $dir)
     {
@@ -254,7 +245,7 @@ sub write
         my $df = "$dir/$self->{f}{$file}{digest}";
         # TODO - determine if Structure has changed to save writing it.
         # my $f = $df; my $n = 1; $df = $f . "." . $n++ while -e $df;
-        # print "Writing [$file] to [$df]\n";
+        # print STDERR "Writing [$file] to [$df]\n";
         Storable::nstore($self->{f}{$file}, $df); # unless -e $df;
     }
 }
@@ -265,8 +256,18 @@ sub read
     my ($digest) = @_;
     my $file     = "$self->{base}/structure/$digest";
     my $s        = retrieve($file);
-    # print "reading $digest: ", Dumper $s;
-    $self->{f}{$s->{file}} = $s;
+    my $d        = $self->digest($s->{file});
+    # use Data::Dumper; print STDERR "reading $digest from $file: ", Dumper $s;
+    if ($d && $d eq $s->{digest})
+    {
+        $self->{f}{$s->{file}} = $s;
+    }
+    else
+    {
+        warn "Devel::Cover: Deleting old coverage ",
+             "for changed file $s->{file}\n";
+        unlink $file or warn "Devel::Cover: can't delete $file: $!\n";
+    }
     $self
 }
 
@@ -310,11 +311,11 @@ Huh?
 
 =head1 VERSION
 
-Version 0.59 - 23rd August 2006
+Version 0.60 - 2nd January 2007
 
 =head1 LICENCE
 
-Copyright 2004-2006, Paul Johnson (pjcj@cpan.org)
+Copyright 2004-2007, Paul Johnson (pjcj@cpan.org)
 
 This software is free.  It is licensed under the same terms as Perl itself.
 

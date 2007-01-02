@@ -1,4 +1,4 @@
-# Copyright 2001-2006, Paul Johnson (pjcj@cpan.org)
+# Copyright 2001-2007, Paul Johnson (pjcj@cpan.org)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -10,7 +10,7 @@ package Devel::Cover::Pod;
 use strict;
 use warnings;
 
-our $VERSION = "0.59";
+our $VERSION = "0.60";
 
 use base "Devel::Cover::Criterion";
 
@@ -31,9 +31,9 @@ sub calculate_summary
     return unless $INC{"Pod/Coverage.pm"};
 
     my $s = $db->{summary};
-    
+
     $self->aggregate($s, $file, 'total', $self->total);
-    $self->aggregate($s, $file, 'covered', 1) 
+    $self->aggregate($s, $file, 'covered', 1)
         if $self->covered;
     $self->aggregate($s, $file, 'error', $self->error);
 }
@@ -66,11 +66,11 @@ Huh?
 
 =head1 VERSION
 
-Version 0.59 - 23rd August 2006
+Version 0.60 - 2nd January 2007
 
 =head1 LICENCE
 
-Copyright 2001-2006, Paul Johnson (pjcj@cpan.org)
+Copyright 2001-2007, Paul Johnson (pjcj@cpan.org)
 
 This software is free.  It is licensed under the same terms as Perl itself.
 

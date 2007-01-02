@@ -1,4 +1,4 @@
-# Copyright 2001-2006, Paul Johnson (pjcj@cpan.org)
+# Copyright 2001-2007, Paul Johnson (pjcj@cpan.org)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -10,7 +10,7 @@ package Devel::Cover::Condition_xor_4;
 use strict;
 use warnings;
 
-our $VERSION = "0.59";
+our $VERSION = "0.60";
 
 use base "Devel::Cover::Condition";
 
@@ -45,11 +45,11 @@ Huh?
 
 =head1 VERSION
 
-Version 0.59 - 23rd August 2006
+Version 0.60 - 2nd January 2007
 
 =head1 LICENCE
 
-Copyright 2001-2006, Paul Johnson (pjcj@cpan.org)
+Copyright 2001-2007, Paul Johnson (pjcj@cpan.org)
 
 This software is free.  It is licensed under the same terms as Perl itself.
 

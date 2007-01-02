@@ -1,4 +1,4 @@
-# Copyright 2001-2006, Paul Johnson (pjcj@cpan.org)
+# Copyright 2001-2007, Paul Johnson (pjcj@cpan.org)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -10,11 +10,11 @@ package Devel::Cover::DB;
 use strict;
 use warnings;
 
-our $VERSION = "0.59";
+our $VERSION = "0.60";
 
-use Devel::Cover::Criterion     0.59;
-use Devel::Cover::DB::File      0.59;
-use Devel::Cover::DB::Structure 0.59;
+use Devel::Cover::Criterion     0.60;
+use Devel::Cover::DB::File      0.60;
+use Devel::Cover::DB::Structure 0.60;
 
 use Carp;
 use File::Path;
@@ -45,16 +45,12 @@ sub new
     $self->{base} ||= $self->{db};
     bless $self, $class;
 
-    my $file;
     if (defined $self->{db})
     {
         $self->validate_db;
-        $file = "$self->{db}/$DB";
+        my $file = "$self->{db}/$DB";
         $self->read($file) if -e $file;
-        return $self unless -e $file;
     }
-
-    # croak "No input db, filehandle or cover" unless defined $self->{cover};
 
     $self
 }
@@ -118,12 +114,14 @@ sub merge_runs
 {
     my $self = shift;
     my $db = $self->{db};
-    # print "merge_runs from $db/runs/*\n";
+    # print STDERR "merge_runs from $db/runs/*\n";
     # system "ls -al $db/runs";
     return $self unless length $db;
     opendir DIR, "$db/runs" or return $self;
     my @runs = map "$db/runs/$_", grep !/^\.\.?/, readdir DIR;
     closedir DIR or die "Can't closedir $db/runs: $!";
+
+    $self->{changed_files} = {};
 
     # The ordering is important here.  The runs need to be merged in the order
     # they were created.  We're only at a granularity of one second, but that
@@ -136,8 +134,22 @@ sub merge_runs
         my $r = Devel::Cover::DB->new(base => $self->{base}, db => $run);
         $self->merge($r);
     }
+
     $self->write($db) if @runs;
     rmtree(\@runs);
+
+    if (keys %{$self->{changed_files}})
+    {
+        my $st = Devel::Cover::DB::Structure->new(base => $self->{base});
+        $st->read_all;
+        for my $file (sort keys %{$self->{changed_files}})
+        {
+            # print STDERR "dealing with changed file <$file>\n";
+            $st->delete_file($file);
+        }
+        $st->write($self->{base});
+    }
+
     $self
 }
 
@@ -149,13 +161,27 @@ sub validate_db
     # is not there but the db directory is empty.
     # die if the db is invalid.
 
+    # just warn for now
+    print STDERR "Devel::Cover: $self->{db} is an invalid database\n"
+        unless $self->is_valid;
+
     $self
 }
 
 sub is_valid
 {
     my $self = shift;
-    -e "$self->{db}/$DB"
+    return 1 if -e "$self->{db}/$DB";
+    opendir my $fh, $self->{db} or return 0;
+    for my $file (readdir $fh)
+    {
+        next if $file eq "." || $file eq "..";
+        next if ($file eq "runs" || $file eq "structure") &&
+                -e "$self->{db}/$file";
+        # warn "found $file in $self->{db}";
+        return 0;
+    }
+    closedir $fh
 }
 
 sub collected
@@ -170,7 +196,7 @@ sub merge
     my ($self, $from) = @_;
 
     # use Data::Dumper; $Data::Dumper::Indent = 1;
-    # print "Merging ", Dumper($self), "From ", Dumper($from);
+    # print STDERR "Merging ", Dumper($self), "From ", Dumper($from);
 
     while (my ($fname, $frun) = each %{$from->{runs}})
     {
@@ -178,7 +204,8 @@ sub merge
         {
             while (my ($name, $run) = each %{$self->{runs}})
             {
-                # print "digests for $file: $digest, $run->{digests}{$file}\n";
+                # print STDERR
+                #     "digests for $file: $digest, $run->{digests}{$file}\n";
                 if ($run->{digests}{$file} && $digest &&
                     $run->{digests}{$file} ne $digest)
                 {
@@ -189,6 +216,7 @@ sub merge
                     delete $run->{digests}{$file};
                     delete $run->{count}  {$file};
                     delete $run->{vec}    {$file};
+                    $self->{changed_files}{$file}++;
                 }
             }
         }
@@ -197,7 +225,7 @@ sub merge
     _merge_hash($self->{runs},      $from->{runs});
     _merge_hash($self->{collected}, $from->{collected});
 
-    return $self;
+    return $self;  # TODO - what's going on here?
 
     # When the database gets big, it's quicker to merge into what's
     # already there.
@@ -210,7 +238,7 @@ sub merge
         $from->{$_} = $self->{$_} unless $_ eq "runs" || $_ eq "collected";
     }
 
-    # print "Giving ", Dumper($from);
+    # print STDERR "Giving ", Dumper($from);
 
     $_[0] = $from;
 }
@@ -394,7 +422,7 @@ sub add_statement
     my %line;
     for my $i (0 .. $#$fc)
     {
-        # print "statement: $i\n";
+        # print STDERR "statement: $i\n";
         my $l = $sc->[$i];
         unless (defined $l)
         {
@@ -409,7 +437,7 @@ sub add_statement
         $cc->{$l}[$n][0]  += $fc->[$i];
         $cc->{$l}[$n][1] ||= $uc->{$l}[$n][0][1];
     }
-    # use Data::Dumper; print Dumper $uc;
+    # use Data::Dumper; print STDERR Dumper $uc;
     # use Data::Dumper; print STDERR "cc: ", Dumper $cc;
 }
 
@@ -470,7 +498,8 @@ sub add_subroutine
 {
     my $self = shift;
     my ($cc, $sc, $fc, $uc) = @_;
-    # use Data::Dumper; print STDERR "add_subroutine():\n", Dumper $cc, $sc, $fc, $uc;
+    # use Data::Dumper;
+    #     print STDERR "add_subroutine():\n", Dumper $cc, $sc, $fc, $uc;
     # $cc = { line_number => [ [ count, sub_name, uncoverable ], [ ... ] ], .. }
     # $sc = [ [ line_number, sub_name ], [ ... ] ]
     # $fc = [ count, ... ]
@@ -537,7 +566,7 @@ sub uncoverable
         }
     }
 
-    # use Data::Dumper; $Data::Dumper::Indent = 1; print Dumper $u;
+    # use Data::Dumper; $Data::Dumper::Indent = 1; print STDERR Dumper $u;
     # Now change the format of the uncoverable information.
 
     for my $file (sort keys %$u)
@@ -559,7 +588,7 @@ sub uncoverable
         }
         close F;
         my $f = $u->{$file};
-        # use Data::Dumper; $Data::Dumper::Indent = 1; print Dumper $f;
+        # use Data::Dumper; $Data::Dumper::Indent = 1; print STDERR Dumper $f;
         for my $crit (keys %$f)
         {
             my $c = $f->{$crit};
@@ -585,7 +614,7 @@ sub uncoverable
         $u->{$df->hexdigest} = delete $u->{$file};
     }
 
-    # use Data::Dumper; $Data::Dumper::Indent = 1; print Dumper $u;
+    # use Data::Dumper; $Data::Dumper::Indent = 1; print STDERR Dumper $u;
     $u
 }
 
@@ -886,11 +915,11 @@ Huh?
 
 =head1 VERSION
 
-Version 0.59 - 23rd August 2006
+Version 0.60 - 2nd January 2007
 
 =head1 LICENCE
 
-Copyright 2001-2006, Paul Johnson (pjcj@cpan.org)
+Copyright 2001-2007, Paul Johnson (pjcj@cpan.org)
 
 This software is free.  It is licensed under the same terms as Perl itself.
 

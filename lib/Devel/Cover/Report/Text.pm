@@ -1,4 +1,4 @@
-# Copyright 2001-2006, Paul Johnson (pjcj@cpan.org)
+# Copyright 2001-2007, Paul Johnson (pjcj@cpan.org)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -10,9 +10,9 @@ package Devel::Cover::Report::Text;
 use strict;
 use warnings;
 
-our $VERSION = "0.59";
+our $VERSION = "0.60";
 
-use Devel::Cover::DB 0.59;
+use Devel::Cover::DB 0.60;
 
 sub print_runs
 {
@@ -29,7 +29,7 @@ sub print_runs
     }
 }
 
-sub print_file
+sub print_statement
 {
     my ($db, $file, $options) = @_;
 
@@ -269,7 +269,7 @@ sub report
     print_runs($db, $options);
     for my $file (@{$options->{file}})
     {
-        print_file       ($db, $file, $options);
+        print_statement  ($db, $file, $options) if $options->{show}{statement};
         print_branches   ($db, $file, $options) if $options->{show}{branch};
         print_conditions ($db, $file, $options) if $options->{show}{condition};
         print_subroutines($db, $file, $options) if $options->{show}{subroutine};
@@ -304,11 +304,11 @@ Huh?
 
 =head1 VERSION
 
-Version 0.59 - 23rd August 2006
+Version 0.60 - 2nd January 2007
 
 =head1 LICENCE
 
-Copyright 2001-2006, Paul Johnson (pjcj@cpan.org)
+Copyright 2001-2007, Paul Johnson (pjcj@cpan.org)
 
 This software is free.  It is licensed under the same terms as Perl itself.
 

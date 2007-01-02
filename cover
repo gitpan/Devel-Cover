@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# Copyright 2001-2006, Paul Johnson (pjcj@cpan.org)
+# Copyright 2001-2007, Paul Johnson (pjcj@cpan.org)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -12,9 +12,9 @@ require 5.6.1;
 use strict;
 use warnings;
 
-our $VERSION = "0.59";
+our $VERSION = "0.60";
 
-use Devel::Cover::DB 0.59;
+use Devel::Cover::DB 0.60;
 
 use Config;
 use Cwd "abs_path";
@@ -83,8 +83,13 @@ sub delete_db
     for my $del (@_)
     {
         print "Deleting database $del\n" unless $Options->{silent};
-        next unless -d $del;
         my $db = Devel::Cover::DB->new(db => $del);
+        unless ($db->is_valid)
+        {
+            print "Devel::Cover: $del is an invalid database - ignoring\n"
+                unless $Options->{silent};
+            next;
+        }
         $db->delete;
         rmtree($del);
     }
@@ -338,7 +343,7 @@ The following command line options are supported:
 
  -silent               - don't print informational messages (default off)
  -summary              - give summary report                (default on)
- -report report_format - report format required             (default html)
+ -report report_format - report format                      (default html)
  -outputdir            - directory for output               (default db)
 
  -select filename      - only report on the file            (default all)
@@ -397,11 +402,11 @@ See the BUGS file.
 
 =head1 VERSION
 
-Version 0.59 - 23rd August 2006
+Version 0.60 - 2nd January 2007
 
 =head1 LICENCE
 
-Copyright 2001-2006, Paul Johnson (pjcj@cpan.org)
+Copyright 2001-2007, Paul Johnson (pjcj@cpan.org)
 
 This software is free.  It is licensed under the same terms as Perl itself.
 
