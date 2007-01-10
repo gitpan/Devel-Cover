@@ -10,11 +10,11 @@ package Devel::Cover::DB;
 use strict;
 use warnings;
 
-our $VERSION = "0.60";
+our $VERSION = "0.61";
 
-use Devel::Cover::Criterion     0.60;
-use Devel::Cover::DB::File      0.60;
-use Devel::Cover::DB::Structure 0.60;
+use Devel::Cover::Criterion     0.61;
+use Devel::Cover::DB::File      0.61;
+use Devel::Cover::DB::Structure 0.61;
 
 use Carp;
 use File::Path;
@@ -26,6 +26,8 @@ my $DB = "cover.12";  # Version 12 of the database.
     (qw( statement branch path condition subroutine pod time ));
 @Devel::Cover::DB::Criteria_short =
     (qw( stmt      bran   path cond      sub        pod time ));
+
+# use Data::Dumper; $Data::Dumper::Indent = 1; $Data::Dumper::Sortkeys = 1;
 
 sub new
 {
@@ -426,7 +428,6 @@ sub add_statement
         my $l = $sc->[$i];
         unless (defined $l)
         {
-            # use Data::Dumper;
             # print STDERR "sc ", scalar @$sc, ", fc ", scalar @$fc, "\n";
             # print STDERR "sc ", Dumper($sc), "fc ", Dumper($fc);
             warn "Devel::Cover: ignoring extra statement\n";
@@ -915,7 +916,7 @@ Huh?
 
 =head1 VERSION
 
-Version 0.60 - 2nd January 2007
+Version 0.61 - 10th January 2007
 
 =head1 LICENCE
 

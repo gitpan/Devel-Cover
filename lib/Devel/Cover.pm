@@ -10,13 +10,13 @@ package Devel::Cover;
 use strict;
 use warnings;
 
-our $VERSION = "0.60";
+our $VERSION = "0.61";
 
 use DynaLoader ();
 our @ISA = "DynaLoader";
 
-use Devel::Cover::DB  0.60;
-use Devel::Cover::Inc 0.60;
+use Devel::Cover::DB  0.61;
+use Devel::Cover::Inc 0.61;
 
 use B qw( class ppname main_cv main_start main_root walksymtable OPf_KIDS );
 use B::Debug;
@@ -66,6 +66,7 @@ my @Cvs;                                 # All the Cvs we want to cover.
 my @Subs;                                # All the subs we want to cover.
 my $Cv;                                  # Cv we are looking in.
 my $Sub_name;                            # Name of the sub we are looking in.
+my $Sub_count;                           # Count for multiple subs on same line.
 
 my $Coverage;                            # Raw coverage data.
 my $Structure;                           # Structure of the files.
@@ -695,7 +696,7 @@ sub add_subroutine_cover
     get_location($op);
     return unless $File;
 
-    # print STDERR "Subroutine $Sub_name $Line:$File: ", $op->name, "\n";
+    # print STDERR "Subroutine $Sub_name $File:$Line: ", $op->name, "\n";
 
     my $key = get_key($op);
     my $val = $Coverage->{statement}{$key} || 0;
@@ -1063,10 +1064,12 @@ sub get_cover
             $Sub_name eq "__ANON__" && $Structure->get_sub_name eq "__ANON__")
         {
             # Merge instances of anonymous subs into one.
+            # TODO - multiple anonymous subs on the same line.
         }
         else
         {
-            $Structure->set_subroutine($Sub_name, $File, $Line);
+            my $count = $Sub_count->{$File}{$Line}{$Sub_name}++;
+            $Structure->set_subroutine($Sub_name, $File, $Line, $count);
             add_subroutine_cover($start)
                 if $Coverage{subroutine} || $Coverage{pod};  # pod requires subs
         }
@@ -1407,7 +1410,7 @@ See the BUGS file.  And the TODO file.
 
 =head1 VERSION
 
-Version 0.60 - 2nd January 2007
+Version 0.61 - 10th January 2007
 
 =head1 LICENCE
 

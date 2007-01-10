@@ -10,14 +10,14 @@ package Devel::Cover::Test;
 use strict;
 use warnings;
 
-our $VERSION = "0.60";
+our $VERSION = "0.61";
 
 use Carp;
 
 use File::Spec;
 use Test;
 
-use Devel::Cover::Inc 0.60;
+use Devel::Cover::Inc 0.61;
 
 my $Test;
 
@@ -312,8 +312,11 @@ sub create_gold
 
     $self->{run_test_at_end} = 0;
 
-    # Pod::Coverage not available on all versions, but it must be there on 5.6.1
-    return if $self->{criteria} =~ /\bpod\b/ && $] != 5.006001;
+    # Pod::Coverage not available on all versions, but it must be there on
+    # 5.6.1 and 5.8.0
+    return if $self->{criteria} =~ /\bpod\b/ &&
+               $] != 5.006001 &&
+               $] != 5.008000;
 
     my $debug = $ENV{DEVEL_COVER_DEBUG} || 0;
 
