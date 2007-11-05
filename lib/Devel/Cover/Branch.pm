@@ -10,7 +10,7 @@ package Devel::Cover::Branch;
 use strict;
 use warnings;
 
-our $VERSION = "0.61";
+our $VERSION = "0.62";
 
 use base "Devel::Cover::Criterion";
 
@@ -54,10 +54,10 @@ sub calculate_summary
     my $s = $db->{summary};
     $self->pad;
 
-    $self->aggregate($s, $file, 'total', $self->total);
-    $self->aggregate($s, $file, 'uncoverable', $self->uncoverable);
-    $self->aggregate($s, $file, 'covered', $self->covered);
-    $self->aggregate($s, $file, 'error', $self->error);
+    $self->aggregate($s, $file, "total",       $self->total      );
+    $self->aggregate($s, $file, "uncoverable", $self->uncoverable);
+    $self->aggregate($s, $file, "covered",     $self->covered    );
+    $self->aggregate($s, $file, "error",       $self->error      );
 }
 
 1
@@ -88,7 +88,7 @@ Huh?
 
 =head1 VERSION
 
-Version 0.61 - 10th January 2007
+Version 0.62 - 5th November 2007
 
 =head1 LICENCE
 

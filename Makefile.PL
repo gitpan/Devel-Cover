@@ -19,8 +19,8 @@ use File::Copy;
 
 $| = 1;
 
-my $Version  = "0.61";
-my $Date     = "10th January 2007";
+my $Version  = "0.62";
+my $Date     = "5th November 2007";
 my $Author   = 'pjcj@cpan.org';
 
 my @perlbug  = ("perlbug", "-a", $Author,
@@ -451,7 +451,7 @@ COVER_OPTIONS =
 _run : pure_all
 \t \$(PERL) \$(TAINT) -Iblib/lib -Iblib/arch -MDevel::Cover=-merge,0,`\$(PERL) -e '\$\$l = qx|grep __COVER__ \$\$ARGV[0]|; \$\$l =~ /__COVER__\\s+criteria\\s+(.*)/; (\$\$c = \$\$1 || "all") =~ s/\\s+/,/g; \$\$p = "\$\$1," if \$\$l =~ /__COVER__\\s+test_parameters\\s+(.*)/; print "\$\$p-coverage,\$\$c"' tests/\$(TEST)`,\$(COVER_OPTIONS) tests/\$(TEST)
 
-COVER_PARAMETERS = \$(PERL) -e '\$\$l = qx|grep __COVER__ \$\$ARGV[0]|; \$\$u = "-uncoverable \$\$1" if \$\$l =~ /__COVER__\\s+uncoverable\\s+(.*)/; (\$\$p) = \$\$l =~ /__COVER__\\s+cover_parameters\\s+(.*)/; print "\$\$u \$\$p"' tests/\$(TEST)
+COVER_PARAMETERS = \$(PERL) -e '\$\$l = qx|grep __COVER__ \$\$ARGV[0]|; \$\$u = "-uncoverable_file \$\$1" if \$\$l =~ /__COVER__\\s+uncoverable_file\\s+(.*)/; (\$\$p) = \$\$l =~ /__COVER__\\s+cover_parameters\\s+(.*)/; print "\$\$u \$\$p"' tests/\$(TEST)
 
 html : _run
 \t \$(PERL) -Mblib cover `\$(COVER_PARAMETERS)` -report html

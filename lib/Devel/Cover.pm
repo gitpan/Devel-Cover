@@ -10,13 +10,13 @@ package Devel::Cover;
 use strict;
 use warnings;
 
-our $VERSION = "0.61";
+our $VERSION = "0.62";
 
 use DynaLoader ();
 our @ISA = "DynaLoader";
 
-use Devel::Cover::DB  0.61;
-use Devel::Cover::Inc 0.61;
+use Devel::Cover::DB  0.62;
+use Devel::Cover::Inc 0.62;
 
 use B qw( class ppname main_cv main_start main_root walksymtable OPf_KIDS );
 use B::Debug;
@@ -155,7 +155,8 @@ if (0 && $Config{useithreads})
 
 BEGIN { @Inc = @Devel::Cover::Inc::Inc; @Ignore = ("/Devel/Cover[./]") }
 # BEGIN { $^P = 0x004 | 0x010 | 0x100 | 0x200 }
-BEGIN { $^P = 0x004 | 0x100 | 0x200 }
+# BEGIN { $^P = 0x004 | 0x100 | 0x200 }
+BEGIN { $^P = 0x004 | 0x100 }
 
 {
     sub check
@@ -315,6 +316,7 @@ sub import
     @Select_re = map qr/$_/,                           @Select;
     @Ignore_re = map qr/$_/,                           @Ignore;
     @Inc_re    = map $ci ? qr/^\Q$_\//i : qr/^\Q$_\//, @Inc;
+    %Files     = ();  # start gathering file information from scratch
 
     for my $c (Devel::Cover::DB->new->criteria)
     {
@@ -427,20 +429,19 @@ sub normalised_file
         else
         {
             # print STDERR "getting abs_path <$file> ";
-            my $abs = abs_path($file);
+            my $abs;
+            $abs = abs_path($file) unless -l $file;  # leave symbolic links
             # print STDERR "giving <$file> ";
             $file = $abs if defined $abs;
         }
         # print STDERR "finally <$file> <$Dir>\n";
     }
-    if ($^O eq "MSWin32")
-    {
-        $file =~ s|\\|/|g;
-    }
+    $file =~ s|\\|/|g if $^O eq "MSWin32";
     $file =~ s|^$Dir/||;
-    $File_cache{$f} = $file;
 
-    # warn "File: $file => $File\n";
+    # print STDERR "File: $f => $file\n";
+
+    $File_cache{$f} = $file
 }
 
 }
@@ -491,7 +492,8 @@ sub use_file
     $Files{$file} = -e $file ? 1 : 0;
     warn __PACKAGE__ . qq(: Can't find file "$file" (@_): ignored.\n)
         unless $Files{$file} || $Silent || $file =~ /\(eval \d+\)/ ||
-               $file eq "../../lib/Storable.pm";
+               $file eq "../../lib/Storable.pm" ||
+               $file eq "../../lib/POSIX.pm";
 
     $Files{$file}
 }
@@ -597,6 +599,8 @@ sub check_files
 
 sub report
 {
+    local @SIG{qw(__DIE__ __WARN__)};
+
     $Run{finish} = get_elapsed();
 
     die "Devel::Cover::import() not run: " .
@@ -749,7 +753,7 @@ sub add_branch_cover
     my $c   = $Coverage->{condition}{$key};
 
     no warnings "uninitialized";
-    # print STDERR "*** add_branch_cover $File:$Line [$type][$c]\n";
+    # warn "add_branch_cover $File:$Line [$type][@{[join ', ', @$c]}]\n";
 
     if ($type eq "and" ||
         $type eq "or"  ||
@@ -781,6 +785,8 @@ sub add_branch_cover
         my $vec = $Run{vec}{$File}{branch};
         vec($vec->{vec}, $vec->{size}++, 1) = $_ ||= 0 ? 1 : 0 for @$c;
     }
+
+    # warn "branch $type %x [@$c] => [@{$ccount->{branch}[$n]}]\n", $$op;
 }
 
 my %condition_locations;
@@ -819,7 +825,7 @@ sub add_condition_cover
         # TODO - exec?  any others?
         # print STDERR "Name [$name]\n";
         if ($c->[5] || $name =~
-            /^const|s?refgen|gelem|die|undef|bless|anon(?:list|hash)$/)
+            /^const|s?refgen|gelem|die|undef|bless|anon(?:list|hash)|scalar$/)
         {
             $c = [ $c->[3], $c->[1] + $c->[2] ];
             $count = 2;
@@ -1171,6 +1177,10 @@ Devel::Cover - Code coverage metrics for Perl
 
 To test an uninstalled module:
 
+ cover -test
+
+or
+
  cover -delete
  HARNESS_PERL_SWITCHES=-MDevel::Cover make test
  cover
@@ -1186,12 +1196,19 @@ If the module does not use the t/*.t framework:
 =head1 DESCRIPTION
 
 This module provides code coverage metrics for Perl. Code coverage
-metrics describe how throroughly tests exercise code. By using
+metrics describe how thoroughly tests exercise code. By using
 Devel::Cover you can find areas of code not exercised by your tests
 and find out which tests to create to increase coverage. Code coverage
 can be considered as an indirect measure of quality.
 
-If you can't guess by the version number this is an alpha release.
+I consider this software to have an alpha status.  By that I mean that I
+reserve the right to alter the interface in a backwards incompatible manner
+without incrementing the major version number.  I specifically do not mean
+that this software is full of bugs or missing key features.  Although I'm
+making no guarantees on that front either.  In short, if you are looking for
+code coverage software for Perl, you have probably come to the end of your
+search.  For more of my opinions on this subject, see
+http://pjcj.sytes.net/notes/2007/03/14#alpha
 
 Code coverage data are collected using a pluggable runops function which
 counts how many times each op is executed.  These data are then mapped
@@ -1306,7 +1323,7 @@ The inc directories are initially populated with the contents of the
 directories using -inc, or add to them using +inc.
 
 Although these options take regular expressions, you should not enclose the RE
-within //.
+within // or any other quoting characters.
 
 =head1 ENVIRONMENT
 
@@ -1410,7 +1427,7 @@ See the BUGS file.  And the TODO file.
 
 =head1 VERSION
 
-Version 0.61 - 10th January 2007
+Version 0.62 - 5th November 2007
 
 =head1 LICENCE
 

@@ -12,9 +12,9 @@ require 5.6.1;
 use strict;
 use warnings;
 
-our $VERSION = "0.61";
+our $VERSION = "0.62";
 
-use Devel::Cover::DB 0.61;
+use Devel::Cover::DB 0.62;
 
 use Config;
 use Cwd "abs_path";
@@ -213,8 +213,8 @@ sub main
     print "Reading database from $dbname\n" unless $Options->{silent};
     my $db = Devel::Cover::DB->new
     (
-        db          => $dbname,
-        uncoverable => $Options->{uncoverable_file},
+        db               => $dbname,
+        uncoverable_file => $Options->{uncoverable_file},
     );
     $db = $db->merge_runs;
 
@@ -386,7 +386,7 @@ course.  If you are this option will be turned on by default.
 
 The following exit values are returned:
 
-0   All operaions were completed successfully.
+0   All operations were completed successfully.
 
 >0  An error occurred.
 
@@ -402,7 +402,7 @@ See the BUGS file.
 
 =head1 VERSION
 
-Version 0.61 - 10th January 2007
+Version 0.62 - 5th November 2007
 
 =head1 LICENCE
 

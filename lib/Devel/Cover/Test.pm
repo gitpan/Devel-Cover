@@ -10,14 +10,14 @@ package Devel::Cover::Test;
 use strict;
 use warnings;
 
-our $VERSION = "0.61";
+our $VERSION = "0.62";
 
 use Carp;
 
 use File::Spec;
 use Test;
 
-use Devel::Cover::Inc 0.61;
+use Devel::Cover::Inc 0.62;
 
 my $Test;
 
@@ -35,13 +35,13 @@ sub new
 
     my $self =
     {
-        test            => $test,
-        criteria        => $criteria,
-        skip            => "",
-        uncoverable     => "",
-        select          => "",
-        ignore          => "",
-        run_test_at_end => 1,
+        test             => $test,
+        criteria         => $criteria,
+        skip             => "",
+        uncoverable_file => "",
+        select           => "",
+        ignore           => "",
+        run_test_at_end  => 1,
         %params
     };
 
@@ -73,8 +73,8 @@ sub get_params
     $self->{cover_parameters} = join(" ", map "-coverage $_",
                                               split " ", $self->{criteria})
                               . " -report text";
-    $self->{cover_parameters} .= " -uncoverable $self->{uncoverable}"
-        if $self->{uncoverable};
+    $self->{cover_parameters} .= " -uncoverable_file $self->{uncoverable_file}"
+        if $self->{uncoverable_file};
     $self->{skip}             = $self->{skip_reason}
         if exists $self->{skip_test} && eval "{$self->{skip_test}}";
 
@@ -254,6 +254,7 @@ sub run_cover
             $_ = "" unless defined $_;
             print STDERR $_ if $debug;
             redo if /^Devel::Cover: merging run/;
+            redo if /^Set up gcc environment/;  # for MinGW
             s/^(Reading database from ).*/$1/;
             s|(__ANON__\[) .* (/tests/ \w+ : \d+ \])|$1$2|x;
             s/(Subroutine) +(Location)/$1 $2/;
@@ -339,7 +340,7 @@ sub create_gold
     print STDERR "Running cover [$cover_com]\n" if $debug;
 
     open G, ">$new_gold" or die "Cannot open $new_gold: $!";
-    open T, "$cover_com|" or die "Cannot run $cover_com: $!";
+    open T, "$cover_com 2>&1 |" or die "Cannot run $cover_com: $!";
     while (my $l = <T>)
     {
         next if $l =~ /^Devel::Cover: merging run/;

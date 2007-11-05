@@ -10,19 +10,19 @@ package Devel::Cover::Criterion;
 use strict;
 use warnings;
 
-our $VERSION = "0.61";
+our $VERSION = "0.62";
 
-use Devel::Cover::Statement       0.61;
-use Devel::Cover::Branch          0.61;
-use Devel::Cover::Condition       0.61;
-use Devel::Cover::Condition_or_2  0.61;
-use Devel::Cover::Condition_or_3  0.61;
-use Devel::Cover::Condition_and_2 0.61;
-use Devel::Cover::Condition_and_3 0.61;
-use Devel::Cover::Condition_xor_4 0.61;
-use Devel::Cover::Subroutine      0.61;
-use Devel::Cover::Time            0.61;
-use Devel::Cover::Pod             0.61;
+use Devel::Cover::Statement       0.62;
+use Devel::Cover::Branch          0.62;
+use Devel::Cover::Condition       0.62;
+use Devel::Cover::Condition_or_2  0.62;
+use Devel::Cover::Condition_or_3  0.62;
+use Devel::Cover::Condition_and_2 0.62;
+use Devel::Cover::Condition_and_3 0.62;
+use Devel::Cover::Condition_xor_4 0.62;
+use Devel::Cover::Subroutine      0.62;
+use Devel::Cover::Time            0.62;
+use Devel::Cover::Pod             0.62;
 
 sub coverage    { $_[0][0] }
 sub information { $_[0][1] }
@@ -48,10 +48,10 @@ sub aggregate {
 
     my $name = $self->criterion;
     $t = int($t);
-    $s->{$file}{$name}{$keyword}       += $t;
-    $s->{$file}{total}{$keyword}       += $t;
-    $s->{Total}{$name}{$keyword}       += $t;
-    $s->{Total}{total}{$keyword}       += $t;
+    $s->{$file}{$name}{$keyword} += $t;
+    $s->{$file}{total}{$keyword} += $t;
+    $s->{Total}{$name}{$keyword} += $t;
+    $s->{Total}{total}{$keyword} += $t;
 }
 
 sub calculate_summary
@@ -60,13 +60,10 @@ sub calculate_summary
     my ($db, $file) = @_;
 
     my $s = $db->{summary};
-    $self->aggregate($s, $file, 'total', $self->total);
-    $self->aggregate($s, $file, 'uncoverable', 1)
-        if $self->uncoverable;
-    $self->aggregate($s, $file, 'covered', 1)
-        if $self->covered;
-    $self->aggregate($s, $file, 'error', 1)
-        if $self->error;
+    $self->aggregate($s, $file, "total",       $self->total);
+    $self->aggregate($s, $file, "uncoverable", 1) if $self->uncoverable;
+    $self->aggregate($s, $file, "covered",     1) if $self->covered;
+    $self->aggregate($s, $file, "error",       1) if $self->error;
 }
 
 
@@ -100,7 +97,7 @@ Huh?
 
 =head1 VERSION
 
-Version 0.61 - 10th January 2007
+Version 0.62 - 5th November 2007
 
 =head1 LICENCE
 

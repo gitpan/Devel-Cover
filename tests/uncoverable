@@ -7,16 +7,36 @@
 # The latest version of this software should be available from my homepage:
 # http://www.pjcj.net
 
-# __COVER__ uncoverable tests/.uncoverable
+# __COVER__ uncoverable_file tests/.uncoverable
 
 my $x = 1;
 my $y = 1;
+
+# uncoverable branch true
+# uncoverable condition left
+# uncoverable condition false
 if ($x && !$y)
 {
-    $x++;
+    $x++;  # uncoverable statement
+    # uncoverable statement
     z();
 }
+
+# uncoverable branch true
+# uncoverable condition left
+# uncoverable condition right
+if (!$x || !$y)
+{
+    # uncoverable statement count:1
+    # uncoverable statement count:2
+    b(); b();
+}
+
 sub z
 {
-    $y++;
+    # uncoverable subroutine
+    $y++; # uncoverable statement
 }
+
+# uncoverable statement
+# uncoverable subroutine

@@ -16,7 +16,7 @@ use Storable;
 
 use Devel::Cover::DB;
 
-our $VERSION = "0.61";
+our $VERSION = "0.62";
 our $AUTOLOAD;
 
 sub new
@@ -205,8 +205,9 @@ sub digest
     }
     else
     {
-        warn "Devel::Cover: Can't open $file for MD5 digest: $!\n";
-        # warn "in ", `pwd`;
+        warn "Devel::Cover: Can't open $file for MD5 digest: $!\n"
+            unless lc $file eq "-e";
+        # use Carp; print STDERR Carp::longmess("in " . `pwd`);
     }
     $digest
 }
@@ -322,7 +323,7 @@ Huh?
 
 =head1 VERSION
 
-Version 0.61 - 10th January 2007
+Version 0.62 - 5th November 2007
 
 =head1 LICENCE
 
