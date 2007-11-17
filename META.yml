@@ -1,12 +1,15 @@
-# http://module-build.sourceforge.net/META-spec.html
-#XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
-name:         Devel-Cover
-version:      0.62
-version_from: 
-installdirs:  site
-requires:
+--- #YAML:1.0
+name:                Devel-Cover
+version:             0.63
+abstract:            Code coverage metrics for Perl
+license:             ~
+generated_by:        ExtUtils::MakeMaker version 6.36_01
+distribution_type:   module
+requires:     
     Digest::MD5:                   0
     Storable:                      0
-
-distribution_type: module
-generated_by: ExtUtils::MakeMaker version 6.30
+meta-spec:
+    url:     http://module-build.sourceforge.net/META-spec-v1.2.html
+    version: 1.2
+author:
+    - Paul Johnson (pjcj@cpan.org)

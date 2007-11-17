@@ -7,7 +7,7 @@
 # The latest version of this software should be available from my homepage:
 # http://www.pjcj.net
 
-require 5.6.1;
+require 5.006001;
 
 use strict;
 use warnings;
@@ -19,8 +19,8 @@ use File::Copy;
 
 $| = 1;
 
-my $Version  = "0.62";
-my $Date     = "5th November 2007";
+my $Version  = "0.63";
+my $Date     = "16th November 2007";
 my $Author   = 'pjcj@cpan.org';
 
 my @perlbug  = ("perlbug", "-a", $Author,
@@ -313,7 +313,7 @@ else
     print "not found\n\n$e\n";
 }
 
-my $latest_tested = 5.008008;
+my $latest_tested = 5.010000;
 print <<EOM if $] > $latest_tested;
 
 Devel::Cover $Version has not been tested with perl $].
