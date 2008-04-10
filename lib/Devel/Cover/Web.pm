@@ -1,4 +1,5 @@
-# Copyright 2007, Paul Johnson (pjcj@cpan.org) except where otherwise noted.
+# Copyright 2007-2008, Paul Johnson (pjcj@cpan.org)
+# except where otherwise noted.
 
 # This software is free.  It is licensed under the same terms as Perl itself,
 # except where otherwise noted.
@@ -11,7 +12,7 @@ package Devel::Cover::Web;
 use strict;
 use warnings;
 
-our $VERSION = "0.63";
+our $VERSION = "0.64";
 
 use Exporter;
 
@@ -933,11 +934,11 @@ Huh?
 
 =head1 VERSION
 
-Version 0.63 - 16th November 2007
+Version 0.64 - 10th April 2008
 
 =head1 LICENCE
 
-Copyright 2007, Paul Johnson (pjcj@cpan.org) except where otherwise noted.
+Copyright 2007-2008, Paul Johnson (pjcj@cpan.org) except where otherwise noted.
 
 This software is free.  It is licensed under the same terms as Perl itself,
 except where otherwise noted.

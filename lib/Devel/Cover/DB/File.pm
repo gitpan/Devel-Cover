@@ -1,4 +1,4 @@
-# Copyright 2001-2007, Paul Johnson (pjcj@cpan.org)
+# Copyright 2001-2008, Paul Johnson (pjcj@cpan.org)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -10,9 +10,9 @@ package Devel::Cover::DB::File;
 use strict;
 use warnings;
 
-our $VERSION = "0.63";
+our $VERSION = "0.64";
 
-use Devel::Cover::Criterion 0.63;
+use Devel::Cover::Criterion 0.64;
 
 sub calculate_summary
 {
@@ -79,11 +79,11 @@ Huh?
 
 =head1 VERSION
 
-Version 0.63 - 16th November 2007
+Version 0.64 - 10th April 2008
 
 =head1 LICENCE
 
-Copyright 2001-2007, Paul Johnson (pjcj@cpan.org)
+Copyright 2001-2008, Paul Johnson (pjcj@cpan.org)
 
 This software is free.  It is licensed under the same terms as Perl itself.
 

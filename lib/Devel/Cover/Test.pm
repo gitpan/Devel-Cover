@@ -1,4 +1,4 @@
-# Copyright 2002-2007, Paul Johnson (pjcj@cpan.org)
+# Copyright 2002-2008, Paul Johnson (pjcj@cpan.org)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -10,14 +10,14 @@ package Devel::Cover::Test;
 use strict;
 use warnings;
 
-our $VERSION = "0.63";
+our $VERSION = "0.64";
 
 use Carp;
 
 use File::Spec;
 use Test;
 
-use Devel::Cover::Inc 0.63;
+use Devel::Cover::Inc 0.64;
 
 my $Test;
 

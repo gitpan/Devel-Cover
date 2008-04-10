@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# Copyright 2002-2007, Paul Johnson (pjcj@cpan.org)
+# Copyright 2002-2008, Paul Johnson (pjcj@cpan.org)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -12,8 +12,8 @@ use warnings;
 
 use File::Copy;
 
-use Devel::Cover::Inc  0.63;
-use Devel::Cover::Test 0.63;
+use Devel::Cover::Inc  0.64;
+use Devel::Cover::Test 0.64;
 
 my $base = $Devel::Cover::Inc::Base;
 
