@@ -1,4 +1,4 @@
-# Copyright 2001-2008, Paul Johnson (pjcj@cpan.org)
+# Copyright 2001-2009, Paul Johnson (pjcj@cpan.org)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -10,11 +10,11 @@ package Devel::Cover::DB;
 use strict;
 use warnings;
 
-our $VERSION = "0.64";
+our $VERSION = "0.65";
 
-use Devel::Cover::Criterion     0.64;
-use Devel::Cover::DB::File      0.64;
-use Devel::Cover::DB::Structure 0.64;
+use Devel::Cover::Criterion     0.65;
+use Devel::Cover::DB::File      0.65;
+use Devel::Cover::DB::Structure 0.65;
 
 use Carp;
 use File::Path;
@@ -499,13 +499,16 @@ sub add_subroutine
 {
     my $self = shift;
     my ($cc, $sc, $fc, $uc) = @_;
+
     # use Data::Dumper;
     #     print STDERR "add_subroutine():\n", Dumper $cc, $sc, $fc, $uc;
+
     # $cc = { line_number => [ [ count, sub_name, uncoverable ], [ ... ] ], .. }
     # $sc = [ [ line_number, sub_name ], [ ... ] ]
     # $fc = [ count, ... ]
-    # $cc = { line_number => [ [ ??? ], [ ... ] ], ... }
+    # $uc = { line_number => [ [ ??? ], [ ... ] ], ... }
     # length @$sc == length @$fc
+
     my %line;
     for my $i (0 .. $#$fc)
     {
@@ -518,6 +521,7 @@ sub add_subroutine
             warn "Devel::Cover: ignoring extra subroutine\n";
             return;
         }
+
         my $n = $line{$l}++;
         if (my $a = $cc->{$l}[$n])
         {
@@ -671,12 +675,14 @@ sub cover
 
     return $self->{cover} if $self->{cover_valid};
 
-    my %digests;
-    my %files;
+    my %digests;  # mapping of digests to canonical filenames
+    my %files;    # processed files
     my $cover = $self->{cover} = {};
+
     my $st = Devel::Cover::DB::Structure->new(base => $self->{base})->read_all;
+
     my $cr = join "|", @{$self->{all_criteria}};
-    my $uc = qr/(.*)# uncoverable ($cr)(.*)/;
+    my $uc = qr/(.*)# uncoverable ($cr)(.*)/;  # regex for uncoverable comments
     my %uncoverable;
     my %types =
     (
@@ -691,6 +697,7 @@ sub cover
         # TODO - change sort order
         @runs = sort { $b <=> $a } keys %{$self->{runs}};
     }
+
     for my $run (@runs)
     {
         my $r = $self->{runs}{$run};
@@ -710,9 +717,11 @@ sub cover
             print STDERR "Devel::Cover: merging data for $file ",
                          "into $digests{$digest}\n"
                 if !$files{$file}++ && $digests{$digest};
+
+            # Set up data structure to hold coverage being filled in
             my $cf = $cover->{$digests{$digest} ||= $file} ||= {};
 
-
+            # Look for uncoverable comments
             open my $fh, "<", $file or do
             {
                 warn "Devel::Cover: Can't open file $file: $!\n";
@@ -770,7 +779,7 @@ sub cover
                  " unmatched uncoverable comments not found at end of $file\n"
                 if @waiting;
 
-            # $self->uncoverable;
+            # TODO - read in and merge $self->uncoverable;
             # use Data::Dumper; print Dumper \%uncoverable;
 
             # print STDERR "st ", Dumper($st),
@@ -987,11 +996,11 @@ Huh?
 
 =head1 VERSION
 
-Version 0.64 - 10th April 2008
+Version 0.65 - 8th August 2009
 
 =head1 LICENCE
 
-Copyright 2001-2008, Paul Johnson (pjcj@cpan.org)
+Copyright 2001-2009, Paul Johnson (pjcj@cpan.org)
 
 This software is free.  It is licensed under the same terms as Perl itself.
 

@@ -1,4 +1,4 @@
-# Copyright 2004-2008, Paul Johnson (pjcj@cpan.org)
+# Copyright 2004-2009, Paul Johnson (pjcj@cpan.org)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -16,7 +16,7 @@ use Storable;
 
 use Devel::Cover::DB;
 
-our $VERSION = "0.64";
+our $VERSION = "0.65";
 our $AUTOLOAD;
 
 sub new
@@ -323,11 +323,11 @@ Huh?
 
 =head1 VERSION
 
-Version 0.64 - 10th April 2008
+Version 0.65 - 8th August 2009
 
 =head1 LICENCE
 
-Copyright 2004-2008, Paul Johnson (pjcj@cpan.org)
+Copyright 2004-2009, Paul Johnson (pjcj@cpan.org)
 
 This software is free.  It is licensed under the same terms as Perl itself.
 

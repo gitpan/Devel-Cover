@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# Copyright 2001-2008, Paul Johnson (pjcj@cpan.org)
+# Copyright 2001-2009, Paul Johnson (pjcj@cpan.org)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -19,8 +19,8 @@ use File::Copy;
 
 $| = 1;
 
-my $Version  = "0.64";
-my $Date     = "10th April 2008";
+my $Version  = "0.65";
+my $Date     = "8th August 2009";
 my $Author   = 'pjcj@cpan.org';
 
 my @perlbug  = ("perlbug", "-a", $Author,
@@ -39,7 +39,7 @@ my @inc      = sort keys %inc;
 open I, ">lib/Devel/Cover/Inc.pm"
     or die "Cannot open lib/Devel/Cover/Inc.pm: $!";
 print I <<"EOI";
-# Copyright 2001-2008, Paul Johnson (pjcj\@cpan.org)
+# Copyright 2001-2009, Paul Johnson (pjcj\@cpan.org)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -108,7 +108,7 @@ for my $t (readdir D)
     print T <<EOT;
 #!$^X
 
-# Copyright 2002-2008, Paul Johnson (pjcj\@cpan.org)
+# Copyright 2002-2009, Paul Johnson (pjcj\@cpan.org)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -313,7 +313,7 @@ else
     print "not found\n\n$e\n";
 }
 
-my $latest_tested = "5.010000";
+my $latest_tested = "5.010001";
 print <<EOM if $] > $latest_tested;
 
 Devel::Cover $Version has not been tested with perl $].

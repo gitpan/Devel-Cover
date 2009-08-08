@@ -1,4 +1,4 @@
-# Copyright 2001-2008, Paul Johnson (pjcj@cpan.org)
+# Copyright 2001-2009, Paul Johnson (pjcj@cpan.org)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -10,13 +10,13 @@ package Devel::Cover;
 use strict;
 use warnings;
 
-our $VERSION = "0.64";
+our $VERSION = "0.65";
 
 use DynaLoader ();
 our @ISA = "DynaLoader";
 
-use Devel::Cover::DB  0.64;
-use Devel::Cover::Inc 0.64;
+use Devel::Cover::DB  0.65;
+use Devel::Cover::Inc 0.65;
 
 use B qw( class ppname main_cv main_start main_root walksymtable OPf_KIDS );
 use B::Debug;
@@ -953,6 +953,12 @@ sub deparse
                     my $newop   = $false->first;
                     my $newcond = $newop->first;
                     my $newtrue = $newcond->sibling;
+                    if ($newcond->name eq "lineseq")
+                    {
+                        # lineseq to ensure correct line numbers in elsif()
+                        # Bug #37302 fixed by change #33710.
+                        $newcond = $newcond->first->sibling;
+                    }
                     # last in chain is OP_AND => no else
                     $false      = $newtrue->sibling;
                     { local $Collect; $newcond = $self->deparse($newcond, 1) }
@@ -1434,11 +1440,11 @@ See the BUGS file.  And the TODO file.
 
 =head1 VERSION
 
-Version 0.64 - 10th April 2008
+Version 0.65 - 8th August 2009
 
 =head1 LICENCE
 
-Copyright 2001-2008, Paul Johnson (pjcj@cpan.org)
+Copyright 2001-2009, Paul Johnson (pjcj@cpan.org)
 
 This software is free.  It is licensed under the same terms as Perl itself.
 
