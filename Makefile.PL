@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# Copyright 2001-2009, Paul Johnson (pjcj@cpan.org)
+# Copyright 2001-2010, Paul Johnson (pjcj@cpan.org)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -19,8 +19,8 @@ use File::Copy;
 
 $| = 1;
 
-my $Version  = "0.65";
-my $Date     = "8th August 2009";
+my $Version  = "0.66";
+my $Date     = "12th April 2010";
 my $Author   = 'pjcj@cpan.org';
 
 my @perlbug  = ("perlbug", "-a", $Author,
@@ -39,7 +39,7 @@ my @inc      = sort keys %inc;
 open I, ">lib/Devel/Cover/Inc.pm"
     or die "Cannot open lib/Devel/Cover/Inc.pm: $!";
 print I <<"EOI";
-# Copyright 2001-2009, Paul Johnson (pjcj\@cpan.org)
+# Copyright 2001-2010, Paul Johnson (pjcj\@cpan.org)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -108,7 +108,7 @@ for my $t (readdir D)
     print T <<EOT;
 #!$^X
 
-# Copyright 2002-2009, Paul Johnson (pjcj\@cpan.org)
+# Copyright 2002-2010, Paul Johnson (pjcj\@cpan.org)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -313,7 +313,7 @@ else
     print "not found\n\n$e\n";
 }
 
-my $latest_tested = "5.010001";
+my $latest_tested = "5.012000";
 print <<EOM if $] > $latest_tested;
 
 Devel::Cover $Version has not been tested with perl $].
@@ -476,10 +476,12 @@ dump :
 FONT = 8x13
 FONT = -sun-screen-medium-r-normal-*-*-70-*-*-m-*-sun-fontspecific
 FONT = "Bitstream Vera Sans Mono 8"
+GEOM = 260x85+0+0
 
 diff : out
-\t \$(PERL) -i -pe '\$\$t = index \$\$_, "time   code" if !defined \$\$t || \$\$t < 0; substr \$\$_, \$\$t, 7, "" if /^line  err   stmt/ ..  /^--------/ and length > \$\$t' \$(TEST).out
-\t gvim -d -font \$(FONT) `\$(PERL) -Mblib -MDevel::Cover::Test -e '\$\$t = Devel::Cover::Test->new("\$(TEST)", run_test_at_end => 0); print \$\$t->cover_gold'` \$(TEST).out
+\t \$(PERL) makeh strip_criterion 'time' \$(TEST).out
+\t \$(PERL) makeh strip_criterion ' pod' \$(TEST).out
+\t gvim -geom \$(GEOM) -d -font \$(FONT) `\$(PERL) -Mblib -MDevel::Cover::Test -e '\$\$t = Devel::Cover::Test->new("\$(TEST)", run_test_at_end => 0); print \$\$t->cover_gold'` \$(TEST).out
 
 gold : pure_all
 \t \$(PERL) create_gold \$(TEST)

@@ -1,11 +1,14 @@
 #!/usr/bin/perl
 
-# Copyright 2002-2009, Paul Johnson (pjcj@cpan.org)
+# Copyright 2002-2010, Paul Johnson (pjcj@cpan.org)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
 # The latest version of this software should be available from my homepage:
 # http://www.pjcj.net
+
+# __COVER__ skip_test $] == 5.010
+# __COVER__ skip_reason One test fails only under make test on 5.10.0 unhreaded
 
 use strict;
 use warnings;

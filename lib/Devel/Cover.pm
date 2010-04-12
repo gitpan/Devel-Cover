@@ -1,4 +1,4 @@
-# Copyright 2001-2009, Paul Johnson (pjcj@cpan.org)
+# Copyright 2001-2010, Paul Johnson (pjcj@cpan.org)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -10,13 +10,13 @@ package Devel::Cover;
 use strict;
 use warnings;
 
-our $VERSION = "0.65";
+our $VERSION = "0.66";
 
 use DynaLoader ();
 our @ISA = "DynaLoader";
 
-use Devel::Cover::DB  0.65;
-use Devel::Cover::Inc 0.65;
+use Devel::Cover::DB  0.66;
+use Devel::Cover::Inc 0.66;
 
 use B qw( class ppname main_cv main_start main_root walksymtable OPf_KIDS );
 use B::Debug;
@@ -84,6 +84,7 @@ use vars '$File',                        # Last filename we saw.  (localised)
                                          # over conditions.  (localised)
          '%Files',                       # Whether we are interested in files.
                                          # Used in runops function.
+         '$Replace_ops',
          '$Silent';                      # Output nothing. Can be used anywhere.
 
 BEGIN
@@ -249,6 +250,8 @@ EOM
     POSIX::_exit(1);
 }
 
+$Replace_ops = 1;
+
 sub import
 {
     return if $Initialised;
@@ -256,7 +259,7 @@ sub import
     my $class = shift;
 
     my @o = (@_, split ",", $ENV{DEVEL_COVER_OPTIONS} || "");
-    # print STDERR __PACKAGE__, ": Parsing options from [@_]\n";
+    # print STDERR __PACKAGE__, ": Parsing options from [@o]\n";
 
     my $blib = -d "blib";
     @Inc     = () if "@o" =~ /-inc /;
@@ -265,23 +268,26 @@ sub import
     while (@o)
     {
         local $_ = shift @o;
-        /^-silent/    && do { $Silent    = shift @o; next };
-        /^-dir/       && do { $Dir       = shift @o; next };
-        /^-db/        && do { $DB        = shift @o; next };
-        /^-merge/     && do { $Merge     = shift @o; next };
-        /^-summary/   && do { $Summary   = shift @o; next };
-        /^-blib/      && do { $blib      = shift @o; next };
-        /^-subs_only/ && do { $Subs_only = shift @o; next };
-        /^-coverage/  &&
+        /^-silent/      && do { $Silent      = shift @o; next };
+        /^-dir/         && do { $Dir         = shift @o; next };
+        /^-db/          && do { $DB          = shift @o; next };
+        /^-merge/       && do { $Merge       = shift @o; next };
+        /^-summary/     && do { $Summary     = shift @o; next };
+        /^-blib/        && do { $blib        = shift @o; next };
+        /^-subs_only/   && do { $Subs_only   = shift @o; next };
+        /^-replace_ops/ && do { $Replace_ops = shift @o; next };
+        /^-coverage/    &&
             do { $Coverage{+shift @o} = 1 while @o && $o[0] !~ /^[-+]/; next };
-        /^[-+]ignore/ &&
+        /^[-+]ignore/   &&
             do { push @Ignore,   shift @o while @o && $o[0] !~ /^[-+]/; next };
-        /^[-+]inc/    &&
+        /^[-+]inc/      &&
             do { push @Inc,      shift @o while @o && $o[0] !~ /^[-+]/; next };
-        /^[-+]select/ &&
+        /^[-+]select/   &&
             do { push @Select,   shift @o while @o && $o[0] !~ /^[-+]/; next };
         warn __PACKAGE__ . ": Unknown option $_ ignored\n";
     }
+
+    bootstrap Devel::Cover $VERSION;
 
     if (defined $Dir)
     {
@@ -298,9 +304,7 @@ sub import
 
     unless (-d $DB)
     {
-        # Nasty hack to keep 5.6.1 happy.
         mkdir $DB, 0700 or croak "Can't mkdir $DB: $!\n";
-        chmod 0700, $DB or croak "Can't chmod $DB: $!\n";
     }
     $DB = $1 if Cwd::abs_path($DB) =~ /(.*)/;
     Devel::Cover::DB->delete($DB) unless $Merge;
@@ -681,7 +685,6 @@ sub report
     unless (-d $DB)
     {
         mkdir $DB, 0700 or croak "Can't mkdir $DB: $!\n";
-        chmod 0700, $DB or croak "Can't chmod $DB: $!\n";
     }
     $DB .= "/$run";
 
@@ -1164,8 +1167,6 @@ sub get_cover
     $de
 }
 
-bootstrap Devel::Cover $VERSION;
-
 1
 
 __END__
@@ -1301,8 +1302,9 @@ if the tests fail and you would like nice output telling you why.
  -merge val          - Merge databases, for multiple test benches (default on).
  -select RE          - Set REs of files to select (default none).
  +select RE          - Append to REs of files to select.
- -silent val         - Don't print informational messages (default off)
- -subs_only val      - Only cover code in subroutine bodies (default off)
+ -silent val         - Don't print informational messages (default off).
+ -subs_only val      - Only cover code in subroutine bodies (default off).
+ -replace_ops val    - Use op replacing rather than runops (default on).
  -summary val        - Print summary information iff val is true (default on).
 
 =head2 More on Coverage Options
@@ -1440,11 +1442,11 @@ See the BUGS file.  And the TODO file.
 
 =head1 VERSION
 
-Version 0.65 - 8th August 2009
+Version 0.66 - 12th April 2010
 
 =head1 LICENCE
 
-Copyright 2001-2009, Paul Johnson (pjcj@cpan.org)
+Copyright 2001-2010, Paul Johnson (pjcj@cpan.org)
 
 This software is free.  It is licensed under the same terms as Perl itself.
 

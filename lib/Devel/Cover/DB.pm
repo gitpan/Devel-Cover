@@ -1,4 +1,4 @@
-# Copyright 2001-2009, Paul Johnson (pjcj@cpan.org)
+# Copyright 2001-2010, Paul Johnson (pjcj@cpan.org)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -10,11 +10,11 @@ package Devel::Cover::DB;
 use strict;
 use warnings;
 
-our $VERSION = "0.65";
+our $VERSION = "0.66";
 
-use Devel::Cover::Criterion     0.65;
-use Devel::Cover::DB::File      0.65;
-use Devel::Cover::DB::Structure 0.65;
+use Devel::Cover::Criterion     0.66;
+use Devel::Cover::DB::File      0.66;
+use Devel::Cover::DB::Structure 0.66;
 
 use Carp;
 use File::Path;
@@ -104,6 +104,9 @@ sub delete
     $self->{db} = $db if ref $self;
     croak "No db specified" unless length $db;
 
+    return $self unless -d $db;
+
+    # TODO - just delete the directory?
     opendir DIR, $db or die "Can't opendir $db: $!";
     my @files = map "$db/$_", map /(.*)/ && $1, grep !/^\.\.?/, readdir DIR;
     closedir DIR or die "Can't closedir $db: $!";
@@ -160,7 +163,8 @@ sub validate_db
     my $self = shift;
 
     # Check validity of the db.  It is valid if the $DB file is there, or if it
-    # is not there but the db directory is empty.
+    # is not there but the db directory is empty, or if there is no db
+    # directory.
     # die if the db is invalid.
 
     # just warn for now
@@ -170,9 +174,16 @@ sub validate_db
     $self
 }
 
+sub exists
+{
+    my $self = shift;
+    -d $self->{db}
+}
+
 sub is_valid
 {
     my $self = shift;
+    return 1 if !-e $self->{db};
     return 1 if -e "$self->{db}/$DB";
     opendir my $fh, $self->{db} or return 0;
     for my $file (readdir $fh)
@@ -996,11 +1007,11 @@ Huh?
 
 =head1 VERSION
 
-Version 0.65 - 8th August 2009
+Version 0.66 - 12th April 2010
 
 =head1 LICENCE
 
-Copyright 2001-2009, Paul Johnson (pjcj@cpan.org)
+Copyright 2001-2010, Paul Johnson (pjcj@cpan.org)
 
 This software is free.  It is licensed under the same terms as Perl itself.
 

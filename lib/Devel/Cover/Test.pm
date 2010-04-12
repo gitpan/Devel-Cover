@@ -1,4 +1,4 @@
-# Copyright 2002-2009, Paul Johnson (pjcj@cpan.org)
+# Copyright 2002-2010, Paul Johnson (pjcj@cpan.org)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -10,14 +10,14 @@ package Devel::Cover::Test;
 use strict;
 use warnings;
 
-our $VERSION = "0.65";
+our $VERSION = "0.66";
 
 use Carp;
 
 use File::Spec;
 use Test;
 
-use Devel::Cover::Inc 0.65;
+use Devel::Cover::Inc 0.66;
 
 my $Test;
 
@@ -348,6 +348,7 @@ sub create_gold
         next if $l =~ /^Devel::Cover: merging run/;
         $l =~ s/^($_: ).*$/$1.../
             for "Run", "Perl version", "OS", "Start", "Finish";
+        $l =~ s/^(Reading database from ).*$/$1.../;
         print STDERR $l if $debug;
         print G $l;
         $ng .= $l;
@@ -355,13 +356,17 @@ sub create_gold
     close T or die "Cannot close $cover_com: $!";
     close G or die "Cannot close $new_gold: $!";
 
+    print STDERR "gv is $gv and this is $]\n" if $debug;
+    print STDERR "gold is $gold and new_gold is $new_gold\n" if $debug;
     unless ($gv eq "5.0" || $gv eq $])
     {
         open G, "$gold" or die "Cannot open $gold: $!";
         my $g = do { local $/; <G> };
         close G or die "Cannot close $gold: $!";
 
-        # print STDERR "checking $new_gold against $gold\n";
+        print STDERR "checking $new_gold against $gold\n" if $debug;
+        # print "--[$ng]--\n";
+        # print "--[$g]--\n";
         if ($ng eq $g)
         {
             print "Output from $new_gold matches $gold\n";
