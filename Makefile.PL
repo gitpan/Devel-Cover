@@ -19,8 +19,8 @@ use File::Copy;
 
 $| = 1;
 
-my $Version  = "0.66";
-my $Date     = "12th April 2010";
+my $Version  = "0.67";
+my $Date     = "8th May 2010";
 my $Author   = 'pjcj@cpan.org';
 
 my @perlbug  = ("perlbug", "-a", $Author,
@@ -28,7 +28,7 @@ my @perlbug  = ("perlbug", "-a", $Author,
 my $Perlbug  = join " ", map { / / ? "'$_'" : $_ } @perlbug;
 
 my @files    = sort keys %{maniread()}, "lib/Devel/Cover/Inc.pm";
-my @versions = grep { $_ ne "README" && $_ ne "Makefile.PL" } @files;
+my @versions = grep !/^(?:README|Makefile\.PL|\.gitignore)$/, @files;
 
 my $base     = getcwd;
 
