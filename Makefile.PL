@@ -19,8 +19,8 @@ use File::Copy;
 
 $| = 1;
 
-my $Version  = "0.68";
-my $Date     = "5th August 2010";
+my $Version  = "0.69";
+my $Date     = "28th August 2010";
 my $Author   = 'pjcj@cpan.org';
 
 my @perlbug  = ("perlbug", "-a", $Author,
@@ -86,9 +86,12 @@ close I or die "Cannot close lib/Devel/Cover/Inc.pm: $!";
 
 print "Writing tests ........ ";
 
-unless (-d "t")
+for my $d (qw( t t/e2e ))
 {
-    mkdir "t" or die "Cannot mkdir t: $!";
+    unless (-d $d)
+    {
+        mkdir $d or die "Cannot mkdir $: $!";
+    }
 }
 
 opendir D, "tests" or die "Cannot opendir tests: $!";
@@ -100,11 +103,11 @@ for my $t (readdir D)
 
     if ($t =~ /\.t/)
     {
-        copy("tests/$t", "t/$t") or die "Cannot copy tests/$t to t/$t: $!";
+        copy("tests/$t", "t/e2e/$t") or die "Cannot copy tests/$t to t/e2e/$t: $!";
         next
     }
 
-    open T, ">t/a$t.t" or die "Cannot open t/a$t.t: $!";
+    open T, ">t/e2e/a$t.t" or die "Cannot open t/e2e/a$t.t: $!";
     print T <<EOT;
 #!$^X
 
@@ -127,7 +130,7 @@ use Devel::Cover::Test $Version;
 
 Devel::Cover::Test->new("$t");
 EOT
-    close T or die "Cannot open t/a$t.t: $!";
+    close T or die "Cannot close t/e2e/a$t.t: $!";
 }
 closedir D or die "Cannot closedir tests: $!";
 
@@ -135,12 +138,12 @@ print "done\n\n";
 
 my $e;
 
-print "checking for Storable.pm                    ........ ";
+print "checking for Storable                       ........ ";
 
 $e = <<EOM;
 
-Storable.pm is required to store the coverage database.  You can
-download Storable from CPAN.
+Storable is required to store the coverage database.  You can download
+Storable from CPAN.
 
 EOM
 
@@ -155,12 +158,12 @@ else
     print "not found\n\n$e\n";
 }
 
-print "checking for Digest::MD5.pm                 ........ ";
+print "checking for Digest::MD5                    ........ ";
 
 $e = <<EOM;
 
-Digest::MD5.pm is required to check whether covered files have changed.
-You can download Digest::MD5 from CPAN.
+Digest::MD5 is required to check whether covered files have changed.  You can
+download Digest::MD5 from CPAN.
 
 EOM
 
@@ -175,11 +178,31 @@ else
     print "not found\n\n$e\n";
 }
 
-print "checking for Template.pm       version 2.00 ........ ";
+print "checking for Test::More                     ........ ";
 
 $e = <<EOM;
 
-Template.pm 2.00 is required to run the some HTML backends to cover and
+Test::More is required to run the Devel::Cover tests.  You can download
+Test::More from CPAN.
+
+EOM
+
+eval "use Test::More";
+if (my $m = $INC{"Test/More.pm"})
+{
+    my $v = eval { no warnings; $Test::More::VERSION };
+    print "$v     $m\n";
+}
+else
+{
+    print "not found\n\n$e\n";
+}
+
+print "checking for Template          version 2.00 ........ ";
+
+$e = <<EOM;
+
+Template 2.00 is required to run the some HTML backends to cover and
 for cpancover.  Unless you have specific requirements this should not be
 a problem, but you will not be able to use these reports until you
 install the Template Toolkit, available from CPAN.  In the meantime you
@@ -224,17 +247,6 @@ else
 
 print "checking for Perl::Tidy        version 20060719 .... ";
 
-$e = <<EOM;
-
-One of PPI::HTML 1.07 or Perl::Tidy 20060719 is required to add syntax
-highlighting to some HTML backends to cover and for cpancover.  Unless
-you have specific requirements this should not be a problem, but you will
-not be able to use syntax highlighting in these reports until you install
-PPI::HTML or Perl::Tidy, available from the CPAN.  In the meantime you
-may continue to use the rest of Devel::Cover.
-
-EOM
-
 eval "use Perl::Tidy";
 if (my $m = $INC{"Perl/Tidy.pm"})
 {
@@ -246,11 +258,11 @@ else
     print "not found\n\n$e\n";
 }
 
-print "checking for Pod::Coverage.pm  version 0.06 ........ ";
+print "checking for Pod::Coverage     version 0.06 ........ ";
 
 $e = <<EOM;
 
-Pod::Coverage.pm 0.06 is required to do pod coverage.  This will tell
+Pod::Coverage 0.06 is required to do pod coverage.  This will tell
 you how well you have documented your modules.  Pod coverage will be
 unavailable until you install this module, available from CPAN.  In the
 meantime, you may continue to use the rest of Devel::Cover.
@@ -289,11 +301,11 @@ else
     print "not found\n\n$e\n";
 }
 
-print "checking for Test::Differences.pm           ........ ";
+print "checking for Test::Differences              ........ ";
 
 $e = <<EOM;
 
-Test::Differences.pm is used to display output from failed tests.
+Test::Differences is used to display output from failed tests.
 Hopefully there won't be any failed tests, but if there are you will get
 output that may not be a model of clarity.  If you do get test failures
 and you fancy helping me by debugging them, then you might like to
@@ -306,7 +318,7 @@ eval "use Test::Differences";
 if (my $m = $INC{"Test/Differences.pm"})
 {
     my $v = eval { no warnings; $Test::Differences::VERSION };
-    print "$v     $m\n";
+    printf "%-8s $m\n", $v;
 }
 else
 {
@@ -367,16 +379,18 @@ WriteMakefile
     PREREQ_PM => {
                      Storable      => 0,
                      "Digest::MD5" => 0,
+                     "Test::More"  => 0,
                  },
     dist      => { COMPRESS => "gzip --best --force" },
-    clean     => { FILES => join " ",  "t/*" },
-    depend    => { distdir => "@files" },
+    test      => { TESTS    => "t/*/*.t"             },
+    clean     => { FILES    => join " ",  "t/e2e/*"  },
+    depend    => { distdir  => "@files"              },
     realclean => $] < 5.008008 ?
                  {
                      FILES => "lib/Devel/Cover/Inc.pm",
-                     POSTOP => "\$(RM_RF) cover_db t"
+                     POSTOP => "\$(RM_RF) cover_db t/e2e"
                  } :
-                 { FILES => "lib/Devel/Cover/Inc.pm cover_db t" },
+                 { FILES => "lib/Devel/Cover/Inc.pm cover_db t/e2e" },
 );
 
 print "\n";
@@ -473,9 +487,7 @@ DB = cover_db
 dump :
 \t \$(PERL) -Mblib cover -dump_db \$(DB)
 
-FONT = 8x13
-FONT = -sun-screen-medium-r-normal-*-*-70-*-*-m-*-sun-fontspecific
-FONT = "Bitstream Vera Sans Mono 8"
+FONT = "Inconsolata 10"
 GEOM = 260x85+0+0
 
 diff : out
@@ -487,7 +499,7 @@ gold : pure_all
 \t \$(PERL) create_gold \$(TEST)
 
 all_test :
-\t exec \$(PERL) all_versions make test
+\t exec \$(PERL) all_versions test
 
 all_gold :
 \t rm -rf test_output

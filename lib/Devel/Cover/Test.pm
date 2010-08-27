@@ -10,14 +10,14 @@ package Devel::Cover::Test;
 use strict;
 use warnings;
 
-our $VERSION = "0.68";
+our $VERSION = "0.69";
 
 use Carp;
 
 use File::Spec;
 use Test;
 
-use Devel::Cover::Inc 0.68;
+use Devel::Cover::Inc 0.69;
 
 my $Test;
 
@@ -70,9 +70,11 @@ sub get_params
                               . " -merge 0 -coverage $self->{criteria} "
                               . ($self->{test_parameters} || "");
     $self->{criteria} =~ s/-\w+//g;
+    $self->{cover_db} = "$Devel::Cover::Inc::Base/t/e2e/cover_db_$self->{test}/";
+    mkdir $self->{cover_db};
     $self->{cover_parameters} = join(" ", map "-coverage $_",
                                               split " ", $self->{criteria})
-                              . " -report text";
+                              . " -report text " . $self->{cover_db};
     $self->{cover_parameters} .= " -uncoverable_file $self->{uncoverable_file}"
         if $self->{uncoverable_file};
     $self->{skip}             = $self->{skip_reason}
@@ -111,7 +113,7 @@ sub test_command
     unless ($ENV{DEVEL_COVER_NO_COVERAGE})
     {
         $c .= " -MDevel::Cover=" .
-              join(",", split ' ', $self->{test_parameters})
+              join(",", '-db', $self->{cover_db}, split ' ', $self->{test_parameters})
     }
     $c .= " " . shell_quote $self->test_file;
     $c .= " " . $self->test_file_parameters;

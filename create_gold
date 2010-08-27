@@ -12,14 +12,14 @@ require 5.6.1;
 use strict;
 use warnings;
 
-our $VERSION = "0.68";
+our $VERSION = "0.69";
 
 use blib;
 
 use Config;
 exit if $Config{useithreads};
 
-use Devel::Cover::Test 0.68;
+use Devel::Cover::Test 0.69;
 
 my @tests = @ARGV;
 
@@ -42,8 +42,9 @@ unless (@tests)
 
 for my $test (@tests)
 {
-    my $t = -e "t/$test"    ? "t/$test"    :
-            -e "t/a$test.t" ? "t/a$test.t" :
+    my $d = "t/e2e";
+    my $t = -e "$d/$test"    ? "$d/$test"    :
+            -e "$d/a$test.t" ? "$d/a$test.t" :
             $test;
     print STDERR "creating golden results for $test\n";
     require $t or die "Can't require $t: $!";

@@ -12,9 +12,9 @@ require 5.6.1;
 use strict;
 use warnings;
 
-our $VERSION = "0.68";
+our $VERSION = "0.69";
 
-use Devel::Cover::DB 0.68;
+use Devel::Cover::DB 0.69;
 
 use Config;
 use Cwd "abs_path";
@@ -131,7 +131,7 @@ sub mb_test_command
 
 sub main
 {
-    if ($INC{"Devel/Cover.pm"})
+    if (!$ENV{DEVEL_COVER_SELF} && $INC{"Devel/Cover.pm"})
     {
         my $err = "$0 shouldn't be run with coverage turned on.\n";
         eval
@@ -444,7 +444,7 @@ See the BUGS file.
 
 =head1 VERSION
 
-Version 0.68 - 5th August 2010
+Version 0.69 - 28th August 2010
 
 =head1 LICENCE
 
