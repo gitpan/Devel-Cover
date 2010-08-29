@@ -19,8 +19,8 @@ use File::Copy;
 
 $| = 1;
 
-my $Version  = "0.69";
-my $Date     = "28th August 2010";
+my $Version  = "0.70";
+my $Date     = "29th August 2010";
 my $Author   = 'pjcj@cpan.org';
 
 my @perlbug  = ("perlbug", "-a", $Author,
@@ -505,7 +505,7 @@ all_gold :
 \t rm -rf test_output
 \t exec \$(PERL) all_versions make gold
 
-mani :
+mani : manifest
 \t \$(PERL) -i.bak -ne '\$\$d = "test_output/cover"; print unless /^\$\$d/; END { open M, ">>MANIFEST"; opendir D, \$\$d; print M "\$\$d/\$\$_\\n" for sort grep -f "\$\$d/\$\$_", readdir D }' MANIFEST
 
 ok :
