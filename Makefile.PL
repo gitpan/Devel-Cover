@@ -19,8 +19,8 @@ use File::Copy;
 
 $| = 1;
 
-my $Version  = "0.70";
-my $Date     = "29th August 2010";
+my $Version  = "0.71";
+my $Date     = "10th September 2010";
 my $Author   = 'pjcj@cpan.org';
 
 my @perlbug  = ("perlbug", "-a", $Author,
@@ -325,7 +325,7 @@ else
     print "not found\n\n$e\n";
 }
 
-my $latest_tested = "5.012001";
+my $latest_tested = "5.012002";
 print <<EOM if $] > $latest_tested;
 
 Devel::Cover $Version has not been tested with perl $].
@@ -482,6 +482,12 @@ text : out
 wrun : pure_all
 \t \$(PERL) \$(TAINT) -Iblib/lib -Iblib/arch -MDevel::Cover=-ignore,blib,-merge,0 tests/\$(TEST)
 
+prove : pure_all
+\t \$(PERL) -Iutils -MDevel::Cover::BuildUtils=prove_command -le '\$\$c = prove_command and print \$\$c and system \$\$c'
+
+tst : pure_all
+\t \$(PERL) -Iutils -MDevel::Cover::BuildUtils=prove_command -le '\$\$c = prove_command and print \$\$c and system \$\$c and system "make test"'
+
 DB = cover_db
 
 dump :
@@ -491,21 +497,30 @@ FONT = "Inconsolata 10"
 GEOM = 260x85+0+0
 
 diff : out
-\t \$(PERL) makeh strip_criterion 'time' \$(TEST).out
-\t \$(PERL) makeh strip_criterion ' pod' \$(TEST).out
+\t \$(PERL) utils/makeh strip_criterion 'time' \$(TEST).out
+\t \$(PERL) utils/makeh strip_criterion ' pod' \$(TEST).out
 \t gvim -geom \$(GEOM) -d -font \$(FONT) `\$(PERL) -Mblib -MDevel::Cover::Test -e '\$\$t = Devel::Cover::Test->new("\$(TEST)", run_test_at_end => 0); print \$\$t->cover_gold'` \$(TEST).out
 
 gold : pure_all
-\t \$(PERL) create_gold \$(TEST)
+\t \$(PERL) utils/create_gold \$(TEST)
 
 all_test :
-\t exec \$(PERL) all_versions test
+\t exec \$(PERL) utils/all_versions make test
 
 all_gold :
 \t rm -rf test_output
-\t exec \$(PERL) all_versions make gold
+\t exec \$(PERL) utils/all_versions make gold
 
-mani : manifest
+self_cover : pure_all
+\t rm -rf cover_db
+\t -DEVEL_COVER_SELF=1 \$(PERL) -Mblib -MDevel::Cover cover -delete t/e2e/cover_db_*
+\t -DEVEL_COVER_SELF=1 make test
+\t DEVEL_COVER_SELF=1 \$(PERL) -Mblib -MDevel::Cover cover t/e2e/cover_db_*
+\t DEVEL_COVER_SELF=1 \$(PERL) -Mblib -MDevel::Cover cover -report html_basic
+
+mani :
+\t -rm MANIFEST
+\t \$(MAKE) manifest
 \t \$(PERL) -i.bak -ne '\$\$d = "test_output/cover"; print unless /^\$\$d/; END { open M, ">>MANIFEST"; opendir D, \$\$d; print M "\$\$d/\$\$_\\n" for sort grep -f "\$\$d/\$\$_", readdir D }' MANIFEST
 
 ok :

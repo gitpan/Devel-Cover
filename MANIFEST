@@ -1,11 +1,10 @@
 .gitignore
-all_versions
 cover
 Cover.xs
 cpancover
-create_gold
 docs/BUGS
 docs/CHANGES
+docs/RELEASE
 docs/TODO
 gcov2perl
 lib/Devel/Cover.pm
@@ -40,13 +39,10 @@ lib/Devel/Cover/Truth_Table.pm
 lib/Devel/Cover/Tutorial.pod
 lib/Devel/Cover/Web.pm
 Makefile.PL
-makeh
 MANIFEST			This list of files
 MANIFEST.SKIP
 META.yml
 README
-scanuncov
-session.vim
 t/regexp/regexp_eval.t
 tests/.uncoverable
 tests/alias
@@ -103,8 +99,14 @@ tests/t2
 tests/trivial
 tests/uncoverable
 typemap
+utils/all_versions
+utils/create_gold
+utils/Devel/Cover/BuildUtils.pm
 utils/install/buildperl
 utils/install/System.pm
+utils/makeh
+utils/scanuncov
+utils/session.vim
 test_output/cover/alias.5.006001
 test_output/cover/alias1.5.006001
 test_output/cover/alias1.5.008
