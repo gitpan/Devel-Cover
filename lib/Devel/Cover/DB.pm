@@ -10,11 +10,11 @@ package Devel::Cover::DB;
 use strict;
 use warnings;
 
-our $VERSION = "0.71";
+our $VERSION = "0.72";
 
-use Devel::Cover::Criterion     0.71;
-use Devel::Cover::DB::File      0.71;
-use Devel::Cover::DB::Structure 0.71;
+use Devel::Cover::Criterion     0.72;
+use Devel::Cover::DB::File      0.72;
+use Devel::Cover::DB::Structure 0.72;
 
 use Carp;
 use File::Path;
@@ -711,6 +711,8 @@ sub cover
 
     for my $run (@runs)
     {
+        last unless $st;
+
         my $r = $self->{runs}{$run};
         @{$self->{collected}}{@{$r->{collected}}} = ();
         $st->add_criteria(@{$r->{collected}});
@@ -1007,7 +1009,7 @@ Huh?
 
 =head1 VERSION
 
-Version 0.71 - 10th September 2010
+Version 0.72 - 27th September 2010
 
 =head1 LICENCE
 

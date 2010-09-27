@@ -16,7 +16,7 @@ use Storable;
 
 use Devel::Cover::DB;
 
-our $VERSION = "0.71";
+our $VERSION = "0.72";
 our $AUTOLOAD;
 
 sub new
@@ -207,7 +207,7 @@ sub digest
     {
         warn "Devel::Cover: Can't open $file for MD5 digest: $!\n"
             unless lc $file eq "-e";
-        # use Carp; print STDERR Carp::longmess("in " . `pwd`);
+        # print STDERR Carp::longmess("in " . `pwd`);
     }
     $digest
 }
@@ -216,6 +216,7 @@ sub get_count
 {
     my $self = shift;
     my ($criterion) = @_;
+    return 0 unless $self->{file};  # TODO - how does this get unset?
     $self->{count}{$criterion}{$self->{file}}
 }
 
@@ -251,7 +252,7 @@ sub write
         $self->{f}{$file}{file} = $file;
         unless ($self->{f}{$file}{digest})
         {
-            warn "Can't find digest for $file";
+            warn "Can't find digest for $file" unless $Devel::Cover::Silent;
             next;
         }
         my $df = "$dir/$self->{f}{$file}{digest}";
@@ -323,7 +324,7 @@ Huh?
 
 =head1 VERSION
 
-Version 0.71 - 10th September 2010
+Version 0.72 - 27th September 2010
 
 =head1 LICENCE
 

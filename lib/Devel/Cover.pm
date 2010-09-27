@@ -10,13 +10,13 @@ package Devel::Cover;
 use strict;
 use warnings;
 
-our $VERSION = "0.71";
+our $VERSION = "0.72";
 
 use DynaLoader ();
 our @ISA = "DynaLoader";
 
-use Devel::Cover::DB  0.71;
-use Devel::Cover::Inc 0.71;
+use Devel::Cover::DB  0.72;
+use Devel::Cover::Inc 0.72;
 
 use B qw( class ppname main_cv main_start main_root walksymtable OPf_KIDS );
 use B::Debug;
@@ -513,10 +513,10 @@ sub check_file
 {
     my ($cv) = @_;
 
-    return unless class($cv) eq "CV";
+    return unless ref($cv) eq "B::CV";
 
     my $op = $cv->START;
-    return unless $op->can("file") && class($op) ne "NULL" && is_state($op);
+    return unless ref($op) eq "B::COP";
 
     my $file = $op->file;
     my $use  = use_file($file);
@@ -1093,6 +1093,7 @@ sub get_cover
 
     # print STDERR "get_cover: <$Sub_name>\n";
     return unless defined $Sub_name;  # Only happens within Safe.pm, AFAIK.
+    # return unless length  $Sub_name;  # Only happens with Self_cover, AFAIK.
 
     get_location($start) if $start;
     # print STDERR "[[$File:$Line]]\n";
@@ -1285,6 +1286,9 @@ The most appropriate mailing list on which to discuss this module would
 be perl-qa.  Discussion has migrated there from perl-qa-metrics which is
 now defunct.  See L<http://lists.perl.org/showlist.cgi?name=perl-qa>.
 
+The Devel::Cover repository can be found at
+L<http://github.com/pjcj/Devel--Cover>.
+
 =head1 REQUIREMENTS
 
 =over
@@ -1317,6 +1321,10 @@ if you want Pod coverage.
 =item * L<Test::More>
 
 in order to run the tests
+
+=item * L<Test::Warn>
+
+in order to run some of the tests
 
 =item * L<Test::Differences>
 
@@ -1481,7 +1489,7 @@ See the BUGS file.  And the TODO file.
 
 =head1 VERSION
 
-Version 0.71 - 10th September 2010
+Version 0.72 - 27th September 2010
 
 =head1 LICENCE
 
