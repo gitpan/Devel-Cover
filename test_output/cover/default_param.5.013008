@@ -4,8 +4,8 @@ Reading database from ...
 ------------------------------------------ ------ ------ ------ ------ ------
 File                                         stmt   bran   cond    sub  total
 ------------------------------------------ ------ ------ ------ ------ ------
-tests/branch_return_sub                     100.0  100.0  100.0  100.0  100.0
-Total                                       100.0  100.0  100.0  100.0  100.0
+tests/default_param                         100.0    n/a  100.0  100.0  100.0
+Total                                       100.0    n/a  100.0  100.0  100.0
 ------------------------------------------ ------ ------ ------ ------ ------
 
 
@@ -15,7 +15,7 @@ OS: ...
 Start: ...
 Finish: ...
 
-tests/branch_return_sub
+tests/default_param
 
 line  err   stmt   bran   cond    sub   code
 1                                       #!/usr/bin/perl
@@ -34,47 +34,35 @@ line  err   stmt   bran   cond    sub   code
                1                        
                1                        
 12                                      
-13                                      sub my_sqrt
+13                                      sub p
 14                                      {
-15             3                    3       my $n = shift;
-16                                      
-17             3    100    100              if ( !defined($n) || ($n < 0) ) {
-18             2                                return undef;
-19                                          }
-20                                      
-21             1                            return sqrt($n);
-22                                      }
-23                                      
-24             1                        my_sqrt(25);
-25             1                        my_sqrt(-2);
-26             1                        my_sqrt(undef);
-
-
-Branches
---------
-
-line  err      %   true  false   branch
------ --- ------ ------ ------   ------
-17           100      2      1   if (not defined $n or $n < 0)
+15             2           100      2       my $x = shift || 11;
+16             2           100              my $y = shift || [];
+17             2           100              my $z = shift || {};
+18                                      }
+19                                      
+20             1                        p $_, $_, $_ for 0, 1;
 
 
 Conditions
 ----------
 
-or 3 conditions
+or 2 conditions
 
-line  err      %      l  !l&&r !l&&!r   expr
------ --- ------ ------ ------ ------   ----
-17           100      1      1      1   not defined $n or $n < 0
+line  err      %      l     !l   expr
+----- --- ------ ------ ------   ----
+15           100      1      1   shift() || 11
+16           100      1      1   shift() || []
+17           100      1      1   shift() || {}
 
 
 Covered Subroutines
 -------------------
 
-Subroutine Count Location                  
----------- ----- --------------------------
-BEGIN          1 tests/branch_return_sub:10
-BEGIN          1 tests/branch_return_sub:11
-my_sqrt        3 tests/branch_return_sub:15
+Subroutine Count Location              
+---------- ----- ----------------------
+BEGIN          1 tests/default_param:10
+BEGIN          1 tests/default_param:11
+p              2 tests/default_param:15
 
 

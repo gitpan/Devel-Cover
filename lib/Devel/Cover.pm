@@ -1,4 +1,4 @@
-# Copyright 2001-2010, Paul Johnson (pjcj@cpan.org)
+# Copyright 2001-2011, Paul Johnson (pjcj@cpan.org)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -10,13 +10,13 @@ package Devel::Cover;
 use strict;
 use warnings;
 
-our $VERSION = "0.73";
+our $VERSION = "0.74";
 
 use DynaLoader ();
 our @ISA = "DynaLoader";
 
-use Devel::Cover::DB  0.73;
-use Devel::Cover::Inc 0.73;
+use Devel::Cover::DB  0.74;
+use Devel::Cover::Inc 0.74;
 
 use B qw( class ppname main_cv main_start main_root walksymtable OPf_KIDS );
 use B::Debug;
@@ -553,7 +553,7 @@ sub B::GV::find_cv
 sub sub_info
 {
     my ($cv) = @_;
-    my ($name, $start) = ("", 0);
+    my ($name, $start) = ("--unknown--", 0);
     if (!$cv->GV->isa("B::SPECIAL"))
     {
         return unless $cv->GV->can("SAFENAME");
@@ -837,7 +837,7 @@ sub add_condition_cover
         # if exists $condition_locations{$$op};
 
     my $key = get_key($op);
-    # print STDERR "Condition cover $$op from $File:$Line\n";
+    # warn "Condition cover $$op from $File:$Line\n";
     # print STDERR "left:  [$left]\nright: [$right]\n";
     # use Carp "cluck"; cluck("from here");
 
@@ -1102,7 +1102,7 @@ sub get_cover
 
     ($Sub_name, my $start) = sub_info($cv);
 
-    # print STDERR "get_cover: <$Sub_name>\n";
+    # warn "get_cover: <$Sub_name>\n";
     return unless defined $Sub_name;  # Only happens within Safe.pm, AFAIK.
     # return unless length  $Sub_name;  # Only happens with Self_cover, AFAIK.
 
@@ -1295,7 +1295,7 @@ imagine that at least one of them is wrong.
 
 The most appropriate mailing list on which to discuss this module would
 be perl-qa.  Discussion has migrated there from perl-qa-metrics which is
-now defunct.  See L<http://lists.perl.org/showlist.cgi?name=perl-qa>.
+now defunct.  See L<http://lists.perl.org/list/perl-qa.html>.
 
 The Devel::Cover repository can be found at
 L<http://github.com/pjcj/Devel--Cover>.
@@ -1500,11 +1500,11 @@ See the BUGS file.  And the TODO file.
 
 =head1 VERSION
 
-Version 0.73 - 2nd October 2010
+Version 0.74 - 16th April 2011
 
 =head1 LICENCE
 
-Copyright 2001-2010, Paul Johnson (pjcj@cpan.org)
+Copyright 2001-2011, Paul Johnson (pjcj@cpan.org)
 
 This software is free.  It is licensed under the same terms as Perl itself.
 

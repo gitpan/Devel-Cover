@@ -1,4 +1,4 @@
-# Copyright 2004-2010, Paul Johnson (pjcj@cpan.org)
+# Copyright 2004-2011, Paul Johnson (pjcj@cpan.org)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -16,7 +16,10 @@ use Storable;
 
 use Devel::Cover::DB;
 
-our $VERSION = "0.73";
+# For comprehensive debug logging.
+use constant DEBUG => 0;
+
+our $VERSION = "0.74";
 our $AUTOLOAD;
 
 sub new
@@ -76,6 +79,26 @@ sub AUTOLOAD
         };
     }
     goto &$func
+}
+
+sub debuglog {
+    my $self = shift;
+    my $dir = "$self->{base}/debuglog";
+    unless (-d $dir)
+    {
+        mkdir $dir, 0700 or confess "Can't mkdir $dir: $!";
+    }
+
+    require Data::Dumper;
+    local $Data::Dumper::Indent = 1;
+    local $\;
+    # One log file per process, as we're potentially dumping out large amounts,
+    # and might excede the atomic write size of the OS.
+    open my $fh, '>>', "$dir/$$" or confess "Can't open $dir/$$: $!";
+    print $fh "----------------" . gmtime() . "----------------\n";
+    print $fh ref $_ ? Dumper($_) : $_;
+    print $fh "\n";
+    close $fh or confess "Can't close $dir/$$: $!";
 }
 
 sub add_criteria
@@ -225,6 +248,8 @@ sub get_count
 sub add_count
 {
     my $self = shift;
+    # warn Carp::longmess("undefined file") unless defined $self->{file};
+    return unless defined $self->{file};  # can happen during self_cover
     my ($criterion) = @_;
     $self->{additional_count}{$criterion}{$self->{file}}++
         if $self->{additional};
@@ -257,11 +282,32 @@ sub write
             warn "Can't find digest for $file" unless $Devel::Cover::Silent;
             next;
         }
-        my $df = "$dir/$self->{f}{$file}{digest}";
+        my $df_final = "$dir/$self->{f}{$file}{digest}";
+        my $df_temp = "$dir/.$self->{f}{$file}{digest}.$$";
         # TODO - determine if Structure has changed to save writing it.
         # my $f = $df; my $n = 1; $df = $f . "." . $n++ while -e $df;
         # print STDERR "Writing [$file] to [$df]\n";
-        Storable::nstore($self->{f}{$file}, $df); # unless -e $df;
+        Storable::nstore($self->{f}{$file}, $df_temp); # unless -e $df;
+        unless (rename $df_temp, $df_final) {
+            unless ($Devel::Cover::Silent) {
+                if(-e $df_final) {
+                    warn "Can't rename $df_temp to $df_final (which exists): $!";
+                    $self->debuglog("Can't rename $df_temp to $df_final "
+                                    . "(which exists): $!")
+                        if DEBUG;
+                } else {
+                    warn "Can't rename $df_temp to $df_final: $!";
+                    $self->debuglog("Can't rename $df_temp to $df_final: $!")
+                        if DEBUG;
+                }
+            }
+            unless (unlink $df_temp) {
+                warn "Can't remove $df_temp after failed rename: $!"
+                    unless $Devel::Cover::Silent;
+                $self->debuglog("Can't remove $df_temp after failed rename: $!")
+                    if DEBUG;
+            }
+        }
     }
 }
 
@@ -270,10 +316,27 @@ sub read
     my $self     = shift;
     my ($digest) = @_;
     my $file     = "$self->{base}/structure/$digest";
-    my $s        = retrieve($file);
+    my $s = eval { retrieve($file) };
+    if ($@ or !$s) {
+        $self->debuglog("read retrieve $file failed: $@") if DEBUG;
+        die $@;
+    }
+    if (DEBUG) {
+        foreach my $key (qw(file digest)) {
+            if (!defined $s->{$key}) {
+                $self->debuglog("retrieve $file had no $key entry. Got:\n", $s);
+            }
+        }
+    }
     my $d        = $self->digest($s->{file});
     # use Data::Dumper; print STDERR "reading $digest from $file: ", Dumper $s;
-    if ($d && $d eq $s->{digest})
+    if (!$d) {
+        # No digest implies that we can't read the file. Likely this is because
+        # it's stored with a relative path. In which case, it's not valid to
+        # assume that the file has been changed, and hence that we need to
+        # "update" the structure database on disk.
+    }
+    elsif ($d eq $s->{digest})
     {
         $self->{f}{$s->{file}} = $s;
     }
@@ -281,7 +344,18 @@ sub read
     {
         warn "Devel::Cover: Deleting old coverage ",
              "for changed file $s->{file}\n";
-        unlink $file or warn "Devel::Cover: can't delete $file: $!\n";
+        if (unlink $file) {
+            $self->debuglog("Deleting old coverage $file for changed "
+                            . "$s->{file} $s->{digest} vs $d. Got:\n", $s,
+                            "Have:\n", $self->{f}{$file})
+                if DEBUG;
+        } else {
+            warn "Devel::Cover: can't delete $file: $!\n";
+            $self->debuglog("Failed to delete coverage $file for changed "
+                            . "$s->{file} ($!) $s->{digest} vs $d. Got:\n", $s,
+                            "Have:\n", $self->{f}{$file})
+                if DEBUG;
+        }
     }
     $self
 }
@@ -326,11 +400,11 @@ Huh?
 
 =head1 VERSION
 
-Version 0.73 - 2nd October 2010
+Version 0.74 - 16th April 2011
 
 =head1 LICENCE
 
-Copyright 2004-2010, Paul Johnson (pjcj@cpan.org)
+Copyright 2004-2011, Paul Johnson (pjcj@cpan.org)
 
 This software is free.  It is licensed under the same terms as Perl itself.
 
