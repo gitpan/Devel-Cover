@@ -12,14 +12,20 @@ use warnings;
 
 use File::Copy;
 
-use Devel::Cover::Inc  0.75;
-use Devel::Cover::Test 0.75;
+use Devel::Cover::Inc  0.76;
+use Devel::Cover::Test 0.76;
 
 my $base = $Devel::Cover::Inc::Base;
 
 my $t  = "md5";
 my $ft = "$base/tests/$t";
 my $fg = "$base/tests/trivial";
+
+if ($] == 5.008007)
+{
+    eval "use Test::More skip_all => 'Crashes 5.8.7'";
+    exit;
+}
 
 my $run_test = sub
 {

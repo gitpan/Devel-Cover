@@ -10,17 +10,17 @@ package Devel::Cover::DB;
 use strict;
 use warnings;
 
-our $VERSION = "0.75";
+our $VERSION = "0.76";
 
-use Devel::Cover::Criterion     0.75;
-use Devel::Cover::DB::File      0.75;
-use Devel::Cover::DB::Structure 0.75;
-use Devel::Cover::DB::IO        0.75;
+use Devel::Cover::Criterion     0.76;
+use Devel::Cover::DB::File      0.76;
+use Devel::Cover::DB::Structure 0.76;
+use Devel::Cover::DB::IO        0.76;
 
 use Carp;
 use File::Path;
 
-my $DB = "cover.12";  # Version 12 of the database.
+my $DB = "cover.13";  # Version 13 of the database.
 
 @Devel::Cover::DB::Criteria =
     (qw( statement branch path condition subroutine pod time ));
@@ -1007,7 +1007,7 @@ Huh?
 
 =head1 VERSION
 
-Version 0.75 - 17th April 2011
+Version 0.76 - 18th April 2011
 
 =head1 LICENCE
 

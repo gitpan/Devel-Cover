@@ -10,13 +10,13 @@ package Devel::Cover;
 use strict;
 use warnings;
 
-our $VERSION = "0.75";
+our $VERSION = "0.76";
 
 use DynaLoader ();
 our @ISA = "DynaLoader";
 
-use Devel::Cover::DB  0.75;
-use Devel::Cover::Inc 0.75;
+use Devel::Cover::DB  0.76;
+use Devel::Cover::Inc 0.76;
 
 use B qw( class ppname main_cv main_start main_root walksymtable OPf_KIDS );
 use B::Debug;
@@ -106,6 +106,8 @@ BEGIN
     # $^P = 0x004 | 0x100 | 0x200;
     $^P |= 0x004 | 0x100;
 }
+
+sub version { $VERSION }
 
 if (0 && $Config{useithreads})
 {
@@ -1304,14 +1306,14 @@ L<http://github.com/pjcj/Devel--Cover>.
 
 =over
 
-=item * Perl 5.6.1 or greater.  Perl 5.8.2 or greater is recommended.
+=item * Perl 5.6.1 or greater.  Perl 5.8.8 or greater is recommended.
 
-Perl 5.7.0 is unsupported.  Perl 5.8.2 or greater is recommended.
-Whilst Perl 5.6 should mostly work you will probably miss out on
-coverage information which would be available using a more modern
-version and will likely run into bugs in perl.  Perl 5.8.0 will give
-slightly different results to more recent versions due to changes in the
-op tree.
+Perl 5.7.0 is unsupported.  Perl 5.8.8 or greater is recommended.  Perl
+5.8.7 has problems and may crash.  Whilst Perl 5.6 should mostly work
+you will probably miss out on coverage information which would be
+available using a more modern version and will likely run into bugs in
+perl.  Perl 5.8.0 will give slightly different results to more recent
+versions due to changes in the op tree.
 
 =item * The ability to compile XS extensions.
 
@@ -1500,7 +1502,7 @@ See the BUGS file.  And the TODO file.
 
 =head1 VERSION
 
-Version 0.75 - 17th April 2011
+Version 0.76 - 18th April 2011
 
 =head1 LICENCE
 

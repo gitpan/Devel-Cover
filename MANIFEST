@@ -1,13 +1,14 @@
 .gitignore
+CHANGES
 cover
 Cover.xs
 cpancover
 docs/BUGS
-docs/CHANGES
 docs/RELEASE
 docs/TODO
 gcov2perl
 lib/Devel/Cover.pm
+lib/Devel/Cover/Annotation/Git.pm
 lib/Devel/Cover/Annotation/Random.pm
 lib/Devel/Cover/Annotation/Svk.pm
 lib/Devel/Cover/Branch.pm

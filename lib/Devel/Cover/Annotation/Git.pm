@@ -5,7 +5,7 @@
 # The latest version of this software should be available from my homepage:
 # http://www.pjcj.net
 
-package Devel::Cover::Annotation::Svk;
+package Devel::Cover::Annotation::Git;
 
 use strict;
 use warnings;
@@ -13,52 +13,19 @@ use warnings;
 our $VERSION = "0.76";
 
 use Getopt::Long;
-use Digest::MD5;
-
-sub md5_fh
-{
-    my $fh = shift;
-    my $ctx = Digest::MD5->new;
-    $ctx->addfile($fh);
-    $ctx->hexdigest
-}
 
 sub new
 {
     my $class = shift;
-    my $annotate_arg = $ENV{DEVEL_COVER_SVK_ANNOTATE} || "";
+    my $annotate_arg = $ENV{DEVEL_COVER_GIT_ANNOTATE} || "";
     my $self =
     {
         annotations => [ qw( version author date ) ],
-        command     => "svk annotate $annotate_arg [[file]]",
+        command     => "git blame --porcelain $annotate_arg [[file]]",
         @_
     };
 
-    bless $self, $class;
-
-    open my $c, "-|", "svk info"
-        or warn "cover: Not a svk checkout: $!\n", return;
-    while (<$c>)
-    {
-        chomp;
-        next unless s/^Depot Path: //;
-        $self->{depotbase} = $_;
-        last;
-    }
-
-    open $c, "-|", "svk ls -Rf $self->{depotbase}"
-        or warn "cover: Can't run svk ls: $!\n", return;
-    while (<$c>)
-    {
-        chomp;
-        s{^\Q$self->{depotbase}\E/}{};
-        next unless -f $_;
-
-        open my $f, $_ or warn "cover: Can't open $_: $!\n", next;
-        $self->{md5map}{md5_fh($f)} = $_;
-    }
-
-    $self
+    bless $self, $class
 }
 
 sub get_annotations
@@ -69,24 +36,35 @@ sub get_annotations
     return if exists $self->{_annotations}{$file};
     my $a = $self->{_annotations}{$file} = [];
 
-    print "cover: Getting svk annotation information for $file\n";
-
-    open my $fh, $file or warn "cover: Can't open file $file: $!\n", return;
-    my $realfile = $self->{md5map}{md5_fh($fh)}
-        or warn "cover: $file is not under svk control\n", return;
+    print "cover: Getting git annotation information for $file\n";
 
     my $command = $self->{command};
-    $command =~ s/\[\[file\]\]/$realfile/g;
+    $command =~ s/\[\[file\]\]/$file/g;
+    # print "Running [$command]\n";
     open my $c, "-|", $command
         or warn "cover: Can't run $command: $!\n", return;
-    <$c>; <$c>;  # ignore first two lines
+    my @a;
+    my $start = 1;
     while (<$c>)
     {
-        my @a = /(\d+)\s*\(\s*(\S+)\s*(.*?)\):/;
-        # hack for linking the revision number
-        $a[0] = qq|<a href="$ENV{SVNWEB_URL}/revision/?rev=$a[0]">$a[0]</a>|
-            if $ENV{SVNWEB_URL};
-        push @$a, \@a;
+        # print "[$_]\n";
+        if (/^\t/)
+        {
+            push @$a, [@a];
+            $start = 1;
+            next;
+        }
+
+        if ($start == 1)
+        {
+            $a[0] = substr $1, 0, 8 if /^(\w+)/;
+            $start = 0;
+        }
+        else
+        {
+            $a[1] = $1 if /^author (.*)/;
+            $a[2] = localtime $1 if /^author-time (.*)/;
+        }
     }
     close $c or warn "cover: Failed running $command: $!\n"
 }
@@ -122,7 +100,7 @@ sub width
 {
     my $self = shift;
     my ($annotation) = @_;
-    (7, 10, 10)[$annotation]
+    (8, 16, 24)[$annotation]
 }
 
 sub text
@@ -154,15 +132,15 @@ __END__
 
 =head1 NAME
 
-Devel::Cover::Annotation::Svk - Annotate with svk information
+Devel::Cover::Annotation::Git - Annotate with git information
 
 =head1 SYNOPSIS
 
- cover -report xxx -annotation svk
+ cover -report xxx -annotation git
 
 =head1 DESCRIPTION
 
-Annotate coverage reports with svk annotation information.
+Annotate coverage reports with git annotation information.
 This module is designed to be called from the C<cover> program.
 
 =head1 SEE ALSO
