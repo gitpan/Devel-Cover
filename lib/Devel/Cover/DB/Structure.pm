@@ -14,12 +14,14 @@ use Carp;
 use Digest::MD5;
 
 use Devel::Cover::DB;
-use Devel::Cover::DB::IO        0.76;
+use Devel::Cover::DB::IO        0.77;
+
+use Data::Dumper; $Data::Dumper::Indent = 1; $Data::Dumper::Sortkeys = 1;
 
 # For comprehensive debug logging.
 use constant DEBUG => 0;
 
-our $VERSION = "0.76";
+our $VERSION = "0.77";
 our $AUTOLOAD;
 
 sub new
@@ -60,12 +62,14 @@ sub AUTOLOAD
         {
             *$func = sub
             {
-                my $self = shift;
-                my $file = shift;
-                # print STDERR "file: $file, condition: $c\n";
-                # TODO - why no file?
-                return unless defined $file;
-                $self->{f}{$file}{$c}
+                my $self   = shift;
+                my $digest = shift;
+                # print STDERR "file: $digest, condition: $c\n";
+                for my $fval (values %{$self->{f}})
+                {
+                    return $fval->{$c} if $fval->{digest} eq $digest;
+                }
+                return
             }
         };
     }
@@ -89,8 +93,6 @@ sub debuglog {
         mkdir $dir, 0700 or confess "Can't mkdir $dir: $!";
     }
 
-    require Data::Dumper;
-    local $Data::Dumper::Indent = 1;
     local $\;
     # One log file per process, as we're potentially dumping out large amounts,
     # and might excede the atomic write size of the OS.
@@ -127,7 +129,6 @@ sub set_subroutine
     # for when there are multiple subroutines of the same name on the same
     # line (such subroutines generally being called BEGIN).
 
-    # use Data::Dumper; $Data::Dumper::Indent = 1; $Data::Dumper::Sortkeys = 1;
     # print STDERR "set_subroutine start $file:$line $sub_name($scount) ",
                  # Dumper $self->{f}{$file}{start};
     $self->{additional} = 0;
@@ -188,7 +189,6 @@ sub store_counts
         $self->{f}{$file}{start}{-1}{__COVER__}[0]{$_} =
         $self->get_count($_)
         for $self->criteria;
-    # use Data::Dumper; $Data::Dumper::Indent = 1; $Data::Dumper::Sortkeys = 1;
     # print STDERR Dumper $self->{f}{$file}{start};
 }
 
@@ -268,7 +268,7 @@ sub write
 {
     my $self = shift;
     my ($dir) = @_;
-    # use Data::Dumper; print STDERR Dumper $self;
+    # print STDERR Dumper $self;
     $dir .= "/structure";
     unless (-d $dir)
     {
@@ -331,7 +331,7 @@ sub read
         }
     }
     my $d        = $self->digest($s->{file});
-    # use Data::Dumper; print STDERR "reading $digest from $file: ", Dumper $s;
+    # print STDERR "reading $digest from $file: ", Dumper $s;
     if (!$d) {
         # No digest implies that we can't read the file. Likely this is because
         # it's stored with a relative path. In which case, it's not valid to
@@ -402,7 +402,7 @@ Huh?
 
 =head1 VERSION
 
-Version 0.76 - 18th April 2011
+Version 0.77 - 15th May 2011
 
 =head1 LICENCE
 

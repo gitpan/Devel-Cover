@@ -10,13 +10,14 @@ package Devel::Cover;
 use strict;
 use warnings;
 
-our $VERSION = "0.76";
+our $VERSION = "0.77";
 
 use DynaLoader ();
 our @ISA = "DynaLoader";
 
-use Devel::Cover::DB  0.76;
-use Devel::Cover::Inc 0.76;
+use Devel::Cover::DB          0.77;
+use Devel::Cover::DB::Digests 0.77;
+use Devel::Cover::Inc         0.77;
 
 use B qw( class ppname main_cv main_start main_root walksymtable OPf_KIDS );
 use B::Debug;
@@ -26,6 +27,8 @@ use Carp;
 use Config;
 use Cwd "abs_path";
 use File::Spec;
+
+use Data::Dumper; $Data::Dumper::Indent = 1; $Data::Dumper::Sortkeys = 1;
 
 BEGIN
 {
@@ -72,6 +75,7 @@ my $Sub_count;                           # Count for multiple subs on same line.
 
 my $Coverage;                            # Raw coverage data.
 my $Structure;                           # Structure of the files.
+my $Digests;                             # Digests of the files.
 
 my %Criteria;                            # Names of coverage criteria.
 my %Coverage;                            # Coverage criteria to collect.
@@ -296,6 +300,13 @@ sub import
         warn __PACKAGE__ . ": Unknown option $_ ignored\n";
     }
 
+    if ($blib)
+    {
+        eval "use blib";
+        for (@INC) { $_ = $1 if /(.*)/ }  # Die tainting.
+        push @Ignore, "^t/", '\\.t$', '^test\\.pl$';
+    }
+
     my $ci     = $^O eq "MSWin32";
     @Select_re = map qr/$_/,                           @Select;
     @Ignore_re = map qr/$_/,                           @Ignore;
@@ -323,14 +334,7 @@ sub import
     $DB = $1 if abs_path($DB) =~ /(.*)/;
     Devel::Cover::DB->delete($DB) unless $Merge;
 
-    if ($blib)
-    {
-        eval "use blib";
-        for (@INC) { $_ = $1 if /(.*)/ }  # Die tainting.
-        push @Ignore, "^t/", '\\.t$', '^test\\.pl$';
-    }
-
-    %Files     = ();  # start gathering file information from scratch
+    %Files = ();  # start gathering file information from scratch
 
     for my $c (Devel::Cover::DB->new->criteria)
     {
@@ -415,16 +419,22 @@ sub get_coverage
 
 my %File_cache;
 
+# Recursion in normalised_file() is bad.  It can happen if a call from the sub
+# evals something which wants to load a new module.  This has happened with
+# the Storable backend.  I don't think it happens with the JSON backend.
+my $Normalising;
+
 sub normalised_file
 {
     my ($file) = @_;
 
     return $File_cache{$file} if exists $File_cache{$file};
+    return $file if $Normalising;
+    $Normalising = 1;
 
     my $f = $file;
     $file =~ s/ \(autosplit into .*\)$//;
-    # print STDERR "file is <$file>\n";
-    # use Data::Dumper;
+    $file =~ s/^\(eval in .*\) //;
     # print STDERR "file is <$file>\ncoverage: ", Dumper coverage(0);
     if (exists coverage(0)->{module} && exists coverage(0)->{module}{$file} &&
         !File::Spec->file_name_is_absolute($file))
@@ -461,8 +471,12 @@ sub normalised_file
     $file =~ s|\\|/|g if $^O eq "MSWin32";
     $file =~ s|^$Dir/|| if defined $Dir;
 
+    $Digests ||= Devel::Cover::DB::Digests->new(db => $DB);
+    $file = $Digests->canonical_file($file);
+
     # print STDERR "File: $f => $file\n";
 
+    $Normalising = 0;
     $File_cache{$f} = $file
 }
 
@@ -499,6 +513,7 @@ sub use_file
     # die "bad file" unless length $file;
 
     $file = $1 if $file =~ /^\(eval \d+\)\[(.+):\d+\]/;
+    $file = $1 if $file =~ /^\(eval in \w+\) (.+)/;
     $file =~ s/ \(autosplit into .*\)$//;
 
     return $Files{$file} if exists $Files{$file};
@@ -651,12 +666,11 @@ sub _report
     $Structure      = Devel::Cover::DB::Structure->new(base => $DB);
     $Structure->read_all;
     $Structure->add_criteria(@collected);
-    # use Data::Dumper; $Data::Dumper::Indent = 1;
-    # use Data::Dumper; print STDERR "Start structure: ", Dumper $Structure;
+    # print STDERR "Start structure: ", Dumper $Structure;
 
     # print STDERR "Processing cover data\n@Inc\n";
     $Coverage = coverage(1) || die "No coverage data available.\n";
-    # use Data::Dumper; print STDERR Dumper $Coverage;
+    # print STDERR Dumper $Coverage;
 
     check_files();
 
@@ -701,7 +715,7 @@ sub _report
         $Structure->store_counts($file);
     }
 
-    # use Data::Dumper; print STDERR "End structure: ", Dumper $Structure;
+    # print STDERR "End structure: ", Dumper $Structure;
 
     my $run = time . ".$$." . sprintf "%05d", rand 2 ** 16;
     my $cover = Devel::Cover::DB->new
@@ -721,6 +735,7 @@ sub _report
     print OUT __PACKAGE__, ": Writing coverage database to $dbrun\n"
         unless $Silent;
     $cover->write($dbrun);
+    $Digests->write;
     $cover->print_summary if $Summary && !$Silent;
 
     return if !$Self_cover || $Self_cover_run;
@@ -1169,7 +1184,7 @@ sub get_cover
                 }
             }
             $Pod = "Pod::Coverage" if delete $opts{nocp};
-            # use Data::Dumper; print STDERR "$Pod, ", Dumper \%opts;
+            # print STDERR "$Pod, ", Dumper \%opts;
             if ($Pod{$file} ||= $Pod->new(package => $pkg, %opts))
             {
                 my $covered;
@@ -1502,7 +1517,7 @@ See the BUGS file.  And the TODO file.
 
 =head1 VERSION
 
-Version 0.76 - 18th April 2011
+Version 0.77 - 15th May 2011
 
 =head1 LICENCE
 

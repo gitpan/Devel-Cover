@@ -19,8 +19,8 @@ use File::Copy;
 
 $| = 1;
 
-my $Version  = "0.76";
-my $Date     = "18th April 2011";
+my $Version  = "0.77";
+my $Date     = "15th May 2011";
 my $Author   = 'pjcj@cpan.org';
 
 my @perlbug  = ("perlbug", "-a", $Author,
@@ -260,7 +260,7 @@ consider installing Test::Differences.  You can download
 Test::Differences from CPAN.
 EOM
 
-my $latest_tested = "5.012003";
+my $latest_tested = "5.014000";
 print <<EOM if $] > $latest_tested;
 
 Devel::Cover $Version has not been tested with perl $].
@@ -276,7 +276,7 @@ if ($] < 5.008)
 Devel::Cover $Version is not fully functional on perl $].  It should
 mostly work, but there are some constructs for which coverage will not
 be collected, and you may well encounter bugs which have been fixed in
-subsequent versions of perl.  Perl versions 5.8.1 and above should work
+subsequent versions of perl.  Perl versions 5.8.8 and above should work
 better.
 
 EOM

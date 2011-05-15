@@ -10,9 +10,11 @@ package Devel::Cover::DB::File;
 use strict;
 use warnings;
 
-our $VERSION = "0.76";
+our $VERSION = "0.77";
 
-use Devel::Cover::Criterion 0.76;
+use Devel::Cover::Criterion 0.77;
+
+use Data::Dumper; $Data::Dumper::Indent = 1; $Data::Dumper::Sortkeys = 1;
 
 sub calculate_summary
 {
@@ -39,7 +41,7 @@ sub calculate_percentage
     my $self = shift;
     my ($db, $s) = @_;
 
-    # use Data::Dumper; print STDERR Dumper $s;
+    # print STDERR Dumper $s;
 
     for my $criterion ($self->items)
     {
@@ -50,7 +52,7 @@ sub calculate_percentage
     }
     Devel::Cover::Criterion->calculate_percentage($db, $s->{total});
 
-    # use Data::Dumper; print STDERR Dumper $s;
+    # print STDERR Dumper $s;
 }
 
 1
@@ -79,7 +81,7 @@ Huh?
 
 =head1 VERSION
 
-Version 0.76 - 18th April 2011
+Version 0.77 - 15th May 2011
 
 =head1 LICENCE
 
