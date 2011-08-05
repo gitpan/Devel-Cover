@@ -47,6 +47,7 @@ Makefile.PL
 MANIFEST			This list of files
 MANIFEST.SKIP
 META.yml
+MYMETA.json
 README
 t/internal/criteria.t
 t/internal/subprocess.t
@@ -136,6 +137,7 @@ test_output/cover/cond_branch.5.012000
 test_output/cover/cond_branch.5.013001
 test_output/cover/cond_branch.5.013005
 test_output/cover/cond_branch.5.013008
+test_output/cover/cond_branch.5.015001
 test_output/cover/cond_or.5.006001
 test_output/cover/cond_or.5.006002
 test_output/cover/cond_or.5.008
@@ -143,6 +145,7 @@ test_output/cover/cond_or.5.008001
 test_output/cover/cond_or.5.010000
 test_output/cover/cond_or.5.013005
 test_output/cover/cond_or.5.013008
+test_output/cover/cond_or.5.015001
 test_output/cover/cond_xor.5.006001
 test_output/cover/cond_xor.5.008
 test_output/cover/cond_xor.5.008001
@@ -269,3 +272,4 @@ test_output/cover/t2.5.013008
 test_output/cover/trivial.5.006001
 test_output/cover/uncoverable.5.006001
 test_output/cover/uncoverable.5.012000
+META.json                                Module JSON meta-data (added by MakeMaker)

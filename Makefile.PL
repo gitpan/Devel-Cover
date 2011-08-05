@@ -19,8 +19,8 @@ use File::Copy;
 
 $| = 1;
 
-my $Version  = "0.78";
-my $Date     = "17th May 2011";
+my $Version  = "0.79";
+my $Date     = "5th August 2011";
 my $Author   = 'pjcj@cpan.org';
 
 my @perlbug  = ("perlbug", "-a", $Author,
@@ -260,7 +260,7 @@ consider installing Test::Differences.  You can download
 Test::Differences from CPAN.
 EOM
 
-my $latest_tested = "5.014000";
+my $latest_tested = "5.014001";
 print <<EOM if $] > $latest_tested;
 
 Devel::Cover $Version has not been tested with perl $].
