@@ -10,10 +10,10 @@ package Devel::Cover::DB::Digests;
 use strict;
 use warnings;
 
-our $VERSION = "0.79";
+our $VERSION = '0.80'; # VERSION
 
-use Devel::Cover::DB::Structure 0.79;
-use Devel::Cover::DB::IO        0.79;
+use Devel::Cover::DB::Structure;
+use Devel::Cover::DB::IO;
 
 my $File = "digests";
 
@@ -99,6 +99,10 @@ __END__
 
 Devel::Cover::DB::Digests - store digests for Devel::Cover::DB
 
+=head1 VERSION
+
+version 0.80
+
 =head1 SYNOPSIS
 
  use Devel::Cover::DB::Digests;
@@ -137,10 +141,6 @@ Write the digests to the DB.
 =head1 BUGS
 
 Huh?
-
-=head1 VERSION
-
-Version 0.79 - 5th August 2011
 
 =head1 LICENCE
 

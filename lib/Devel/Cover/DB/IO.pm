@@ -10,7 +10,7 @@ package Devel::Cover::DB::IO;
 use strict;
 use warnings;
 
-our $VERSION = "0.79";
+our $VERSION = '0.80'; # VERSION
 
 my $Format;
 
@@ -44,6 +44,10 @@ __END__
 =head1 NAME
 
 Devel::Cover::DB::IO - IO routines for Devel::Cover::DB
+
+=head1 VERSION
+
+version 0.80
 
 =head1 SYNOPSIS
 
@@ -84,10 +88,6 @@ Writes $data to $file in the format specified when creating $io.
 =head1 BUGS
 
 Huh?
-
-=head1 VERSION
-
-Version 0.79 - 5th August 2011
 
 =head1 LICENCE
 

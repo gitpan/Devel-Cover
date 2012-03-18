@@ -18,9 +18,9 @@ package Devel::Cover::Report::Compilation;
 use strict;
 use warnings;
 
-our $VERSION = "0.79";
+our $VERSION = '0.80'; # VERSION
 
-use Devel::Cover::DB 0.79;
+use Devel::Cover::DB;
 
 # TODO - uncoverable code?
 
@@ -143,6 +143,10 @@ __END__
 
 =head1 NAME
 
+
+=head1 VERSION
+
+version 0.80
 Devel::Cover::Report::Compilation - Backend for reporting of coverage
 statistics in a format like Perl compilation
 
@@ -166,10 +170,6 @@ through the reports.
 =head1 BUGS
 
 Huh?
-
-=head1 VERSION
-
-Version 0.79 - 5th August 2011
 
 =head1 LICENCE
 

@@ -10,7 +10,7 @@ package Devel::Cover::Condition_and_3;
 use strict;
 use warnings;
 
-our $VERSION = "0.79";
+our $VERSION = '0.80'; # VERSION
 
 use base "Devel::Cover::Condition";
 
@@ -24,6 +24,10 @@ __END__
 =head1 NAME
 
 Devel::Cover::Condition_and_3 - Code coverage metrics for Perl
+
+=head1 VERSION
+
+version 0.80
 
 =head1 SYNOPSIS
 
@@ -43,10 +47,6 @@ where the right value is a constant.
 =head1 BUGS
 
 Huh?
-
-=head1 VERSION
-
-Version 0.79 - 5th August 2011
 
 =head1 LICENCE
 

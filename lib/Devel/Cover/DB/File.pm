@@ -10,9 +10,9 @@ package Devel::Cover::DB::File;
 use strict;
 use warnings;
 
-our $VERSION = "0.79";
+our $VERSION = '0.80'; # VERSION
 
-use Devel::Cover::Criterion 0.79;
+use Devel::Cover::Criterion;
 
 use Data::Dumper; $Data::Dumper::Indent = 1; $Data::Dumper::Sortkeys = 1;
 
@@ -63,6 +63,10 @@ __END__
 
 Devel::Cover::DB::File - Code coverage metrics for Perl
 
+=head1 VERSION
+
+version 0.80
+
 =head1 SYNOPSIS
 
  use Devel::Cover::DB::File;
@@ -78,10 +82,6 @@ Devel::Cover::DB::File - Code coverage metrics for Perl
 =head1 BUGS
 
 Huh?
-
-=head1 VERSION
-
-Version 0.79 - 5th August 2011
 
 =head1 LICENCE
 

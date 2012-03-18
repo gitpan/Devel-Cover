@@ -10,7 +10,7 @@ package Devel::Cover::Pod;
 use strict;
 use warnings;
 
-our $VERSION = "0.79";
+our $VERSION = '0.80'; # VERSION
 
 use base "Devel::Cover::Criterion";
 
@@ -46,6 +46,10 @@ __END__
 
 Devel::Cover::Pod - Code coverage metrics for Perl
 
+=head1 VERSION
+
+version 0.80
+
 =head1 SYNOPSIS
 
  use Devel::Cover::Pod;
@@ -63,10 +67,6 @@ Module for storing pod coverage information.
 =head1 BUGS
 
 Huh?
-
-=head1 VERSION
-
-Version 0.79 - 5th August 2011
 
 =head1 LICENCE
 

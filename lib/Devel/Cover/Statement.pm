@@ -10,7 +10,7 @@ package Devel::Cover::Statement;
 use strict;
 use warnings;
 
-our $VERSION = "0.79";
+our $VERSION = '0.80'; # VERSION
 
 use base "Devel::Cover::Criterion";
 
@@ -31,6 +31,10 @@ __END__
 
 Devel::Cover::Statement - Code coverage metrics for Perl
 
+=head1 VERSION
+
+version 0.80
+
 =head1 SYNOPSIS
 
  use Devel::Cover::Statement;
@@ -48,10 +52,6 @@ Module for storing statement coverage information.
 =head1 BUGS
 
 Huh?
-
-=head1 VERSION
-
-Version 0.79 - 5th August 2011
 
 =head1 LICENCE
 

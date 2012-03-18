@@ -10,7 +10,7 @@ package Devel::Cover::Annotation::Random;
 use strict;
 use warnings;
 
-our $VERSION = "0.79";
+our $VERSION = '0.80'; # VERSION
 
 use Getopt::Long;
 
@@ -84,6 +84,10 @@ __END__
 
 Devel::Cover::Annotation::Random - Example annotation for formatters
 
+=head1 VERSION
+
+version 0.80
+
 =head1 SYNOPSIS
 
  cover -report xxx -annotation random -count 3
@@ -100,10 +104,6 @@ It is designed to be called from the C<cover> program.
 =head1 BUGS
 
 Huh?
-
-=head1 VERSION
-
-Version 0.79 - 5th August 2011
 
 =head1 LICENCE
 

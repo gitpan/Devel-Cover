@@ -10,7 +10,7 @@ package Devel::Cover::Annotation::Git;
 use strict;
 use warnings;
 
-our $VERSION = "0.79";
+our $VERSION = '0.80'; # VERSION
 
 use Getopt::Long;
 
@@ -134,6 +134,10 @@ __END__
 
 Devel::Cover::Annotation::Git - Annotate with git information
 
+=head1 VERSION
+
+version 0.80
+
 =head1 SYNOPSIS
 
  cover -report xxx -annotation git
@@ -150,10 +154,6 @@ This module is designed to be called from the C<cover> program.
 =head1 BUGS
 
 Huh?
-
-=head1 VERSION
-
-Version 0.79 - 5th August 2011
 
 =head1 LICENCE
 

@@ -12,7 +12,7 @@ package Devel::Cover::Web;
 use strict;
 use warnings;
 
-our $VERSION = "0.79";
+our $VERSION = '0.80'; # VERSION
 
 use Exporter;
 
@@ -903,6 +903,10 @@ EOF
 
 Devel::Cover::Web - Files for JavaScript or CSS
 
+=head1 VERSION
+
+version 0.80
+
 =head1 SYNOPSIS
 
  use Devel::Cover::Web "write_file";
@@ -931,10 +935,6 @@ Output the specified file to the specified directory.
 =head1 BUGS
 
 Huh?
-
-=head1 VERSION
-
-Version 0.79 - 5th August 2011
 
 =head1 LICENCE
 

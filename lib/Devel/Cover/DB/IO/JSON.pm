@@ -13,7 +13,7 @@ use warnings;
 use Fcntl ":flock";
 use JSON::PP;
 
-our $VERSION = "0.79";
+our $VERSION = '0.80'; # VERSION
 
 sub new
 {
@@ -40,7 +40,7 @@ sub write
     my $self = shift;
     my ($data, $file) = @_;
 
-    my $json = JSON::PP->new->utf8;
+    my $json = JSON::PP->new->utf8->allow_blessed;
     $json->ascii->pretty->canonical if $self->{options} =~ /\bpretty\b/i;
     open my $fh, ">", $file or die "Can't open $file: $!";
     flock($fh, LOCK_EX) or die "Cannot lock file: $!\n";
@@ -56,6 +56,10 @@ __END__
 =head1 NAME
 
 Devel::Cover::DB::IO::JSON - JSON based IO routines for Devel::Cover::DB
+
+=head1 VERSION
+
+version 0.80
 
 =head1 SYNOPSIS
 
@@ -96,10 +100,6 @@ Writes $data to $file in the format specified when creating $io.
 =head1 BUGS
 
 Huh?
-
-=head1 VERSION
-
-Version 0.79 - 5th August 2011
 
 =head1 LICENCE
 
