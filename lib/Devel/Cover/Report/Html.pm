@@ -10,7 +10,7 @@ package Devel::Cover::Report::Html;
 use strict;
 use warnings;
 
-our $VERSION = '0.80'; # VERSION
+our $VERSION = '0.81'; # VERSION
 
 use base "Devel::Cover::Report::Html_minimal";
 
@@ -23,7 +23,7 @@ __END__
 
 =head1 VERSION
 
-version 0.80
+version 0.81
 Devel::Cover::Report::Html - Backend for HTML reporting of coverage
 statistics
 

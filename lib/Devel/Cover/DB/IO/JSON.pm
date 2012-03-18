@@ -13,7 +13,7 @@ use warnings;
 use Fcntl ":flock";
 use JSON::PP;
 
-our $VERSION = '0.80'; # VERSION
+our $VERSION = '0.81'; # VERSION
 
 sub new
 {
@@ -59,7 +59,7 @@ Devel::Cover::DB::IO::JSON - JSON based IO routines for Devel::Cover::DB
 
 =head1 VERSION
 
-version 0.80
+version 0.81
 
 =head1 SYNOPSIS
 

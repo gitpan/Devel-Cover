@@ -1,12 +1,12 @@
 {
    "abstract" : "Code coverage metrics for Perl",
    "author" : [
-      "Paul Johnson (pjcj@cpan.org)"
+      "Paul Johnson <pjcj@cpan.org>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "ExtUtils::MakeMaker version 6.58, CPAN::Meta::Converter version 2.110930001, CPAN::Meta::Converter version 2.120630",
+   "generated_by" : "ExtUtils::MakeMaker version 6.62, CPAN::Meta::Converter version 2.120630",
    "license" : [
-      "perl_5"
+      "unknown"
    ],
    "meta-spec" : {
       "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
@@ -16,9 +16,7 @@
    "no_index" : {
       "directory" : [
          "t",
-         "inc",
-         "tests",
-         "utils"
+         "inc"
       ]
    },
    "prereqs" : {
@@ -33,39 +31,14 @@
          }
       },
       "runtime" : {
-         "recommends" : {
-            "JSON::PP" : "0",
-            "PPI::HTML" : "1.07",
-            "Parallel::Iterator" : "0",
-            "Perl::Tidy" : "20060719",
-            "Pod::Coverage" : "0.06",
-            "Pod::Coverage::CountParents" : "0",
-            "Template" : "2",
-            "Test::Differences" : "0",
-            "perl" : "5.008002"
-         },
          "requires" : {
             "Digest::MD5" : "0",
             "Storable" : "0",
             "Test::More" : "0",
-            "Test::Warn" : "0",
-            "perl" : "5.006001"
+            "Test::Warn" : "0"
          }
       }
    },
    "release_status" : "stable",
-   "resources" : {
-      "bugtracker" : {
-         "web" : "http://rt.cpan.org/NoAuth/Bugs.html?Dist=Devel-Cover"
-      },
-      "homepage" : "http://www.pjcj.net/perl.html",
-      "license" : [
-         "http://dev.perl.org/licenses"
-      ],
-      "repository" : {
-         "url" : "http://github.com/pjcj/Devel--Cover"
-      },
-      "x_MailingList" : "http://lists.perl.org/list/perl-qa.html"
-   },
-   "version" : "0.79"
+   "version" : "0.81"
 }

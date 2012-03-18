@@ -180,7 +180,7 @@ sub error {
 package Devel::Cover::Truth_Table;
 use warnings;
 use strict;
-our $VERSION = '0.80'; # VERSION
+our $VERSION = '0.81'; # VERSION
 
 #-------------------------------------------------------------------------------
 # Subroutine : new()
@@ -466,7 +466,7 @@ sub left_merge {
 
 =head1 VERSION
 
-version 0.80
+version 0.81
 Devel::Cover::Truth_Table - Create and manipulate truth tables for
 coverage objects.
 
