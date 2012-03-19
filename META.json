@@ -71,7 +71,7 @@
       },
       "x_mailing_list" : "http://lists.perl.org/list/perl-qa.html"
    },
-   "version" : "0.81",
+   "version" : "0.82",
    "x_Dist_Zilla" : {
       "plugins" : [
          {
@@ -233,11 +233,6 @@
             "class" : "Dist::Zilla::Plugin::UploadToCPAN",
             "name" : "UploadToCPAN",
             "version" : "4.300010"
-         },
-         {
-            "class" : "Dist::Zilla::Plugin::Git::Push",
-            "name" : "Git::Push",
-            "version" : "1.120370"
          },
          {
             "class" : "Dist::Zilla::Plugin::FinderCode",

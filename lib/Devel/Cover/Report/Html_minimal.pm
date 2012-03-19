@@ -7,7 +7,7 @@ use Getopt::Long;
 use Devel::Cover::DB;
 use Devel::Cover::Truth_Table;
 
-our $VERSION = '0.81'; # VERSION
+our $VERSION = '0.82'; # VERSION
 
 #-------------------------------------------------------------------------------
 # Subroutine : get_coverage_for_line
@@ -718,7 +718,7 @@ sub report {
 
 =head1 VERSION
 
-version 0.81
+version 0.82
 Devel::Cover::Report::Html_minimal - Backend for HTML reporting of coverage
 statistics
 

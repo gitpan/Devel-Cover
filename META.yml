@@ -39,7 +39,7 @@ resources:
   homepage: http://www.pjcj.net/perl.html
   license: http://dev.perl.org/licenses
   repository: http://github.com/pjcj/Devel--Cover
-version: 0.81
+version: 0.82
 x_Dist_Zilla:
   plugins:
     -
@@ -166,10 +166,6 @@ x_Dist_Zilla:
       class: Dist::Zilla::Plugin::UploadToCPAN
       name: UploadToCPAN
       version: 4.300010
-    -
-      class: Dist::Zilla::Plugin::Git::Push
-      name: Git::Push
-      version: 1.120370
     -
       class: Dist::Zilla::Plugin::FinderCode
       name: ':InstallModules'
