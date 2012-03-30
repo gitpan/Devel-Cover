@@ -11,9 +11,9 @@ use strict;
 use warnings;
 
 use Fcntl ":flock";
-use JSON::PP;
+use JSON;
 
-our $VERSION = '0.82'; # VERSION
+our $VERSION = '0.83'; # VERSION
 
 sub new
 {
@@ -30,7 +30,7 @@ sub read
     open my $fh, "<", $file or die "Can't open $file: $!";
     flock($fh, LOCK_SH) or die "Cannot lock file: $!\n";
     local $/;
-    my $data = JSON::PP::decode_json(<$fh>);
+    my $data = JSON::decode_json(<$fh>);
     close $fh or die "Can't close $file: $!";
     $data
 }
@@ -40,7 +40,7 @@ sub write
     my $self = shift;
     my ($data, $file) = @_;
 
-    my $json = JSON::PP->new->utf8->allow_blessed;
+    my $json = JSON->new->utf8->allow_blessed;
     $json->ascii->pretty->canonical if $self->{options} =~ /\bpretty\b/i;
     open my $fh, ">", $file or die "Can't open $file: $!";
     flock($fh, LOCK_EX) or die "Cannot lock file: $!\n";
@@ -59,7 +59,7 @@ Devel::Cover::DB::IO::JSON - JSON based IO routines for Devel::Cover::DB
 
 =head1 VERSION
 
-version 0.82
+version 0.83
 
 =head1 SYNOPSIS
 

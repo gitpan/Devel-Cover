@@ -21,7 +21,7 @@ use Data::Dumper; $Data::Dumper::Indent = 1; $Data::Dumper::Sortkeys = 1;
 # For comprehensive debug logging.
 use constant DEBUG => 0;
 
-our $VERSION = '0.82'; # VERSION
+our $VERSION = '0.83'; # VERSION
 our $AUTOLOAD;
 
 sub new
@@ -393,7 +393,7 @@ Devel::Cover::DB::Structure - Code coverage metrics for Perl
 
 =head1 VERSION
 
-version 0.82
+version 0.83
 
 =head1 SYNOPSIS
 

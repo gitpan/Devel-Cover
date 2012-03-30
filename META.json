@@ -29,6 +29,7 @@
       "runtime" : {
          "recommends" : {
             "JSON::PP" : "0",
+            "JSON::XS" : "0",
             "PPI::HTML" : "1.07",
             "Parallel::Iterator" : "0",
             "Perl::Tidy" : "20060719",
@@ -71,7 +72,7 @@
       },
       "x_mailing_list" : "http://lists.perl.org/list/perl-qa.html"
    },
-   "version" : "0.82",
+   "version" : "0.83",
    "x_Dist_Zilla" : {
       "plugins" : [
          {

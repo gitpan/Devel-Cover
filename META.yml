@@ -21,6 +21,7 @@ no_index:
     - utils
 recommends:
   JSON::PP: 0
+  JSON::XS: 0
   PPI::HTML: 1.07
   Parallel::Iterator: 0
   Perl::Tidy: 20060719
@@ -39,7 +40,7 @@ resources:
   homepage: http://www.pjcj.net/perl.html
   license: http://dev.perl.org/licenses
   repository: http://github.com/pjcj/Devel--Cover
-version: 0.82
+version: 0.83
 x_Dist_Zilla:
   plugins:
     -
