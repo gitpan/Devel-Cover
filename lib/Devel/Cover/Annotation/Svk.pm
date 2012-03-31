@@ -10,7 +10,7 @@ package Devel::Cover::Annotation::Svk;
 use strict;
 use warnings;
 
-our $VERSION = '0.83'; # VERSION
+our $VERSION = '0.84'; # VERSION
 
 use Getopt::Long;
 use Digest::MD5;
@@ -158,7 +158,7 @@ Devel::Cover::Annotation::Svk - Annotate with svk information
 
 =head1 VERSION
 
-version 0.83
+version 0.84
 
 =head1 SYNOPSIS
 

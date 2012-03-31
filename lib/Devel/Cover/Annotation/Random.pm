@@ -10,7 +10,7 @@ package Devel::Cover::Annotation::Random;
 use strict;
 use warnings;
 
-our $VERSION = '0.83'; # VERSION
+our $VERSION = '0.84'; # VERSION
 
 use Getopt::Long;
 
@@ -86,7 +86,7 @@ Devel::Cover::Annotation::Random - Example annotation for formatters
 
 =head1 VERSION
 
-version 0.83
+version 0.84
 
 =head1 SYNOPSIS
 

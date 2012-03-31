@@ -11,6 +11,7 @@ README
 bin/cover
 bin/cpancover
 bin/gcov2perl
+devel-cover.vim
 dist.ini
 docs/BUGS
 docs/RELEASE
@@ -44,6 +45,7 @@ lib/Devel/Cover/Report/Html_subtle.pm
 lib/Devel/Cover/Report/Sort.pm
 lib/Devel/Cover/Report/Text.pm
 lib/Devel/Cover/Report/Text2.pm
+lib/Devel/Cover/Report/Vim.pm
 lib/Devel/Cover/Statement.pm
 lib/Devel/Cover/Subroutine.pm
 lib/Devel/Cover/Test.pm
