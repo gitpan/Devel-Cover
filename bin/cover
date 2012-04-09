@@ -12,7 +12,7 @@ require 5.6.1;
 use strict;
 use warnings;
 
-our $VERSION = '0.85'; # VERSION
+our $VERSION = '0.86'; # VERSION
 
 use Devel::Cover::DB;
 
@@ -363,7 +363,7 @@ cover - report coverage statistics
 
 =head1 VERSION
 
-version 0.85
+version 0.86
 
 =head1 SYNOPSIS
 

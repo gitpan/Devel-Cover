@@ -18,7 +18,7 @@ use File::Copy;
 
 $| = 1;
 
-my $Version = "0.85";
+my $Version = "0.86";
 my $Author  = 'pjcj@cpan.org';
 my @perlbug = ("perlbug", "-a", $Author,
                           "-s", "Installation of Devel::Cover $Version");
@@ -349,7 +349,8 @@ sub MY::postamble
     my %tests;
     @tests{@tests} = map { (my $t = $_) =~ s/\W/_/g; "cover_db_$t" } @tests;
     my @reports =
-      qw(compilation html_basic html_minimal html html_subtle sort text2 text);
+      qw(compilation html_basic html_minimal html html_subtle sort text2 text
+         vim);
 
     qq[
 tags :
@@ -406,6 +407,9 @@ prove : pure_all
 tst : pure_all
 \t \$(PERL) -Iutils -MDevel::Cover::BuildUtils=prove_command -le '\$\$c = prove_command and print \$\$c and system \$\$c and system "make test"'
 
+testdist : pure_all
+\t chdir tests/dist/\$(TEST); \$(PERL) Makefile.PL && make && DEVEL_COVER_TEST_OPTS=-Mblib=../../.. \$(PERL) -Mblib=../../.. ../../../bin/cover -test \$(COVER_OPTIONS)
+
 DB = cover_db
 
 dump :
@@ -436,6 +440,7 @@ _self_cover_tests : @{[sort values %tests]}
 
 self_cover : _self_cover_reports
 \t \$(PERL) -Mblib bin/cover -report html_basic
+\t \$(PERL) -Mblib bin/cover -report vim
 
 ok :
 \t \@$Perlbug -okay  || echo "Please send your report manually to $Author"

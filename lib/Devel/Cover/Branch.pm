@@ -10,7 +10,7 @@ package Devel::Cover::Branch;
 use strict;
 use warnings;
 
-our $VERSION = '0.85'; # VERSION
+our $VERSION = '0.86'; # VERSION
 
 use base "Devel::Cover::Criterion";
 
@@ -30,6 +30,7 @@ sub percentage
     my $t = $_[0]->total;
     sprintf "%3d", $t ? $_[0]->covered / $t * 100 : 0
 }
+
 sub error
 {
     my $self = shift;
@@ -70,7 +71,7 @@ Devel::Cover::Branch - Code coverage metrics for Perl
 
 =head1 VERSION
 
-version 0.85
+version 0.86
 
 =head1 SYNOPSIS
 

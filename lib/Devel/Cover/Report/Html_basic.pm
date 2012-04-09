@@ -10,7 +10,7 @@ package Devel::Cover::Report::Html_basic;
 use strict;
 use warnings;
 
-our $VERSION = '0.85'; # VERSION
+our $VERSION = '0.86'; # VERSION
 our $LVERSION = do { eval '$VERSION' || "0.001" };  # for development purposes
 
 use Devel::Cover::DB;
@@ -455,7 +455,7 @@ package Devel::Cover::Report::Html_basic::Template::Provider;
 use strict;
 use warnings;
 
-our $VERSION = '0.85'; # VERSION
+our $VERSION = '0.86'; # VERSION
 
 use base "Template::Provider";
 
@@ -770,7 +770,7 @@ s/^\s+//gm for values %Templates;
 
 =head1 VERSION
 
-version 0.85
+version 0.86
 Devel::Cover::Report::Html_basic - Backend for HTML reporting of coverage
 statistics
 

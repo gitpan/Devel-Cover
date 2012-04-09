@@ -11,7 +11,6 @@ README
 bin/cover
 bin/cpancover
 bin/gcov2perl
-devel-cover.vim
 dist.ini
 docs/BUGS
 docs/RELEASE
@@ -188,6 +187,10 @@ tests/cop
 tests/default_param
 tests/deparse
 tests/destroy
+tests/dist/DC-Test-Dist/Makefile.PL
+tests/dist/DC-Test-Dist/lib/DC/Test/Dist.pm
+tests/dist/DC-Test-Dist/lib/DC/Test/Dist/M1.pm
+tests/dist/DC-Test-Dist/t/t1.t
 tests/dynamic_subs
 tests/eval1
 tests/eval2

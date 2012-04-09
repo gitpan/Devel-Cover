@@ -10,7 +10,7 @@ package Devel::Cover;
 use strict;
 use warnings;
 
-our $VERSION = '0.85'; # VERSION
+our $VERSION = '0.86'; # VERSION
 our $LVERSION = do { eval '$VERSION' || "0.001" };  # for development purposes
 
 use DynaLoader ();
@@ -222,9 +222,10 @@ EOM
             unless $Silent;
 
         $Run{OS}    = $^O;
-        $Run{perl}  = join ".", map ord, split //, $^V;
+        $Run{perl}  = $] < 5.010 ? join ".", map ord, split //, $^V
+                                 : sprintf "%vd", $^V;
         $Run{run}   = $0;
-        $Run{start} = get_elapsed();
+        $Run{start} = get_elapsed() / 1e6;
     }
 
     no warnings "void";  # avoid "Too late to run CHECK block" warning
@@ -549,6 +550,7 @@ sub use_file
 
     my $f = normalised_file($file);
 
+    # print STDERR "checking <$file> <$f>\n";
     # print STDERR "checking <$file> <$f> against ",
                  # "select(@Select_re), ignore(@Ignore_re), inc(@Inc_re)\n";
 
@@ -694,7 +696,7 @@ sub _report
 {
     local @SIG{qw(__DIE__ __WARN__)};
 
-    $Run{finish} = get_elapsed();
+    $Run{finish} = get_elapsed() / 1e6;
 
     die "Devel::Cover::import() not run: " .
         "did you require instead of use Devel::Cover?\n"
@@ -1285,7 +1287,7 @@ Devel::Cover - Code coverage metrics for Perl
 
 =head1 VERSION
 
-version 0.85
+version 0.86
 
 =head1 SYNOPSIS
 

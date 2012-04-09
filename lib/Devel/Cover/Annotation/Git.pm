@@ -10,7 +10,7 @@ package Devel::Cover::Annotation::Git;
 use strict;
 use warnings;
 
-our $VERSION = '0.85'; # VERSION
+our $VERSION = '0.86'; # VERSION
 
 use Getopt::Long;
 
@@ -136,7 +136,7 @@ Devel::Cover::Annotation::Git - Annotate with git information
 
 =head1 VERSION
 
-version 0.85
+version 0.86
 
 =head1 SYNOPSIS
 

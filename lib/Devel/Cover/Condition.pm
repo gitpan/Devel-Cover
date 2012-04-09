@@ -10,7 +10,7 @@ package Devel::Cover::Condition;
 use strict;
 use warnings;
 
-our $VERSION = '0.85'; # VERSION
+our $VERSION = '0.86'; # VERSION
 
 use base "Devel::Cover::Branch";
 
@@ -32,7 +32,7 @@ Devel::Cover::Condition - Code coverage metrics for Perl
 
 =head1 VERSION
 
-version 0.85
+version 0.86
 
 =head1 SYNOPSIS
 

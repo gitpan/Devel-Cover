@@ -10,7 +10,7 @@ package Devel::Cover::Report::Vim;
 use strict;
 use warnings;
 
-our $VERSION = '0.85'; # VERSION
+our $VERSION = '0.86'; # VERSION
 our $LVERSION = do { eval '$VERSION' || "0.001" };  # for development purposes
 
 use Devel::Cover::DB;
@@ -27,30 +27,6 @@ sub get_options
                    qw(
                        outputfile=s
                      ));
-}
-
-sub coverage
-{
-    my ($db, $file, $options) = @_;
-
-    my $statements = $db->cover->file($file)->statement or return ([], []);
-
-    my ($cov, $err) = ([], []);
-
-    for my $location ($statements->items)
-    {
-        my $l = $statements->location($location);
-        my ($c, $e);
-        for my $statement (@$l)
-        {
-            $c ||= $statement->covered;
-            $e ||= $statement->error;
-        }
-        push @$cov, $location if $c;
-        push @$err, $location if $e;
-    }
-
-    ($cov, $err)
 }
 
 sub report
@@ -71,26 +47,28 @@ sub report
         [
             map
             {
-                run    =>               $_->{run},
-                perl   =>               $_->{perl},
-                OS     =>               $_->{OS},
-                start  => scalar gmtime $_->{start},
-                finish => scalar gmtime $_->{finish},
+                run    =>               $_->run,
+                perl   =>               $_->perl,
+                OS     =>               $_->OS,
+                start  => scalar gmtime $_->start,
+                finish => scalar gmtime $_->finish,
             },
-            sort {$a->{start} <=> $b->{start}}
+            sort {$a->start <=> $b->start}
             $db->runs
         ],
-        now      => time,
+        cov_time => do
+        {
+            my $time = 0;
+            for ($db->runs)
+            {
+                $time = $_->finish if $_->finish > $time;
+            }
+            int $time
+        },
         version  => $LVERSION,
-        coverage => join ", ", map {
-                                       my ($cov, $err) = coverage($db, $_);
-                                       local $" = ", ";
-                                       my $c = "'$_': [ [ @$cov ], [ @$err ] ]";
-                                       my @c = ($c);
-                                       $c =~ s/^'blib/'/;
-                                       push @c, $c if $c ne $c[0];
-                                       @c
-                                   } @{$options->{file}},
+        files    => $options->{file},
+        cover    => $db->cover,
+        types    => [ qw( pod statement subroutine branch condition ) ],
     };
 
     my $out = "$options->{outputdir}/$options->{outputfile}";
@@ -106,7 +84,7 @@ package Devel::Cover::Report::Vim::Template::Provider;
 use strict;
 use warnings;
 
-our $VERSION = '0.85'; # VERSION
+our $VERSION = '0.86'; # VERSION
 
 use base "Template::Provider";
 
@@ -136,86 +114,190 @@ $Templates{vim} = <<'EOT';
 
 [% END %]
 
-"hi HitLine ctermbg=Cyan guibg=Cyan
-"hi MissLine ctermbg=Magenta guibg=Magenta
-hi HitSign ctermfg=Green cterm=bold gui=bold guifg=Green
-hi MissSign ctermfg=Red cterm=bold gui=bold guifg=Red
+highlight cov_pod              ctermfg=Green cterm=bold gui=bold guifg=Green
+highlight cov_pod_error        ctermfg=Red   cterm=bold gui=bold guifg=Red
+highlight cov_subroutine       ctermfg=Green cterm=bold gui=bold guifg=Green
+highlight cov_subroutine_error ctermfg=Red   cterm=bold gui=bold guifg=Red
+highlight cov_statement        ctermfg=Green cterm=bold gui=bold guifg=Green
+highlight cov_statement_error  ctermfg=Red   cterm=bold gui=bold guifg=Red
+highlight cov_branch           ctermfg=Green cterm=bold gui=bold guifg=Green
+highlight cov_branch_error     ctermfg=Red   cterm=bold gui=bold guifg=Red
+highlight cov_condition        ctermfg=Green cterm=bold gui=bold guifg=Green
+highlight cov_condition_error  ctermfg=Red   cterm=bold gui=bold guifg=Red
 
-sign define hit  linehl=HitLine  texthl=HitSign  text=>>
-sign define miss linehl=MissLine texthl=MissSign text=:(
+sign define pod              linehl=cov texthl=cov_pod              text=P 
+sign define pod_error        linehl=err texthl=cov_pod_error        text=P 
+sign define subroutine       linehl=cov texthl=cov_subroutine       text=R 
+sign define subroutine_error linehl=err texthl=cov_subroutine_error text=R 
+sign define statement        linehl=cov texthl=cov_statement        text=S 
+sign define statement_error  linehl=err texthl=cov_statement_error  text=S 
+sign define branch           linehl=cov texthl=cov_branch           text=B 
+sign define branch_error     linehl=err texthl=cov_branch_error     text=B 
+sign define condition        linehl=cov texthl=cov_condition        text=C 
+sign define condition_error  linehl=err texthl=cov_condition_error  text=C 
 
-let s:coverage = { [% coverage %] }
-
-let s:generatedTime = [% now %]
-
-function! BestCoverage(coverageForName)
-  let matchBadness = strlen(a:coverageForName)
-  for filename in keys(s:coverage)
-    let matchQuality = match(a:coverageForName, filename . "$")
-    if (matchQuality >= 0 && matchQuality < matchBadness)
-      let found = filename
-    endif
-  endfor
-
-  if exists("found")
-    return s:coverage[found]
-  else
-    echom "No coverage recorded for " . a:coverageForName
-    return [[],[]]
-  endif
+function! g:coverage_old(filename)
 endfunction
 
-let s:signs = {}
-let s:signIndex = 1
-
-function! s:CoverageSigns(filename)
-  let [hits,misses] = BestCoverage(a:filename)
-
-  if (getftime(a:filename) > s:generatedTime)
-    echom "File is newer than coverage report which was generated at " . strftime("%c", s:generatedTime)
-  endif
-
-  if (! exists("s:signs['".a:filename."']"))
-    let s:signs[a:filename] = []
-  endif
-
-  for hit in hits
-    let id = s:signIndex
-    let s:signIndex += 1
-    let s:signs[a:filename] += [id]
-    exe ":sign place ". id ." line=".hit." name=hit  file=" . a:filename
-  endfor
-
-  for miss in misses
-    let id = s:signIndex
-    let s:signIndex += 1
-    let s:signs[a:filename] += [id]
-    exe ":sign place ".id." line=".miss." name=miss file=" . a:filename
-  endfor
+function! g:coverage_valid(filename)
 endfunction
 
-function! s:ClearCoverageSigns(filename)
-  if(exists("s:signs['". a:filename."']"))
-    for signId in s:signs[a:filename]
-      exe ":sign unplace ".signId
+" The signs definitions can be overridden.  To do this add a file called
+" devel-cover.vim at some appropriate point in your ~/.vim directory and add
+" your local configuration commands there.
+" For example, I use the vim solarized theme and I have the following comamnds
+" in my local configuration file ~/.vim/local/devel-cover.vim:
+"
+" ----------------------------------------------------------------------------
+"
+"    let s:fg_cover = "#859900"
+"    let s:fg_error = "#dc322f"
+"    let s:bg_valid = "#073642"
+"    let s:bg_old   = "#342a2a"
+"
+"    let s:types = [ "pod", "subroutine", "statement", "branch", "condition", ]
+"
+"    for s:type in s:types
+"        exe "highlight cov_" . s:type .       " ctermbg=1 cterm=bold gui=NONE guifg=" . s:fg_cover
+"        exe "highlight cov_" . s:type . "_error ctermbg=1 cterm=bold gui=NONE guifg=" . s:fg_error
+"    endfor
+"    exe "highlight SignColumn ctermbg=0 guibg=" . s:bg_valid
+"
+"    " highlight cov ctermbg=8 guibg=#002b36
+"    " highlight err ctermbg=0 guibg=#073642
+"
+"    function! s:set_bg(bg)
+"        for s:type in s:types
+"            exe "highlight cov_" . s:type .       " guibg=" . a:bg
+"            exe "highlight cov_" . s:type . "_error guibg=" . a:bg
+"        endfor
+"        exe "highlight SignColumn ctermbg=0 guibg=" . a:bg
+"    endfunction
+"
+"    function! g:coverage_valid(filename)
+"        call s:set_bg(s:bg_valid)
+"    endfunction
+"
+"    function! g:coverage_old(filename)
+"        call s:set_bg(s:bg_old)
+"    endfunction
+"
+" ----------------------------------------------------------------------------
+
+let s:config = findfile("devel-cover.vim", expand('$HOME/.vim') . "/**")
+if strlen(s:config)
+    echom "Reading local config from " . s:config
+    exe "source " . s:config
+endif
+
+let s:types = [
+[%- FOREACH type = types -%] "[%- type -%]",[%- END -%]
+[%- FOREACH type = types -%] "[%- type -%]_error",[%- END -%]
+ ]
+
+[%- MACRO criterion(file, crit, error) BLOCK %]
+\         '[% crit %][% error ? "_error" : "" %]': [
+    [%- criteria = cover.file("$file").$crit -%]
+    [%- FOREACH loc = criteria.items.nsort -%]
+        [%- cov = 0 -%]
+        [%- FOREACH l = criteria.location("$loc") -%]
+            [%- IF error ? l.error : l.covered -%] [% loc -%],[%- cov = 1; LAST; END -%]
+        [%- LAST IF cov; END -%]
+    [%- END -%]
+ ],
+[%- END %]
+
+let s:coverage =
+\ {
+\[% FOREACH file = files %]
+\     '[% file %]':
+\     {
+[%- FOREACH type = types; criterion(file, type, 0); criterion(file, type, 1); END %]
+\     },
+\[% END %]
+\ }
+
+let s:cov_time = [% cov_time %]
+
+function! s:coverage_for(filename)
+    let s:fn_len = strlen(a:filename)
+    for s:cf in keys(s:coverage)
+        let s:f = substitute(s:cf, "^blib/", "", "")
+        let s:match_pos = match(a:filename, s:f . "$")
+        if s:match_pos >= 0 && s:match_pos < s:fn_len
+            return s:coverage[s:cf]
+        endif
     endfor
-    let s:signs[a:filename] = []
-  endif
+
+    echom "No coverage recorded for " . a:filename
+    return {}
+endfunction
+
+let s:signs    = {}
+let s:sign_num = 1
+
+function! s:add_coverage_signs(filename)
+    let s:cov = s:coverage_for(a:filename)
+    if !len(keys(s:cov))
+        return
+    endif
+
+    if getftime(a:filename) > s:cov_time
+        echom "File is newer than coverage run of " . strftime("%c", s:cov_time)
+        call g:coverage_old(a:filename)
+    else
+        call g:coverage_valid(a:filename)
+    endif
+
+    if !exists("s:signs['" . a:filename . "']")
+        let s:signs[a:filename] = {}
+    endif
+    let s:s = s:signs[a:filename]
+
+    for s:type in reverse(copy(s:types))
+        for s:line in s:cov[s:type]
+            if !exists("s:s['" . s:line . "']")
+                let s:id = s:sign_num
+                let s:sign_num += 1
+                let s:s[s:line] = s:id
+                exe ":sign place " . s:id . " line=" . s:line . " name=" . s:type . " file=" . a:filename
+            endif
+        endfor
+    endfor
+endfunction
+
+function! s:del_coverage_signs(filename)
+    if exists("s:signs['" . a:filename . "']")
+        let s:s = s:signs[a:filename]
+        for s:line in keys(s:s)
+            exe ":sign unplace " . s:s[s:line]
+        endfor
+        let s:signs[a:filename] = {}
+    endif
 endfunction
 
 let s:filename = expand("<sfile>")
-function! s:AutocommandUncov(sourced)
-  if(a:sourced == s:filename)
-    call s:ClearCoverageSigns(expand("%:p"))
-  endif
+function! s:uncover(sourced)
+    if a:sourced == s:filename
+        call s:del_coverage_signs(expand("%:p"))
+    endif
 endfunction
 
-command! -nargs=0 Cov call s:CoverageSigns(expand("%:p"))
-command! -nargs=0 Uncov call s:ClearCoverageSigns(expand("%:p"))
+command! -nargs=0 Cov   call s:add_coverage_signs(expand("%:p"))
+command! -nargs=0 Uncov call s:del_coverage_signs(expand("%:p"))
 
-augroup SimpleCov
-  au!
-  exe "au SourcePre ".expand("<sfile>:t")." call s:AutocommandUncov(expand('<afile>:p'))"
+augroup devel-cover
+    au!
+    exe "au SourcePre " . expand("<sfile>:t") . " call s:uncover(expand('<afile>:p'))"
+
+    " show signs automatically for all known files
+    for s:filename in keys(s:coverage)
+        exe "au BufReadPost " . s:filename . ' call s:add_coverage_signs(expand("%:p"))'
+        let s:f = substitute(s:filename, "^blib/", "", "")
+        if s:filename != s:f
+            exe "au BufReadPost " . s:f . ' call s:add_coverage_signs(expand("%:p"))'
+        endif
+    endfor
 augroup end
 
 Cov
@@ -231,7 +313,7 @@ Devel::Cover::Report::Vim - Backend for displaying coverage data in Vim
 
 =head1 VERSION
 
-version 0.85
+version 0.86
 
 =head1 SYNOPSIS
 
@@ -242,12 +324,71 @@ version 0.85
 This module provides a reporting mechanism for displaying coverage data in
 Vim.  It is designed to be called from the C<cover> program.
 
-By default, the output of this report is a file named C<coverage.vim> in the directory of the coverage database.  To use it, run
+By default, the output of this report is a file named C<coverage.vim> in the
+directory of the coverage database.  To use it, run
 
  :so cover_db/coverage.vim
 
 and you should see signs in the left column indicating the coverage status of
 that line.
+
+The signs are as follows:
+
+ P - Pod coverage
+ S - Statement coverage
+ R - Subroutine coverage
+ B - Branch coverage
+ C - Condition coverage
+
+The last of the criteria, in the order given above, is the one which is
+displayed.  Correctly covered criteria are shown in green.  Incorrectly
+covered criteria are shown in red.  Any incorrectly covered criterion will
+override a correctly covered criterion.
+
+If the coverage for the file being displayed is out of date the a fucntion
+called g:coverage_old() is called and passed the name of the file.  Similarly,
+for current coverage data file file g:coverage_valid is called.
+
+Signs may be overridden in a file named devel-cover.vim located somewhere
+underneath the ~/.vim directory.
+
+For example, I use the solarized theme and keep the following comamnds in my
+local configuration file ~/.vim/local/devel-cover.vim:
+
+ let s:fg_cover = "#859900"
+ let s:fg_error = "#dc322f"
+ let s:bg_valid = "#073642"
+ let s:bg_old   = "#342a2a"
+
+ let s:types = [ "pod", "subroutine", "statement", "branch", "condition", ]
+
+ for s:type in s:types
+     exe "highlight cov_" . s:type .       " ctermbg=1 cterm=bold gui=NONE guifg=" . s:fg_cover
+     exe "highlight cov_" . s:type . "_error ctermbg=1 cterm=bold gui=NONE guifg=" . s:fg_error
+ endfor
+ exe "highlight SignColumn ctermbg=0 guibg=" . s:bg_valid
+
+ " highlight cov ctermbg=8 guibg=#002b36
+ " highlight err ctermbg=0 guibg=#073642
+
+ function! s:set_bg(bg)
+     for s:type in s:types
+         exe "highlight cov_" . s:type .       " guibg=" . a:bg
+         exe "highlight cov_" . s:type . "_error guibg=" . a:bg
+     endfor
+     exe "highlight SignColumn ctermbg=0 guibg=" . a:bg
+ endfunction
+
+ function! g:coverage_valid(filename)
+     call s:set_bg(s:bg_valid)
+ endfunction
+
+ function! g:coverage_old(filename)
+     call s:set_bg(s:bg_old)
+ endfunction
+
+This configuration sets the background colour of the signs to a dark red when
+the coverage data is out of date.
 
 coverage.vim adds two user commands: :Cov and :Uncov which can be used to
 toggle the state of coverage signs.
@@ -258,6 +399,7 @@ https://github.com/nyarly/Simplecov-Vim
 =head1 SEE ALSO
 
  Devel::Cover
+ Simplecov-Vim (https://github.com/nyarly/Simplecov-Vim)
 
 =head1 BUGS
 
