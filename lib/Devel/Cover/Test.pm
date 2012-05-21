@@ -10,7 +10,7 @@ package Devel::Cover::Test;
 use strict;
 use warnings;
 
-our $VERSION = '0.86'; # VERSION
+our $VERSION = '0.87'; # VERSION
 
 use Carp;
 
@@ -216,6 +216,14 @@ sub run_test
         return;
     }
 
+    my $version = int(($] - 5) * 1000);
+    if ($version %2 && $version < 16)
+    {
+        Test::plan tests => 1;
+        Test::skip("Perl version $] is an obsolete development version", 1);
+        return;
+    }
+
     my ($base, $v) = $self->cover_gold;
     return 1 unless $v;  # assume we are generating the golden results
     my $gold = "$base.$v";
@@ -294,7 +302,7 @@ sub run_cover
         }
     };
 
-    # use Data::Dumper; print STDERR "--->", Dumper $self->{changes};
+    # use Devel::Cover::Dumper; print STDERR "--->", Dumper $self->{changes};
     open T, "$cover_com 2>&1 |" or die "Cannot run $cover_com: $!";
     while (!eof T)
     {
@@ -355,7 +363,7 @@ sub create_gold
         unlink $new_gold;
     }
 
-    # use Data::Dumper; print STDERR Dumper $self;
+    # use Devel::Cover::Dumper; print STDERR Dumper $self;
     if ($self->{skip})
     {
         print STDERR "Skipping: $self->{skip}\n";
@@ -417,7 +425,7 @@ Devel::Cover::Test - Internal module for testing
 
 =head1 VERSION
 
-version 0.86
+version 0.87
 
 =head1 METHODS
 

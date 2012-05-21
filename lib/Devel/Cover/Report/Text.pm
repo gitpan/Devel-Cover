@@ -10,7 +10,7 @@ package Devel::Cover::Report::Text;
 use strict;
 use warnings;
 
-our $VERSION = '0.86'; # VERSION
+our $VERSION = '0.87'; # VERSION
 
 use Devel::Cover::DB;
 
@@ -25,7 +25,7 @@ sub print_runs
         print "Start:        ", scalar gmtime $r->start  / 1e6, "\n";
         print "Finish:       ", scalar gmtime $r->finish / 1e6, "\n";
         print "\n";
-        # use Data::Dumper; print Dumper $r;
+        # use Devel::Cover::Dumper; print Dumper $r;
     }
 }
 
@@ -294,7 +294,7 @@ __END__
 
 =head1 VERSION
 
-version 0.86
+version 0.87
 Devel::Cover::Report::Text - Backend for textual reporting of coverage
 statistics
 

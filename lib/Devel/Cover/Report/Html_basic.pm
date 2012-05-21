@@ -10,7 +10,7 @@ package Devel::Cover::Report::Html_basic;
 use strict;
 use warnings;
 
-our $VERSION = '0.86'; # VERSION
+our $VERSION = '0.87'; # VERSION
 our $LVERSION = do { eval '$VERSION' || "0.001" };  # for development purposes
 
 use Devel::Cover::DB;
@@ -325,7 +325,7 @@ sub print_conditions
         types => \@types,
     };
 
-    # use Data::Dumper; print Dumper \@types;
+    # use Devel::Cover::Dumper; print Dumper \@types;
 
     my $html = "$R{options}{outputdir}/$R{filenames}{$R{file}}--condition.html";
     $Template->process("conditions", $vars, $html) or die $Template->error();
@@ -455,7 +455,7 @@ package Devel::Cover::Report::Html_basic::Template::Provider;
 use strict;
 use warnings;
 
-our $VERSION = '0.86'; # VERSION
+our $VERSION = '0.87'; # VERSION
 
 use base "Template::Provider";
 
@@ -770,15 +770,13 @@ s/^\s+//gm for values %Templates;
 
 =head1 VERSION
 
-version 0.86
+version 0.87
 Devel::Cover::Report::Html_basic - Backend for HTML reporting of coverage
 statistics
 
 =head1 SYNOPSIS
 
- use Devel::Cover::Report::Html_basic;
-
- Devel::Cover::Report::Html_basic->report($db, $options);
+ cover -report html_basic
 
 =head1 DESCRIPTION
 

@@ -12,9 +12,9 @@ require 5.8.0;  # My patches to B::Concise didn't get released till 5.8.0.
 use strict;
 use warnings;
 
-our $VERSION = '0.86'; # VERSION
+our $VERSION = '0.87'; # VERSION
 
-use Data::Dumper; $Data::Dumper::Indent = 1; $Data::Dumper::Sortkeys = 1;
+use Devel::Cover::Dumper;
 
 use Devel::Cover qw( -ignore blib -ignore \\wB\\w );
 use B::Concise   qw( set_style add_callback );
@@ -26,7 +26,7 @@ my %style =
     "(*(    )*)goto #class (#addr)\n",
     "#class pp_#name"],
    "concise" =>
-   ["#hyphseq2 #cover12 (*(   (x( ;)x))*)<#classsym> "
+   ["#hyphseq2 #addr10 #cover12 (*(   (x( ;)x))*)<#classsym> "
     . "#exname#arg(?([#targarglife])?)~#flags(?(/#private)?)(x(;~->#next)x)\n",
     "  (*(    )*)     goto #seq\n",
     "(?(<#seq>)?)#exname#arg(?([#targarglife])?)"],
@@ -93,7 +93,7 @@ Devel::Cover::Op - B::Concise with coverage data
 
 =head1 VERSION
 
-version 0.86
+version 0.87
 
 =head1 SYNOPSIS
 
@@ -102,7 +102,7 @@ version 0.86
 =head1 DESCRIPTION
 
 This module works as if calling B::Concise but also outputs coverage
-information.  It's primary purpose is to aid in the development of Devel::Cover.
+information.  Its primary purpose is to aid in the development of Devel::Cover.
 
 See comments in Cover.xs (especially set_conditional()) to aid in interpreting
 the output.

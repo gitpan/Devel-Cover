@@ -1,4 +1,4 @@
-our $VERSION = '0.86'; # VERSION
+our $VERSION = '0.87'; # VERSION
 
 =head1 NAME
 
@@ -6,7 +6,7 @@ Devel::Cover::Tutorial - An introduction to code coverage
 
 =head1 VERSION
 
-version 0.86
+version 0.87
 
 =head1 TUTORIAL
 

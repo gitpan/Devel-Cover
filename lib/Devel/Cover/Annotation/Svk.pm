@@ -10,7 +10,7 @@ package Devel::Cover::Annotation::Svk;
 use strict;
 use warnings;
 
-our $VERSION = '0.86'; # VERSION
+our $VERSION = '0.87'; # VERSION
 
 use Getopt::Long;
 use Digest::MD5;
@@ -51,7 +51,7 @@ sub new
     while (<$c>)
     {
         chomp;
-        s{^\Q$self->{depotbase}\E/}{};
+        s|^\Q$self->{depotbase}\E/||;
         next unless -f $_;
 
         open my $f, $_ or warn "cover: Can't open $_: $!\n", next;
@@ -158,11 +158,11 @@ Devel::Cover::Annotation::Svk - Annotate with svk information
 
 =head1 VERSION
 
-version 0.86
+version 0.87
 
 =head1 SYNOPSIS
 
- cover -report xxx -annotation svk
+ cover -report text -annotation svk  # Or any other report type
 
 =head1 DESCRIPTION
 

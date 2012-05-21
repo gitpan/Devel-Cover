@@ -124,7 +124,7 @@ sub new {
 	my $proto = shift;
 	my $class = ref($proto) || $proto;
 	my @args = @_;
-        # use Data::Dumper; print Dumper \@args;
+        # use Devel::Cover::Dumper; print Dumper \@args;
 	return bless {
 		inputs    => $args[0],
 		result    => $args[1],
@@ -180,7 +180,7 @@ sub error {
 package Devel::Cover::Truth_Table;
 use warnings;
 use strict;
-our $VERSION = '0.86'; # VERSION
+our $VERSION = '0.87'; # VERSION
 
 #-------------------------------------------------------------------------------
 # Subroutine : new()
@@ -466,7 +466,7 @@ sub left_merge {
 
 =head1 VERSION
 
-version 0.86
+version 0.87
 Devel::Cover::Truth_Table - Create and manipulate truth tables for
 coverage objects.
 

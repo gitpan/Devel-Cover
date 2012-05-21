@@ -12,7 +12,7 @@ use warnings;
 
 use Storable;
 
-our $VERSION = '0.86'; # VERSION
+our $VERSION = '0.87'; # VERSION
 
 sub new
 {
@@ -48,7 +48,7 @@ Devel::Cover::DB::IO::Storable - Storable based IO routines for Devel::Cover::DB
 
 =head1 VERSION
 
-version 0.86
+version 0.87
 
 =head1 SYNOPSIS
 
@@ -78,7 +78,7 @@ Contructs the IO object.
 
  my $data = $io->read($file);
 
-Returns a perl data structure representingthe data read from $file.
+Returns a perl data structure representing the data read from $file.
 
 =head2 write
 

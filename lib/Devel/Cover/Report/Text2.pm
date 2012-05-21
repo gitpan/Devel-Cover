@@ -2,7 +2,7 @@ package Devel::Cover::Report::Text2;
 use strict;
 use warnings;
 
-our $VERSION = '0.86'; # VERSION
+our $VERSION = '0.87'; # VERSION
 
 use Devel::Cover::DB;
 use Devel::Cover::Truth_Table;
@@ -170,15 +170,13 @@ __END__
 
 =head1 VERSION
 
-version 0.86
-Devel::Cover::Report::Text - Backend for textual reporting of coverage
+version 0.87
+Devel::Cover::Report::Test2 - Backend for textual reporting of coverage
 statistics
 
 =head1 SYNOPSIS
 
- use Devel::Cover::Report::Text;
-
- Devel::Cover::Report::Text->report($db, $options);
+ cover -report text2
 
 =head1 DESCRIPTION
 

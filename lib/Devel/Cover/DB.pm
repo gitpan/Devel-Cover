@@ -10,7 +10,7 @@ package Devel::Cover::DB;
 use strict;
 use warnings;
 
-our $VERSION = '0.86'; # VERSION
+our $VERSION = '0.87'; # VERSION
 
 use Devel::Cover::Criterion;
 use Devel::Cover::DB::File;
@@ -20,7 +20,7 @@ use Devel::Cover::DB::IO;
 use Carp;
 use File::Path;
 
-use Data::Dumper; $Data::Dumper::Indent = 1; $Data::Dumper::Sortkeys = 1;
+use Devel::Cover::Dumper;  # For debugging
 
 my $DB = "cover.13";  # Version 13 of the database.
 
@@ -881,7 +881,7 @@ sub cover
             {
                 print STDERR "Devel::Cover: Can't find digest for $file\n"
                     unless $Devel::Cover::Silent ||
-                           $file =~ $Devel::Cover::Moose_filenames ||
+                           $file =~ $Devel::Cover::Ignore_filenames ||
                            ($Devel::Cover::Self_cover &&
                             $file =~ q|/Devel/Cover[./]|);
                 next;
@@ -963,7 +963,7 @@ Devel::Cover::DB - Code coverage metrics for Perl
 
 =head1 VERSION
 
-version 0.86
+version 0.87
 
 =head1 SYNOPSIS
 
@@ -976,10 +976,6 @@ version 0.86
 =head1 DESCRIPTION
 
 This module provides access to a database of code coverage information.
-
-=head1 SEE ALSO
-
- Devel::Cover
 
 =head1 METHODS
 
@@ -1013,13 +1009,26 @@ data may be accessed.
      }
  }
 
-Data for different criteria will be in different formats, so that will
-need special handling, but I'll deal with that when we have the data for
-different criteria.
+Data for different criteria will be in different formats, so that will need
+special handling.  This is not yet documented so your best bet for now is to
+look at some of the simpler reports and/or the source.
 
-If you don't want to remember all the method names, use values() instead
-of files(), criteria() and locations() and get() instead of file(),
-criterion() and location().
+The methods in the above example are actually aliases for methods in
+Devel::Cover::DB::Base (the base class for all Devel::Cover::DB::* classes):
+
+=over
+
+=item * Devel::Cover::DB::Base->values
+
+Aliased to Devel::Cover::DB::Cover->files, Devel::Cover::DB::File->criteria,
+Devel::Cover::DB::Criterion->locations, and Devel::Cover::DB::Location->data
+
+=item * Devel::Cover::DB::Base->get
+
+Aliased to Devel::Cover::DB::Cover->file, Devel::Cover::DB::File->criteriom,
+Devel::Cover::DB::Criterion->location, and Devel::Cover::DB::Location->datum
+
+=back
 
 Instead of calling $file->criterion("x") you can also call $file->x.
 
@@ -1027,8 +1036,16 @@ Instead of calling $file->criterion("x") you can also call $file->x.
 
  my $valid = $db->is_valid;
 
-Returns true iff the db is valid.  (Actually there is one too many fs there, but
-that's what it should do.)
+Returns true if $db is valid (or looks valid, the function is too lax).
+
+=head1 SEE ALSO
+
+ Devel::Cover
+ Devel::Cover::DB::Base
+ Devel::Cover::DB::Cover
+ Devel::Cover::DB::File
+ Devel::Cover::DB::Criterion
+ Devel::Cover::DB::Location
 
 =head1 BUGS
 

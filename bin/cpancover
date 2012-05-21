@@ -12,17 +12,16 @@ require 5.6.1;
 use strict;
 use warnings;
 
-our $VERSION = '0.86'; # VERSION
+our $VERSION = '0.87'; # VERSION
 
 use Devel::Cover::DB;
+use Devel::Cover::Dumper;
 
 use Cwd ();
 use Getopt::Long;
 use Pod::Usage;
 use Template 2.00;
 use Parallel::Iterator "iterate_as_array";
-
-use Data::Dumper; $Data::Dumper::Indent = 1; $Data::Dumper::Sortkeys = 1;
 
 # use Carp; $SIG{__DIE__} = \&Carp::confess;
 
@@ -356,7 +355,7 @@ package Devel::Cover::Cpancover::Template::Provider;
 use strict;
 use warnings;
 
-our $VERSION = '0.86'; # VERSION
+our $VERSION = '0.87'; # VERSION
 
 use base "Template::Provider";
 
@@ -458,7 +457,7 @@ cpancover - report coverage statistics on CPAN modules
 
 =head1 VERSION
 
-version 0.86
+version 0.87
 
 =head1 SYNOPSIS
 

@@ -15,13 +15,12 @@ use Digest::MD5;
 
 use Devel::Cover::DB;
 use Devel::Cover::DB::IO;
-
-use Data::Dumper; $Data::Dumper::Indent = 1; $Data::Dumper::Sortkeys = 1;
+use Devel::Cover::Dumper;
 
 # For comprehensive debug logging.
 use constant DEBUG => 0;
 
-our $VERSION = '0.86'; # VERSION
+our $VERSION = '0.87'; # VERSION
 our $AUTOLOAD;
 
 sub new
@@ -233,7 +232,7 @@ sub digest
         print STDERR "Devel::Cover: Warning: can't open $file " .
                                              "for MD5 digest: $!\n"
             unless lc $file eq "-e" or
-                      $file =~ $Devel::Cover::Moose_filenames;
+                      $file =~ $Devel::Cover::Ignore_filenames;
         # require "Cwd"; warn Carp::longmess("in " . Cwd::cwd());
     }
     $digest
@@ -283,7 +282,7 @@ sub write
         {
             warn "Can't find digest for $file"
                 unless $Devel::Cover::Silent ||
-                       $file =~ $Devel::Cover::Moose_filenames ||
+                       $file =~ $Devel::Cover::Ignore_filenames ||
                        ($Devel::Cover::Self_cover &&
                         $file =~ q|/Devel/Cover[./]|);
             next;
@@ -389,11 +388,11 @@ __END__
 
 =head1 NAME
 
-Devel::Cover::DB::Structure - Code coverage metrics for Perl
+Devel::Cover::DB::Structure - Internal: abstract structure of a source file
 
 =head1 VERSION
 
-version 0.86
+version 0.87
 
 =head1 SYNOPSIS
 
@@ -404,6 +403,7 @@ version 0.86
 =head1 SEE ALSO
 
  Devel::Cover
+ Devel::Cover::DB
 
 =head1 METHODS
 
