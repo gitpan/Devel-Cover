@@ -1,4 +1,4 @@
-# Copyright 2001-2011, Paul Johnson (pjcj@cpan.org)
+# Copyright 2001-2012, Paul Johnson (paul@pjcj.net)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -10,7 +10,7 @@ package Devel::Cover;
 use strict;
 use warnings;
 
-our $VERSION = '0.87'; # VERSION
+our $VERSION = '0.88'; # VERSION
 our $LVERSION = do { eval '$VERSION' || "0.001" };  # for development purposes
 
 use DynaLoader ();
@@ -96,8 +96,7 @@ use vars '$File',                        # Last filename we saw.  (localised)
                                          # Used in runops function.
          '$Replace_ops',                 # Whether we are replacing ops.
          '$Silent',                      # Output nothing. Can be used anywhere.
-         '$Self_cover',                  # Coverage of Devel::Cover.
-         '$Ignore_filenames';            # Filenames to ignore.
+         '$Self_cover';                  # Coverage of Devel::Cover.
 
 BEGIN
 {
@@ -111,23 +110,6 @@ BEGIN
     # $^P = 0x004 | 0x010 | 0x100 | 0x200;
     # $^P = 0x004 | 0x100 | 0x200;
     $^P |= 0x004 | 0x100;
-    $Ignore_filenames =
-        qr/   # Moose
-            (?:
-                (?:
-                    reader | writer | constructor | destructor | accessor |
-                    predicate | clearer | native \s delegation \s method |
-                    # Template Toolkit
-                    Parser\.yp
-                )
-                \s .* \s
-                \( defined \s at \s .* \s line \s \d+ \)
-            )
-            | # Moose
-            (?: generated \s method \s \( unknown \s origin \) )
-            | # Template Toolkit
-            (?: Parser\.yp )
-          /x;
 }
 
 sub version { $LVERSION }
@@ -535,21 +517,26 @@ sub get_location
     }
 }
 
+my $find_filename = qr/
+  (?:^\(eval\s \d+\)\[(.+):\d+\])      |
+  (?:^\(eval\sin\s\w+\)\s(.+))         |
+  (?:\(defined\sat\s(.+)\sline\s\d+\)) |
+  (?:\[from\s(.+)\sline\s\d+\])
+/x;
+
 sub use_file
 {
     my ($file) = @_;
 
-    # warn "use_file($file)\n";
+    # print STDERR "use_file($file)\n";
 
     # die "bad file" unless length $file;
 
-    while ($file =~ /^\(eval \d+\)\[(.+):\d+\]/) {
-        $file = $1;
-    }
-    while ($file =~ /^\(eval in \w+\) (.+)/) {
-        $file = $1;
-    }
+    # just don't call your filenames 0
+    while ($file =~ $find_filename) { $file = $1 || $2 || $3 || $4 }
     $file =~ s/ \(autosplit into .*\)$//;
+
+    # print STDERR "==> use_file($file)\n";
 
     return $Files{$file} if exists $Files{$file};
     return 0 if $file =~ /\(eval \d+\)/          ||
@@ -568,7 +555,8 @@ sub use_file
     # system "pwd; ls -l '$file'";
     $Files{$file} = -e $file ? 1 : 0;
     print STDERR __PACKAGE__ . qq(: Can't find file "$file" (@_): ignored.\n)
-        unless $Files{$file} || $Silent || $file =~ $Ignore_filenames;
+        unless $Files{$file} || $Silent
+                             || $file =~ $Devel::Cover::DB::Ignore_filenames;
 
     $Files{$file}
 }
@@ -1011,7 +999,7 @@ sub deparse
         {
             # Collect everything under here.
             local ($File, $Line) = ($File, $Line);
-            $deparse = eval { $Original{deparse}->($self, @_) };
+            $deparse = eval { local $^W; $Original{deparse}->($self, @_) };
             $deparse =~ s/^\010+//mg if defined $deparse;
             $deparse = "Deparse error: $@" if $@;
             # print STDERR "Collect Deparse $op $$op => <$deparse>\n";
@@ -1078,7 +1066,7 @@ sub deparse
     else
     {
         local ($File, $Line) = ($File, $Line);
-        $deparse = eval { $Original{deparse}->($self, @_) };
+        $deparse = eval { local $^W; $Original{deparse}->($self, @_) };
         $deparse =~ s/^\010+//mg if defined $deparse;
         $deparse = "Deparse error: $@" if $@;
         # print STDERR "Deparse => <$deparse>\n";
@@ -1295,7 +1283,7 @@ Devel::Cover - Code coverage metrics for Perl
 
 =head1 VERSION
 
-version 0.87
+version 0.88
 
 =head1 SYNOPSIS
 
@@ -1600,7 +1588,7 @@ https://github.com/pjcj/Devel--Cover/issues?sort=created&direction=desc&state=op
 
 =head1 LICENCE
 
-Copyright 2001-2012, Paul Johnson (pjcj@cpan.org)
+Copyright 2001-2012, Paul Johnson (paul@pjcj.net)
 
 This software is free.  It is licensed under the same terms as Perl itself.
 

@@ -1,4 +1,4 @@
-# Copyright 2001-2011, Paul Johnson (pjcj@cpan.org)
+# Copyright 2001-2012, Paul Johnson (paul@pjcj.net)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -12,7 +12,7 @@ require 5.8.0;  # My patches to B::Concise didn't get released till 5.8.0.
 use strict;
 use warnings;
 
-our $VERSION = '0.87'; # VERSION
+our $VERSION = '0.88'; # VERSION
 
 use Devel::Cover::Dumper;
 
@@ -93,7 +93,7 @@ Devel::Cover::Op - B::Concise with coverage data
 
 =head1 VERSION
 
-version 0.87
+version 0.88
 
 =head1 SYNOPSIS
 
@@ -117,7 +117,7 @@ Huh?
 
 =head1 LICENCE
 
-Copyright 2001-2011, Paul Johnson (pjcj@cpan.org)
+Copyright 2001-2012, Paul Johnson (paul@pjcj.net)
 
 This software is free.  It is licensed under the same terms as Perl itself.
 

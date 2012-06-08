@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# Copyright 2001-2011, Paul Johnson (pjcj@cpan.org)
+# Copyright 2001-2012, Paul Johnson (paul@pjcj.net)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -12,7 +12,7 @@ require 5.6.1;
 use strict;
 use warnings;
 
-our $VERSION = '0.87'; # VERSION
+our $VERSION = '0.88'; # VERSION
 
 use Devel::Cover::DB;
 
@@ -34,6 +34,7 @@ my $Options =
     gcov                     => $Config{gccversion},
     ignore                   => [],
     ignore_re                => [],
+    launch                   => 0,
     make                     => $Config{make},
     report                   => "",
     report_c0                => 75,
@@ -67,6 +68,7 @@ sub get_options
                        ignore_re=s
                        ignore=s
                        info|i!
+                       launch!
                        make=s
                        outputdir=s
                        report_c0=s
@@ -183,7 +185,8 @@ sub main
         push @{$Options->{annotations}}, $ann;
     }
 
-    print "$0 version ".__PACKAGE__->VERSION."\n" and exit 0 if $Options->{version};
+    print "$0 version " . __PACKAGE__->VERSION . "\n" and exit 0
+        if $Options->{version};
     pod2usage(-exitval => 0, -verbose => 1)  if $Options->{help};
     pod2usage(-exitval => 0, -verbose => 2)  if $Options->{info};
 
@@ -349,7 +352,16 @@ sub main
     };
     @{$Options->{file}} = sort grep $keep->($_), keys %f;
 
-    $format->report($db, $Options)
+    $format->report($db, $Options);
+
+    if ($Options->{launch}) {
+        if ($format->can('launch')) {
+            $format->launch($Options);
+        }
+        else {
+            print STDERR "launch not available for $Options->{report} reports\n";
+        }
+    }
 }
 
 main
@@ -362,7 +374,7 @@ cover - report coverage statistics
 
 =head1 VERSION
 
-version 0.87
+version 0.88
 
 =head1 SYNOPSIS
 
@@ -370,7 +382,7 @@ version 0.87
        -summary -report report_format -outputdir dir
        -select filename -ignore filename
        -select_re RE -ignore_re RE
-       -write [db] -delete -dump_db
+       -write [db] -delete -dump_db -launch
        -silent
        -coverage criterion
        -test -gcov
@@ -404,6 +416,7 @@ The following command line options are supported:
  -summary              - give summary report                (default on)
  -report report_format - report format                      (default html)
  -outputdir            - directory for output               (default db)
+ -launch               - launch report in viewer (if avail) (default off)
 
  -select filename      - only report on the file            (default all)
  -ignore filename      - don't report on the file           (default none)
@@ -503,7 +516,7 @@ See the BUGS file.
 
 =head1 LICENCE
 
-Copyright 2001-2011, Paul Johnson (pjcj@cpan.org)
+Copyright 2001-2012, Paul Johnson (paul@pjcj.net)
 
 This software is free.  It is licensed under the same terms as Perl itself.
 

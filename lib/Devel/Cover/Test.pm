@@ -1,4 +1,4 @@
-# Copyright 2002-2011, Paul Johnson (pjcj@cpan.org)
+# Copyright 2002-2012, Paul Johnson (paul@pjcj.net)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -10,7 +10,7 @@ package Devel::Cover::Test;
 use strict;
 use warnings;
 
-our $VERSION = '0.87'; # VERSION
+our $VERSION = '0.88'; # VERSION
 
 use Carp;
 
@@ -69,7 +69,7 @@ sub get_params
 
     $self->{criteria} = $self->{criteria}[-1];
 
-    $self->{select}         ||= "-select $self->{test}";
+    $self->{select}         ||= "-select /tests/$self->{test}\\b";
     $self->{test_parameters}  = "$self->{select}"
                               . " -ignore blib Devel/Cover @{$self->{ignore}}"
                               . " -merge 0 -coverage $self->{criteria} "
@@ -216,8 +216,8 @@ sub run_test
         return;
     }
 
-    my $version = int(($] - 5) * 1000);
-    if ($version %2 && $version < 16)
+    my $version = int(($] - 5) * 1000 + 0.5);
+    if ($version % 2 && $version < 16)
     {
         Test::plan tests => 1;
         Test::skip("Perl version $] is an obsolete development version", 1);
@@ -425,7 +425,7 @@ Devel::Cover::Test - Internal module for testing
 
 =head1 VERSION
 
-version 0.87
+version 0.88
 
 =head1 METHODS
 
@@ -524,7 +524,7 @@ Huh?
 
 =head1 LICENCE
 
-Copyright 2001-2012, Paul Johnson (pjcj@cpan.org)
+Copyright 2001-2012, Paul Johnson (paul@pjcj.net)
 
 This software is free.  It is licensed under the same terms as Perl itself.
 

@@ -1,4 +1,4 @@
-# Copyright 2001-2011, Paul Johnson (pjcj@cpan.org)
+# Copyright 2001-2012, Paul Johnson (paul@pjcj.net)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -10,7 +10,7 @@ package Devel::Cover::Report::Text;
 use strict;
 use warnings;
 
-our $VERSION = '0.87'; # VERSION
+our $VERSION = '0.88'; # VERSION
 
 use Devel::Cover::DB;
 
@@ -294,7 +294,7 @@ __END__
 
 =head1 VERSION
 
-version 0.87
+version 0.88
 Devel::Cover::Report::Text - Backend for textual reporting of coverage
 statistics
 
@@ -317,7 +317,7 @@ Huh?
 
 =head1 LICENCE
 
-Copyright 2001-2011, Paul Johnson (pjcj@cpan.org)
+Copyright 2001-2012, Paul Johnson (paul@pjcj.net)
 
 This software is free.  It is licensed under the same terms as Perl itself.
 

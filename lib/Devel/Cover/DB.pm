@@ -1,4 +1,4 @@
-# Copyright 2001-2011, Paul Johnson (pjcj@cpan.org)
+# Copyright 2001-2012, Paul Johnson (paul@pjcj.net)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -10,7 +10,7 @@ package Devel::Cover::DB;
 use strict;
 use warnings;
 
-our $VERSION = '0.87'; # VERSION
+our $VERSION = '0.88'; # VERSION
 
 use Devel::Cover::Criterion;
 use Devel::Cover::DB::File;
@@ -28,6 +28,25 @@ my $DB = "cover.13";  # Version 13 of the database.
     (qw( statement branch path condition subroutine pod time ));
 @Devel::Cover::DB::Criteria_short =
     (qw( stmt      bran   path cond      sub        pod time ));
+$Devel::Cover::DB::Ignore_filenames =
+    qr/   # Moose
+        (?:
+            (?:
+                reader | writer | constructor | destructor | accessor |
+                predicate | clearer | native \s delegation \s method |
+                # Template Toolkit
+                Parser\.yp
+            )
+            \s .* \s
+            \( defined \s at \s .* \s line \s \d+ \)
+        )
+        | # Moose
+        (?: generated \s method \s \( unknown \s origin \) )
+        | # Mouse
+        (?: (?: rw-accessor | ro-accessor ) \s for )
+        | # Template Toolkit
+        (?: Parser\.yp )
+      /x;
 
 sub new
 {
@@ -881,7 +900,7 @@ sub cover
             {
                 print STDERR "Devel::Cover: Can't find digest for $file\n"
                     unless $Devel::Cover::Silent ||
-                           $file =~ $Devel::Cover::Ignore_filenames ||
+                           $file =~ $Devel::Cover::DB::Ignore_filenames ||
                            ($Devel::Cover::Self_cover &&
                             $file =~ q|/Devel/Cover[./]|);
                 next;
@@ -963,7 +982,7 @@ Devel::Cover::DB - Code coverage metrics for Perl
 
 =head1 VERSION
 
-version 0.87
+version 0.88
 
 =head1 SYNOPSIS
 
@@ -1053,7 +1072,7 @@ Huh?
 
 =head1 LICENCE
 
-Copyright 2001-2011, Paul Johnson (pjcj@cpan.org)
+Copyright 2001-2012, Paul Johnson (paul@pjcj.net)
 
 This software is free.  It is licensed under the same terms as Perl itself.
 

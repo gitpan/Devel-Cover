@@ -13,7 +13,7 @@ package  # Private module
 use strict qw<vars subs>; # no refs
 use warnings;
 
-our $VERSION = '0.87'; # VERSION
+our $VERSION = '0.88'; # VERSION
 
 sub import
 {
@@ -43,7 +43,7 @@ Devel::Cover::Dumper - Internal module for debugging purposes
 
 =head1 VERSION
 
-version 0.87
+version 0.88
 
 =head1 SYNOPSIS
 

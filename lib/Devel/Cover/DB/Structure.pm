@@ -1,4 +1,4 @@
-# Copyright 2004-2011, Paul Johnson (pjcj@cpan.org)
+# Copyright 2004-2012, Paul Johnson (paul@pjcj.net)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -20,7 +20,7 @@ use Devel::Cover::Dumper;
 # For comprehensive debug logging.
 use constant DEBUG => 0;
 
-our $VERSION = '0.87'; # VERSION
+our $VERSION = '0.88'; # VERSION
 our $AUTOLOAD;
 
 sub new
@@ -232,7 +232,7 @@ sub digest
         print STDERR "Devel::Cover: Warning: can't open $file " .
                                              "for MD5 digest: $!\n"
             unless lc $file eq "-e" or
-                      $file =~ $Devel::Cover::Ignore_filenames;
+                      $file =~ $Devel::Cover::DB::Ignore_filenames;
         # require "Cwd"; warn Carp::longmess("in " . Cwd::cwd());
     }
     $digest
@@ -282,7 +282,7 @@ sub write
         {
             warn "Can't find digest for $file"
                 unless $Devel::Cover::Silent ||
-                       $file =~ $Devel::Cover::Ignore_filenames ||
+                       $file =~ $Devel::Cover::DB::Ignore_filenames ||
                        ($Devel::Cover::Self_cover &&
                         $file =~ q|/Devel/Cover[./]|);
             next;
@@ -392,7 +392,7 @@ Devel::Cover::DB::Structure - Internal: abstract structure of a source file
 
 =head1 VERSION
 
-version 0.87
+version 0.88
 
 =head1 SYNOPSIS
 
@@ -413,7 +413,7 @@ Huh?
 
 =head1 LICENCE
 
-Copyright 2004-2011, Paul Johnson (pjcj@cpan.org)
+Copyright 2004-2012, Paul Johnson (paul@pjcj.net)
 
 This software is free.  It is licensed under the same terms as Perl itself.
 
