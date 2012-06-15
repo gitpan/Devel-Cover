@@ -20,7 +20,7 @@ use Devel::Cover::Dumper;
 # For comprehensive debug logging.
 use constant DEBUG => 0;
 
-our $VERSION = '0.88'; # VERSION
+our $VERSION = '0.89'; # VERSION
 our $AUTOLOAD;
 
 sub new
@@ -87,7 +87,7 @@ sub AUTOLOAD
 sub debuglog {
     my $self = shift;
     my $dir = "$self->{base}/debuglog";
-    unless (mkdir $dir, 0700)
+    unless (mkdir $dir)
     {
         confess "Can't mkdir $dir: $!" unless -d $dir;
     }
@@ -271,7 +271,7 @@ sub write
     my ($dir) = @_;
     # print STDERR Dumper $self;
     $dir .= "/structure";
-    unless (mkdir $dir, 0700)
+    unless (mkdir $dir)
     {
         confess "Can't mkdir $dir: $!" unless -d $dir;
     }
@@ -392,7 +392,7 @@ Devel::Cover::DB::Structure - Internal: abstract structure of a source file
 
 =head1 VERSION
 
-version 0.88
+version 0.89
 
 =head1 SYNOPSIS
 

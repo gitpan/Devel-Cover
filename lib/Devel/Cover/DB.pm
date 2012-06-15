@@ -10,7 +10,7 @@ package Devel::Cover::DB;
 use strict;
 use warnings;
 
-our $VERSION = '0.88'; # VERSION
+our $VERSION = '0.89'; # VERSION
 
 use Devel::Cover::Criterion;
 use Devel::Cover::DB::File;
@@ -98,7 +98,7 @@ sub write
     $self->{db} = shift if @_;
 
     croak "No db specified" unless length $self->{db};
-    unless (mkdir $self->{db}, 0700)
+    unless (mkdir $self->{db})
     {
         croak "Can't mkdir $self->{db}: $!\n" unless -d $self->{db};
     }
@@ -982,7 +982,7 @@ Devel::Cover::DB - Code coverage metrics for Perl
 
 =head1 VERSION
 
-version 0.88
+version 0.89
 
 =head1 SYNOPSIS
 

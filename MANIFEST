@@ -247,6 +247,7 @@ utils/install/System.pm
 utils/install/buildperl
 utils/install_modules
 utils/makeh
+utils/run_cpancover
 utils/scanuncov
 utils/session.vim
 utils/typemap

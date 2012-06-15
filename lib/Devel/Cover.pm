@@ -10,7 +10,7 @@ package Devel::Cover;
 use strict;
 use warnings;
 
-our $VERSION = '0.88'; # VERSION
+our $VERSION = '0.89'; # VERSION
 our $LVERSION = do { eval '$VERSION' || "0.001" };  # for development purposes
 
 use DynaLoader ();
@@ -338,7 +338,7 @@ sub import
         $Dir = $1 if Cwd::getcwd() =~ /(.*)/;
     }
 
-    unless (mkdir $DB, 0700)
+    unless (mkdir $DB)
     {
         die "Can't mkdir $DB: $!" unless -d $DB;
     }
@@ -480,7 +480,7 @@ sub normalised_file
         # print STDERR "finally <$file> <$Dir>\n";
     }
     $file =~ s|\\|/|g if $^O eq "MSWin32";
-    $file =~ s|^$Dir/|| if defined $Dir;
+    $file =~ s|^\Q$Dir\E/|| if defined $Dir;
 
     $Digests ||= Devel::Cover::DB::Digests->new(db => $DB);
     $file = $Digests->canonical_file($file);
@@ -697,11 +697,13 @@ sub _report
         "did you require instead of use Devel::Cover?\n"
         unless defined $Dir;
 
-    chdir $Dir or die __PACKAGE__ . ": Can't chdir $Dir: $!\n";
 
     my @collected = get_coverage();
     return unless @collected;
     set_coverage("none") unless $Self_cover;
+
+    my $starting_dir = $1 if Cwd::getcwd() =~ /(.*)/;
+    chdir $Dir or die __PACKAGE__ . ": Can't chdir $Dir: $!\n";
 
     $Run{collected} = \@collected;
     $Structure      = Devel::Cover::DB::Structure->new(base => $DB);
@@ -767,7 +769,7 @@ sub _report
     );
 
     my $dbrun = "$DB/runs";
-    unless (mkdir $dbrun, 0700)
+    unless (mkdir $dbrun)
     {
         die "Can't mkdir $dbrun $!" unless -d $dbrun;
     }
@@ -779,10 +781,12 @@ sub _report
     $Digests->write;
     $cover->print_summary if $Summary && !$Silent;
 
-    return if !$Self_cover || $Self_cover_run;
+    if ( $Self_cover && !$Self_cover_run) {
 
-    $cover->delete;
-    delete $Run{vec};
+        $cover->delete;
+        delete $Run{vec};
+    }
+    chdir $starting_dir;
 }
 
 sub add_subroutine_cover
@@ -1283,7 +1287,7 @@ Devel::Cover - Code coverage metrics for Perl
 
 =head1 VERSION
 
-version 0.88
+version 0.89
 
 =head1 SYNOPSIS
 
@@ -1395,7 +1399,11 @@ that the appropriate tools are installed.
 
 Both are in the core in Perl 5.8.0 and above.
 
+=back
+
 =head2 OPTIONAL MODULES
+
+=over
 
 =item * L<Template>, and either L<PPI::HTML> or L<Perl::Tidy>
 
@@ -1417,6 +1425,10 @@ Some of Devel::Cover's own tests require it.
 =item * L<Test::Differences>
 
 if the tests fail and you would like nice output telling you why.
+
+=item * L<Template>, and L<Parallel::Iterator>
+
+Needed if you want to run cpancover.
 
 =back
 

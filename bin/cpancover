@@ -12,7 +12,7 @@ require 5.6.1;
 use strict;
 use warnings;
 
-our $VERSION = '0.88'; # VERSION
+our $VERSION = '0.89'; # VERSION
 
 use Devel::Cover::DB;
 use Devel::Cover::Dumper;
@@ -346,7 +346,7 @@ sub main
             sub { get_cover $_[1] },
             $Options->{module}
         );
-        print Dumper \@res;
+        # print Dumper \@res;
         # get_cover($_) for @{$Options->{module}};
     }
 
@@ -358,7 +358,7 @@ package Devel::Cover::Cpancover::Template::Provider;
 use strict;
 use warnings;
 
-our $VERSION = '0.88'; # VERSION
+our $VERSION = '0.89'; # VERSION
 
 use base "Template::Provider";
 
@@ -460,7 +460,7 @@ cpancover - report coverage statistics on CPAN modules
 
 =head1 VERSION
 
-version 0.88
+version 0.89
 
 =head1 SYNOPSIS
 
@@ -479,6 +479,10 @@ The following command line options are supported:
 
 =head1 DETAILS
 
+
+=head1 REQUIREMENTS
+
+The modules L<Template> and L<Parallel::Iterator> are required.
 
 =head1 EXIT STATUS
 

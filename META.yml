@@ -40,7 +40,7 @@ resources:
   homepage: http://www.pjcj.net/perl.html
   license: http://dev.perl.org/licenses
   repository: http://github.com/pjcj/Devel--Cover
-version: 0.88
+version: 0.89
 x_Dist_Zilla:
   plugins:
     -
