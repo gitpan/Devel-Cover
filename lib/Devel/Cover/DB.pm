@@ -10,7 +10,7 @@ package Devel::Cover::DB;
 use strict;
 use warnings;
 
-our $VERSION = '0.89'; # VERSION
+our $VERSION = '0.90'; # VERSION
 
 use Devel::Cover::Criterion;
 use Devel::Cover::DB::File;
@@ -38,7 +38,7 @@ $Devel::Cover::DB::Ignore_filenames =
                 Parser\.yp
             )
             \s .* \s
-            \( defined \s at \s .* \s line \s \d+ \)
+            (?: \( defined \s at \s .* \s line \s \d+ \) | defined \s at )
         )
         | # Moose
         (?: generated \s method \s \( unknown \s origin \) )
@@ -982,7 +982,7 @@ Devel::Cover::DB - Code coverage metrics for Perl
 
 =head1 VERSION
 
-version 0.89
+version 0.90
 
 =head1 SYNOPSIS
 

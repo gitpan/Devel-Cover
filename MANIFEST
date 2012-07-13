@@ -137,8 +137,8 @@ test_output/cover/module_relative.5.008
 test_output/cover/module_relative.5.008001
 test_output/cover/moose_basic.5.010000
 test_output/cover/moose_cond.5.010000
-test_output/cover/moose_cond.5.012001
-test_output/cover/moose_cond.5.012002
+test_output/cover/moose_constraint.5.010000
+test_output/cover/moose_constraint.5.016000
 test_output/cover/overload_bool.5.006001
 test_output/cover/overload_bool.5.008
 test_output/cover/overloaded.5.006001
@@ -221,6 +221,7 @@ tests/module_import
 tests/module_relative
 tests/moose_basic
 tests/moose_cond
+tests/moose_constraint
 tests/overload_bool
 tests/overloaded
 tests/pod

@@ -10,7 +10,7 @@ package Devel::Cover::Test;
 use strict;
 use warnings;
 
-our $VERSION = '0.89'; # VERSION
+our $VERSION = '0.90'; # VERSION
 
 use Carp;
 
@@ -83,7 +83,7 @@ sub get_params
     }
     $self->{cover_parameters} = join(" ", map "-coverage $_",
                                               split " ", $self->{criteria})
-                              . " -report text " . $self->{cover_db};
+                              . " -report text '" . $self->{cover_db} . "'";
     $self->{cover_parameters} .= " -uncoverable_file "
                               .  "@{$self->{uncoverable_file}}"
         if @{$self->{uncoverable_file}};
@@ -126,10 +126,11 @@ sub test_command
     my $c = $self->perl;
     unless ($self->{no_coverage})
     {
-        $c .= " -MDevel::Cover=" .
-              join ",",
+        $c .= " '-MDevel::Cover=" .
+              join(",",
                    "-db", $self->{cover_db},
-                   split " ", $self->{test_parameters}
+                   split " ", $self->{test_parameters}) .
+              "'";
     }
     $c .= " " . shell_quote $self->test_file;
     $c .= " " . $self->test_file_parameters;
@@ -425,7 +426,7 @@ Devel::Cover::Test - Internal module for testing
 
 =head1 VERSION
 
-version 0.89
+version 0.90
 
 =head1 METHODS
 

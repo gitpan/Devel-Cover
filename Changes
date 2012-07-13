@@ -1,5 +1,11 @@
 Devel::Cover history
 
+Release 0.90 - 13th July 2012
+ - Fix cover -test on Windows (Christian Walde) (github 24) (rt 75565).
+ - Better document coverage options (github 23).
+ - Run in directories containing spaces (rt 62423).
+ - Add moose_constraint test (rt 57173).
+
 Release 0.89 - 15th June 2012
  - Fix POD syntax error (gregor herrmann <gregoa@debian.org>) (rt 77599).
  - Handle RE metachars in build directory (rt 75633 & 77598)

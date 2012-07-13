@@ -10,7 +10,7 @@ package Devel::Cover;
 use strict;
 use warnings;
 
-our $VERSION = '0.89'; # VERSION
+our $VERSION = '0.90'; # VERSION
 our $LVERSION = do { eval '$VERSION' || "0.001" };  # for development purposes
 
 use DynaLoader ();
@@ -274,6 +274,7 @@ sub import
     my $class = shift;
 
     my @o = (@_, split ",", $ENV{DEVEL_COVER_OPTIONS} || "");
+    defined or $_ = "" for @o;
     # print STDERR __PACKAGE__, ": Parsing options from [@o]\n";
 
     my $blib = -d "blib";
@@ -354,7 +355,6 @@ sub import
         $Criteria{$c} = $func->();
     }
 
-    %Coverage = (all => 1) unless keys %Coverage;
     for (keys %Coverage)
     {
         my @c = split /-/, $_;
@@ -363,7 +363,9 @@ sub import
             $Coverage{shift @c} = \@c;
             delete $Coverage{$_};
         }
+        delete $Coverage{$_} unless length;
     }
+    %Coverage = (all => 1) unless keys %Coverage;
     %Coverage_options = %Coverage;
 
     $Initialised = 1;
@@ -1287,7 +1289,7 @@ Devel::Cover - Code coverage metrics for Perl
 
 =head1 VERSION
 
-version 0.89
+version 0.90
 
 =head1 SYNOPSIS
 
@@ -1501,6 +1503,11 @@ using -inc, or add to them using +inc.
 
 Although these options take regular expressions, you should not enclose the RE
 within // or any other quoting characters.
+
+The options -coverage, [+-]select, [+-]ignore and [+-]inc can be specified
+multiple times, but they can also take multiple comma separated arguments.  In
+any case you should not add a space after the comma, unless you want the
+argument to start with that literal space.
 
 =head1 ENVIRONMENT
 
