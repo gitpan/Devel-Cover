@@ -10,7 +10,7 @@ package Devel::Cover::Report::Sort;
 use strict;
 use warnings;
 
-our $VERSION = '0.90'; # VERSION
+our $VERSION = '0.91'; # VERSION
 
 use Devel::Cover::DB;
 
@@ -78,7 +78,7 @@ Devel::Cover::Report::Sort - Report on runs in an optimal order
 
 =head1 VERSION
 
-version 0.90
+version 0.91
 
 =head1 SYNOPSIS
 

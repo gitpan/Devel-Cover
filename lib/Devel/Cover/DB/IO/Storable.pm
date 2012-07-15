@@ -12,7 +12,7 @@ use warnings;
 
 use Storable;
 
-our $VERSION = '0.90'; # VERSION
+our $VERSION = '0.91'; # VERSION
 
 sub new
 {
@@ -48,7 +48,7 @@ Devel::Cover::DB::IO::Storable - Storable based IO routines for Devel::Cover::DB
 
 =head1 VERSION
 
-version 0.90
+version 0.91
 
 =head1 SYNOPSIS
 

@@ -10,7 +10,7 @@ package Devel::Cover;
 use strict;
 use warnings;
 
-our $VERSION = '0.90'; # VERSION
+our $VERSION = '0.91'; # VERSION
 our $LVERSION = do { eval '$VERSION' || "0.001" };  # for development purposes
 
 use DynaLoader ();
@@ -105,7 +105,24 @@ BEGIN
               ($ENV{PERL5OPT}              || "") =~ /Devel::Cover/;
     *OUT = $ENV{DEVEL_COVER_DEBUG} ? *STDERR : *STDOUT;
 
-    @Inc = @Devel::Cover::Inc::Inc;
+    eval
+    {
+        local %ENV = %ENV;
+        /perl/i and delete $ENV{$_} for keys %ENV;
+        my $cmd = "$^X -MData::Dumper -e " . '"print Dumper \@INC"';
+        my $VAR1;
+        # print STDERR "Running [$cmd]\n";
+        eval `$cmd`;
+        @Inc = @$VAR1;
+    };
+    if ($@)
+    {
+        print STDERR __PACKAGE__, ": Error getting \@INC: $@\n",
+                                  "Reverting to default value for Inc.\n";
+        @Inc = @Devel::Cover::Inc::Inc;
+    }
+    @Inc = map { -d $_ ? ($_ eq "." ? $_ : Cwd::abs_path($_)) : () } @Inc;
+
     @Ignore = ("/Devel/Cover[./]") unless $Self_cover = $ENV{DEVEL_COVER_SELF};
     # $^P = 0x004 | 0x010 | 0x100 | 0x200;
     # $^P = 0x004 | 0x100 | 0x200;
@@ -1289,7 +1306,7 @@ Devel::Cover - Code coverage metrics for Perl
 
 =head1 VERSION
 
-version 0.90
+version 0.91
 
 =head1 SYNOPSIS
 

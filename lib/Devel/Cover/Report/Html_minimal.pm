@@ -8,7 +8,7 @@ use Devel::Cover::DB;
 use Devel::Cover::Html_Common "launch";
 use Devel::Cover::Truth_Table;
 
-our $VERSION = '0.90'; # VERSION
+our $VERSION = '0.91'; # VERSION
 our $LVERSION = do { eval '$VERSION' || "0.001" };  # for development purposes
 
 #-------------------------------------------------------------------------------
@@ -742,7 +742,7 @@ sub report {
 
 =head1 VERSION
 
-version 0.90
+version 0.91
 Devel::Cover::Report::Html_minimal - Backend for HTML reporting of coverage
 statistics
 
