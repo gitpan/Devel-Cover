@@ -10,7 +10,7 @@ package Devel::Cover;
 use strict;
 use warnings;
 
-our $VERSION = '0.92'; # VERSION
+our $VERSION = '0.93'; # VERSION
 our $LVERSION = do { eval '$VERSION' || "0.001" };  # for development purposes
 
 use DynaLoader ();
@@ -384,6 +384,7 @@ sub import
         delete $Coverage{$_} unless length;
     }
     %Coverage = (all => 1) unless keys %Coverage;
+    # print STDERR "Coverage: ", Dumper \%Coverage;
     %Coverage_options = %Coverage;
 
     $Initialised = 1;
@@ -519,7 +520,7 @@ sub get_location
 
     $File = $op->file;
     $Line = $op->line;
-    # warn "${File}::$Line\n";
+    # print STDERR "$File:$Line\n";
 
     # If there's an eval, get the real filename.  Enabled from $^P & 0x100.
     while ($File =~ /^\(eval \d+\)\[(.*):(\d+)\]/) {
@@ -842,6 +843,7 @@ sub add_statement_cover
     my $key = get_key($op);
     my $val = $Coverage->{statement}{$key} || 0;
     my ($n, $new) = $Structure->add_count("statement");
+    # print STDERR "Stmt $File:$Line - $n, $new\n";
     $Structure->add_statement($File, $Line) if $new;
     $Run{count}{$File}{statement}[$n] += $val;
     my $vec = $Run{vec}{$File}{statement};
@@ -849,7 +851,8 @@ sub add_statement_cover
     $vec->{size} = $n + 1;
     no warnings "uninitialized";
     $Run{count}{$File}{time}[$n] += $Coverage->{time}{$key}
-        if exists $Coverage->{time} && exists $Coverage->{time}{$key};
+        if $Coverage{time} &&
+           exists $Coverage->{time} && exists $Coverage->{time}{$key};
 }
 
 sub add_branch_cover
@@ -903,20 +906,11 @@ sub add_branch_cover
     # warn "branch $type %x [@$c] => [@{$ccount->{branch}[$n]}]\n", $$op;
 }
 
-my %condition_locations;
-
 sub add_condition_cover
 {
     my ($op, $strop, $left, $right) = @_;
 
-    unless ($Collect)
-    {
-        # $condition_locations{$$op} = [ $File, $Line ];
-        return
-    }
-
-    # local ($File, $Line) = @{$condition_locations{$$op}}
-        # if exists $condition_locations{$$op};
+    return unless $Collect && $Coverage{condition};
 
     my $key = get_key($op);
     # warn "Condition cover $$op from $File:$Line\n";
@@ -924,13 +918,10 @@ sub add_condition_cover
     # use Carp "cluck"; cluck("from here");
 
     my $type = $op->name;
-    # print STDERR "type:  [$type]\n";
     $type =~ s/assign$//;
     $type = "or" if $type eq "dor";
-    # print STDERR "type:  [$type]\n";
 
     my $c = $Coverage->{condition}{$key};
-    # print STDERR "Condition: ", Dumper $c;
 
     no warnings "uninitialized";
 
@@ -1307,7 +1298,7 @@ Devel::Cover - Code coverage metrics for Perl
 
 =head1 VERSION
 
-version 0.92
+version 0.93
 
 =head1 SYNOPSIS
 
@@ -1515,9 +1506,8 @@ included.
 You may add to the REs to select by using +select, or you may reset the
 selections using -select.  The same principle applies to the REs to ignore.
 
-The inc directories are initially populated with the contents of the @INC
-array at the time Devel::Cover was built.  You may reset these directories
-using -inc, or add to them using +inc.
+The inc directories are initially populated with the contents of perl's @INC
+array.  You may reset these directories using -inc, or add to them using +inc.
 
 Although these options take regular expressions, you should not enclose the RE
 within // or any other quoting characters.

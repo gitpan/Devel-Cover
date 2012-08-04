@@ -10,7 +10,7 @@ package Devel::Cover::Report::Sort;
 use strict;
 use warnings;
 
-our $VERSION = '0.92'; # VERSION
+our $VERSION = '0.93'; # VERSION
 
 use Devel::Cover::DB;
 
@@ -74,11 +74,11 @@ __END__
 
 =head1 NAME
 
-Devel::Cover::Report::Sort - Report on runs in an optimal order
+Devel::Cover::Report::Sort - backend for Devel::Cover
 
 =head1 VERSION
 
-version 0.92
+version 0.93
 
 =head1 SYNOPSIS
 

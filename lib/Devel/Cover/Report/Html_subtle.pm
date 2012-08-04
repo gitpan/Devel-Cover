@@ -2,7 +2,7 @@ package Devel::Cover::Report::Html_subtle;
 use strict;
 use warnings;
 
-our $VERSION = '0.92'; # VERSION
+our $VERSION = '0.93'; # VERSION
 
 use Devel::Cover::DB;
 use Devel::Cover::Html_Common "launch";
@@ -399,7 +399,7 @@ package Devel::Cover::Report::Html_subtle::Template::Provider;
 use strict;
 use warnings;
 
-our $VERSION = '0.92'; # VERSION
+our $VERSION = '0.93'; # VERSION
 
 use base "Template::Provider";
 
@@ -714,12 +714,11 @@ s/^\s+//gm for values %Templates;
 
 =head1 NAME
 
+Devel::Cover::Report::Html_subtle - HTML backend for Devel::Cover
 
 =head1 VERSION
 
-version 0.92
-Devel::Cover::Report::Html_subtle - Backend for HTML reporting of coverage
-statistics
+version 0.93
 
 =head1 SYNOPSIS
 

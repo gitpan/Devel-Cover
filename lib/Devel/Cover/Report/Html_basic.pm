@@ -10,7 +10,7 @@ package Devel::Cover::Report::Html_basic;
 use strict;
 use warnings;
 
-our $VERSION = '0.92'; # VERSION
+our $VERSION = '0.93'; # VERSION
 our $LVERSION = do { eval '$VERSION' || "0.001" };  # for development purposes
 
 use Devel::Cover::DB;
@@ -400,6 +400,9 @@ sub report
         ],
     });
 
+    my $le = sub { ($_[0] >   0 ? "<" : "=") . " $_[0]" };
+    my $ge = sub { ($_[0] < 100 ? ">" : "") . "= $_[0]" };
+
     %R =
     (
         db      => $db,
@@ -409,6 +412,8 @@ sub report
             sprintf "%04d-%02d-%02d %02d:%02d:%02d",
                     $year + 1900, $mon + 1, $mday, $hour, $min, $sec
         },
+        perl_v  => $] < 5.010 ? $] : $^V,
+        os      => $^O,
         options => $options,
         version => $LVERSION,
         showing => [ grep $options->{show}{$_}, $db->criteria ],
@@ -430,6 +435,10 @@ sub report
         },
         exists      => { map { $_ => -e } @{$options->{file}} },
         get_summary => \&get_summary,
+        c0          => $le->($options->{report_c0}),
+        c1          => $le->($options->{report_c1}),
+        c2          => $le->($options->{report_c2}),
+        c3          => $ge->($options->{report_c2}),
     );
 
     write_file $R{options}{outputdir}, "all";
@@ -456,7 +465,7 @@ package Devel::Cover::Report::Html_basic::Template::Provider;
 use strict;
 use warnings;
 
-our $VERSION = '0.92'; # VERSION
+our $VERSION = '0.93'; # VERSION
 
 use base "Template::Provider";
 
@@ -535,27 +544,26 @@ $Templates{summary} = <<'EOT';
 <table>
     <tr>
         <td class="sh" align="right">Database:</td>
-        <td class="sv" align="left">[% R.db.db %]</td>
+        <td class="sv" align="left" colspan="4">[% R.db.db %]</td>
     </tr>
     <tr>
         <td class="sh" align="right">Report date:</td>
-        <td class="sv" align="left">[% R.date %]</td>
+        <td class="sv" align="left" colspan="4">[% R.date %]</td>
     </tr>
     <tr>
-        <td class="sh" align="right">C0:</td>
-        <td class="sv c0" align="left">&lt;&nbsp;[% R.options.report_c0 %]%</td>
+        <td class="sh" align="right">Perl version:</td>
+        <td class="sv" align="left" colspan="4">[% R.perl_v %]</td>
     </tr>
     <tr>
-        <td class="sh" align="right">C1:</td>
-        <td class="sv c1" align="left">&lt;&nbsp;[% R.options.report_c1 %]%</td>
+        <td class="sh" align="right">OS:</td>
+        <td class="sv" align="left" colspan="4">[% R.os %]</td>
     </tr>
     <tr>
-        <td class="sh" align="right">C2:</td>
-        <td class="sv c2" align="left">&lt;&nbsp;[% R.options.report_c2 %]%</td>
-    </tr>
-    <tr>
-        <td class="sh" align="right">C3:</td>
-        <td class="sv c3" align="left">&gt;=&nbsp;[% R.options.report_c2 %]%</td>
+        <td class="sh" align="right">Thresholds:</td>
+        <td class="sv c0">[% R.c0 | html %]%</td>
+        <td class="sv c1">[% R.c1 | html %]%</td>
+        <td class="sv c2">[% R.c2 | html %]%</td>
+        <td class="sv c3">[% R.c3 | html %]%</td>
     </tr>
 </table>
 <div><br></br></div>
@@ -774,12 +782,11 @@ s/^\s+//gm for values %Templates;
 
 =head1 NAME
 
+Devel::Cover::Report::Html_basic - HTML backend for Devel::Cover
 
 =head1 VERSION
 
-version 0.92
-Devel::Cover::Report::Html_basic - Backend for HTML reporting of coverage
-statistics
+version 0.93
 
 =head1 SYNOPSIS
 

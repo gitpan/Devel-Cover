@@ -18,7 +18,7 @@ package Devel::Cover::Report::Compilation;
 use strict;
 use warnings;
 
-our $VERSION = '0.92'; # VERSION
+our $VERSION = '0.93'; # VERSION
 
 use Devel::Cover::DB;
 
@@ -143,12 +143,11 @@ __END__
 
 =head1 NAME
 
+Devel::Cover::Report::Compilation - backend for Devel::Cover
 
 =head1 VERSION
 
-version 0.92
-Devel::Cover::Report::Compilation - Backend for reporting of coverage
-statistics in a format like Perl compilation
+version 0.93
 
 =head1 SYNOPSIS
 

@@ -10,7 +10,7 @@ package Devel::Cover::DB;
 use strict;
 use warnings;
 
-our $VERSION = '0.92'; # VERSION
+our $VERSION = '0.93'; # VERSION
 
 use Devel::Cover::Criterion;
 use Devel::Cover::DB::File;
@@ -365,14 +365,21 @@ sub calculate_summary
     return if exists $self->{summary} && !$options{force};
     my $s = $self->{summary} = {};
 
-    for my $file ($self->cover->items)
+    my @files = $self->cover->items;
+    if (my $files = delete $options{files})
+    {
+        my %required_files = map { ($_ => 1) } @$files;
+        @files = grep $required_files{$_}, @files;
+    }
+
+    for my $file (@files)
     {
         $self->cover->get($file)->calculate_summary($self, $file, \%options);
     }
 
     # print STDERR Dumper $self;
 
-    for my $file ($self->cover->items)
+    for my $file (@files)
     {
         $self->cover->get($file)->calculate_percentage($self, $s->{$file});
     }
@@ -397,15 +404,19 @@ sub trimmed_file
 sub print_summary
 {
     my $self = shift;
+    my ($files, $criteria, $opts) = @_;
 
-    my %options = map(($_ => 1), @_ ? @_ : $self->collected);
+    my %crit = map(($_ => 1), $self->collected);
+    my %options = $criteria ? map(($_ => 1), grep $crit{$_}, @$criteria)
+                            : %crit;
     $options{total} = 1 if keys %options;
 
     my $n = keys %options;
 
     my $oldfh = select STDOUT;
 
-    $self->calculate_summary(%options);
+    $options{files} = $files if $files && @$files;
+    $self->calculate_summary(%options, %$opts);
 
     my $format = sub
     {
@@ -710,7 +721,7 @@ sub uncoverable_comments
     open my $fh, "<", $file or do
     {
         warn "Devel::Cover: Can't open file $file: $!\n";
-        next;
+        return;
     };
     my @waiting;
     while (<$fh>)
@@ -982,14 +993,14 @@ Devel::Cover::DB - Code coverage metrics for Perl
 
 =head1 VERSION
 
-version 0.92
+version 0.93
 
 =head1 SYNOPSIS
 
  use Devel::Cover::DB;
 
  my $db = Devel::Cover::DB->new(db => "my_coverage_db");
- $db->print_summary(statement => 1, pod => 1);
+ $db->print_summary([$file1, $file2], ["statement", "pod"]);
  $db->print_details;
 
 =head1 DESCRIPTION

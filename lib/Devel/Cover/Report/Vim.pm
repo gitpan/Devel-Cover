@@ -10,7 +10,7 @@ package Devel::Cover::Report::Vim;
 use strict;
 use warnings;
 
-our $VERSION = '0.92'; # VERSION
+our $VERSION = '0.93'; # VERSION
 our $LVERSION = do { eval '$VERSION' || "0.001" };  # for development purposes
 
 use Devel::Cover::DB;
@@ -68,7 +68,7 @@ sub report
         version  => $LVERSION,
         files    => $options->{file},
         cover    => $db->cover,
-        types    => [ qw( pod statement subroutine branch condition ) ],
+        types    => [ grep $_ ne "time", keys %{$options->{show}} ],
     };
 
     my $out = "$options->{outputdir}/$options->{outputfile}";
@@ -84,7 +84,7 @@ package Devel::Cover::Report::Vim::Template::Provider;
 use strict;
 use warnings;
 
-our $VERSION = '0.92'; # VERSION
+our $VERSION = '0.93'; # VERSION
 
 use base "Template::Provider";
 
@@ -313,7 +313,7 @@ Devel::Cover::Report::Vim - Backend for displaying coverage data in Vim
 
 =head1 VERSION
 
-version 0.92
+version 0.93
 
 =head1 SYNOPSIS
 

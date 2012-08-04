@@ -10,7 +10,7 @@ package Devel::Cover::Report::Text;
 use strict;
 use warnings;
 
-our $VERSION = '0.92'; # VERSION
+our $VERSION = '0.93'; # VERSION
 
 use Devel::Cover::DB;
 
@@ -22,8 +22,8 @@ sub print_runs
         print "Run:          ", $r->run,  "\n";
         print "Perl version: ", $r->perl, "\n";
         print "OS:           ", $r->OS,   "\n";
-        print "Start:        ", scalar gmtime $r->start  / 1e6, "\n";
-        print "Finish:       ", scalar gmtime $r->finish / 1e6, "\n";
+        print "Start:        ", scalar gmtime $r->start , "\n";
+        print "Finish:       ", scalar gmtime $r->finish, "\n";
         print "\n";
         # use Devel::Cover::Dumper; print Dumper $r;
     }
@@ -63,12 +63,15 @@ sub print_statement
 
     printf $fmt, @args;
 
+    my $autoloader = 0;
+
     open F, $file or warn("Unable to open $file: $!\n"), return;
 
     LINE: while (defined(my $l = <F>))
     {
         chomp $l;
         my $n = $.;
+        $autoloader ||= $l =~ /use\s+AutoLoader/;
 
         my %criteria;
         for my $c ($db->criteria)
@@ -120,7 +123,7 @@ sub print_statement
             # print join(", ", map { "[$_]" } @args), "\n";
             printf $fmt, @args;
 
-            last LINE if $l =~ /^__(END|DATA)__/;
+            last LINE if !$autoloader && $l =~ /^__(END|DATA)__/;
             $n = $l = "";
         }
     }
@@ -291,12 +294,11 @@ __END__
 
 =head1 NAME
 
+Devel::Cover::Report::Text - Text backend for Devel::Cover
 
 =head1 VERSION
 
-version 0.92
-Devel::Cover::Report::Text - Backend for textual reporting of coverage
-statistics
+version 0.93
 
 =head1 SYNOPSIS
 

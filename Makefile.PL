@@ -18,7 +18,7 @@ use File::Copy;
 
 $| = 1;
 
-my $Version = "0.92";
+my $Version = "0.93";
 my $Author  = 'paul@pjcj.net';
 my @perlbug = ("perlbug", "-a", $Author,
                           "-s", "Installation of Devel::Cover $Version");
@@ -329,7 +329,10 @@ WriteMakefile
                             "Test::Warn"  => 0,
                         },
     TYPEMAPS         => [ "utils/typemap" ],
-    clean            => { FILES => "t/e2e/* cover_db* t/e2e/*cover_db README" },
+    clean            => {
+                            FILES => "t/e2e/* cover_db* t/e2e/*cover_db " .
+                                     "README *.gcov *.out"
+                        },
     dist             => { COMPRESS => "gzip --best --force"                   },
     test             => { TESTS    => "t/*/*.t"                               },
     realclean        => $] < 5.008008 ?
@@ -417,11 +420,8 @@ wrun : pure_all
 prove : pure_all
 \t \$(PERL) -Iutils -MDevel::Cover::BuildUtils=prove_command -le '\$\$c = prove_command and print \$\$c and system \$\$c'
 
-tst : pure_all
-\t \$(PERL) -Iutils -MDevel::Cover::BuildUtils=prove_command -le '\$\$c = prove_command and print \$\$c and system \$\$c and system "make test"'
-
-testdist : pure_all
-\t chdir tests/dist/\$(TEST); \$(PERL) Makefile.PL && make && DEVEL_COVER_TEST_OPTS=-Mblib=../../.. \$(PERL) -Mblib=../../.. ../../../bin/cover -test \$(COVER_OPTIONS)
+t : pure_all
+\t exec make test HARNESS_OPTIONS=j`\$(PERL) -Iutils -MDevel::Cover::BuildUtils=nice_cpus -e 'print nice_cpus'`:c HARNESS_TIMER=1
 
 DB = cover_db
 
@@ -441,7 +441,7 @@ gold : pure_all
 \t \$(PERL) utils/create_gold \$(TEST)
 
 all_test :
-\t exec \$(PERL) utils/all_versions make test
+\t exec \$(PERL) utils/all_versions make t
 
 all_gold :
 \t \$(PERL) utils/create_all_gold \$(TEST)
@@ -453,7 +453,7 @@ _self_cover_tests : @{[sort values %tests]}
 \t DEVEL_COVER_SELF=1 \$(PERL) -Mblib -MDevel::Cover bin/cover -silent -write cover_db @{[sort values %tests]}
 
 self_cover : _self_cover_reports
-\t \$(PERL) -Mblib bin/cover -report html_basic
+\t \$(PERL) -Mblib bin/cover -report html_basic -launch
 \t \$(PERL) -Mblib bin/cover -report vim
 
 ok :
