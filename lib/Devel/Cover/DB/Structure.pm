@@ -20,7 +20,7 @@ use Devel::Cover::Dumper;
 # For comprehensive debug logging.
 use constant DEBUG => 0;
 
-our $VERSION = '0.93'; # VERSION
+our $VERSION = '0.94'; # VERSION
 our $AUTOLOAD;
 
 sub new
@@ -264,6 +264,8 @@ sub delete_file
     delete $self->{f}{$file};
 }
 
+# TODO - concurrent runs updating structure?
+
 sub write
 {
     my $self = shift;
@@ -391,7 +393,7 @@ Devel::Cover::DB::Structure - Internal: abstract structure of a source file
 
 =head1 VERSION
 
-version 0.93
+version 0.94
 
 =head1 SYNOPSIS
 

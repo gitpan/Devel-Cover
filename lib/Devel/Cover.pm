@@ -10,7 +10,7 @@ package Devel::Cover;
 use strict;
 use warnings;
 
-our $VERSION = '0.93'; # VERSION
+our $VERSION = '0.94'; # VERSION
 our $LVERSION = do { eval '$VERSION' || "0.001" };  # for development purposes
 
 use DynaLoader ();
@@ -105,23 +105,35 @@ BEGIN
               ($ENV{PERL5OPT}              || "") =~ /Devel::Cover/;
     *OUT = $ENV{DEVEL_COVER_DEBUG} ? *STDERR : *STDOUT;
 
-    eval
+    if ($^X =~ /httpd$/)
     {
-        local %ENV = %ENV;
-        # Clear *PERL* variables, but keep PERL5?LIB for local::lib environments
-        /perl/i and !/^PERL5?LIB$/ and delete $ENV{$_} for keys %ENV;
-        my $cmd = "$^X -MData::Dumper -e " . '"print Dumper \@INC"';
-        my $VAR1;
-        # print STDERR "Running [$cmd]\n";
-        eval `$cmd`;
-        @Inc = @$VAR1;
-    };
-    if ($@)
-    {
-        print STDERR __PACKAGE__, ": Error getting \@INC: $@\n",
-                                  "Reverting to default value for Inc.\n";
+        # mod_perl < 2.0.8
         @Inc = @Devel::Cover::Inc::Inc;
     }
+    else
+    {
+        eval
+        {
+            local %ENV = %ENV;
+            # Clear *PERL* variables, but keep PERL5?LIB for local::lib
+            # environments
+            /perl/i and !/^PERL5?LIB$/ and delete $ENV{$_} for keys %ENV;
+            my $cmd = "$^X -MData::Dumper -e " . '"print Dumper \@INC"';
+            my $VAR1;
+            # print STDERR "Running [$cmd]\n";
+            eval `$cmd`;
+            # TODO - Devel::Cover: Error getting @INC: Insecure dependency in ``
+            # while running with -T switch at .../Devel/Cover.pm line 116.
+            @Inc = @$VAR1;
+        };
+        if ($@)
+        {
+            print STDERR __PACKAGE__, ": Error getting \@INC: $@\n",
+                                      "Reverting to default value for Inc.\n";
+            @Inc = @Devel::Cover::Inc::Inc;
+        }
+    }
+
     @Inc = map { -d $_ ? ($_ eq "." ? $_ : Cwd::abs_path($_)) : () } @Inc;
 
     @Ignore = ("/Devel/Cover[./]") unless $Self_cover = $ENV{DEVEL_COVER_SELF};
@@ -1298,7 +1310,7 @@ Devel::Cover - Code coverage metrics for Perl
 
 =head1 VERSION
 
-version 0.93
+version 0.94
 
 =head1 SYNOPSIS
 

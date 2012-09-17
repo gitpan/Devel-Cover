@@ -10,7 +10,7 @@ package Devel::Cover::Report::Html;
 use strict;
 use warnings;
 
-our $VERSION = '0.93'; # VERSION
+our $VERSION = '0.94'; # VERSION
 
 use base "Devel::Cover::Report::Html_minimal";
 
@@ -24,7 +24,7 @@ Devel::Cover::Report::Html - HTML backend for Devel::Cover
 
 =head1 VERSION
 
-version 0.93
+version 0.94
 
 =head1 SYNOPSIS
 

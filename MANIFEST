@@ -75,6 +75,7 @@ test_output/cover/cond_branch.5.008001
 test_output/cover/cond_branch.5.012000
 test_output/cover/cond_branch.5.014000
 test_output/cover/cond_branch.5.016000
+test_output/cover/cond_branch.5.017003
 test_output/cover/cond_chained.5.006001
 test_output/cover/cond_chained.5.008001
 test_output/cover/cond_chained.5.016000
