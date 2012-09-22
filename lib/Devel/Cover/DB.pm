@@ -10,7 +10,7 @@ package Devel::Cover::DB;
 use strict;
 use warnings;
 
-our $VERSION = '0.94'; # VERSION
+our $VERSION = '0.95'; # VERSION
 
 use Devel::Cover::Criterion;
 use Devel::Cover::DB::File;
@@ -29,7 +29,9 @@ my $DB = "cover.13";  # Version 13 of the database.
 @Devel::Cover::DB::Criteria_short =
     (qw( stmt      bran   path cond      sub        pod time ));
 $Devel::Cover::DB::Ignore_filenames =
-    qr/   # Moose
+    qr/   # Used by Devel::Cover
+        (?: [\/\\]lib[\/\\](?:Storable|POSIX).pm$ )
+        | # Moose
         (?:
             (?:
                 reader | writer | constructor | destructor | accessor |
@@ -993,7 +995,7 @@ Devel::Cover::DB - Code coverage metrics for Perl
 
 =head1 VERSION
 
-version 0.94
+version 0.95
 
 =head1 SYNOPSIS
 

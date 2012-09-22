@@ -1,5 +1,13 @@
 Devel::Cover history
 
+Release 0.95 - 22 September 2012
+ - Fix loss of condition coverage data when first operand calls into ignored
+   file (Celogeek, Christian Walde) (rt 63090) (github 15, 20).
+ - Fix similar problem with branch coverage (Robert Freimuth) (rt 72027).
+ - More similar problems (Brian Cassidy, Florian Ragwitz, Heikki J Laaksonen)
+   (rt 63698).
+ - Test against 5.17.4.
+
 Release 0.94 - 18 September 2012
  - Officially support 5.16.1.
  - Manage mod_perl2 setting $^X to httpd.
@@ -8,7 +16,7 @@ Release 0.94 - 18 September 2012
 Release 0.93 - 4 August 2012
  - Fix up start and finish times in text report.
  - Make summary cover report respect options given.
- - Make vim report respect specified criteria.
+ - Make vim report respect specified criteria (rt 38258).
  - Only collect time and condition coverage when requested.
  - Fix some "ignoring extra $criterion" errors.
  - Don't stop reports at __END__ with AutoLoader.

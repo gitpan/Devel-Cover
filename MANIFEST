@@ -63,6 +63,9 @@ test_output/cover/accessor.5.008
 test_output/cover/alias.5.006001
 test_output/cover/alias1.5.006001
 test_output/cover/alias1.5.008
+test_output/cover/bigint.5.006001
+test_output/cover/bigint.5.008
+test_output/cover/bigint.5.008001
 test_output/cover/branch_return_sub.5.006001
 test_output/cover/branch_return_sub.5.008
 test_output/cover/change.5.006001
@@ -87,6 +90,7 @@ test_output/cover/cond_xor.5.008
 test_output/cover/cond_xor.5.008001
 test_output/cover/cop.5.006001
 test_output/cover/cop.5.008
+test_output/cover/dbm_cond.5.008005
 test_output/cover/default_param.5.006001
 test_output/cover/default_param.5.008
 test_output/cover/default_param.5.008001
@@ -136,6 +140,7 @@ test_output/cover/module_import.5.008
 test_output/cover/module_import.5.008001
 test_output/cover/module_relative.5.008
 test_output/cover/module_relative.5.008001
+test_output/cover/moo_cond.5.008002
 test_output/cover/moose_basic.5.010000
 test_output/cover/moose_cond.5.010000
 test_output/cover/moose_constraint.5.010000
@@ -148,6 +153,7 @@ test_output/cover/pod.5.006001
 test_output/cover/pod.5.008
 test_output/cover/pod_nocp.5.006001
 test_output/cover/pod_nocp.5.008
+test_output/cover/readonly.5.008002
 test_output/cover/require.5.006001
 test_output/cover/require.5.008
 test_output/cover/skip.5.006001
@@ -186,6 +192,7 @@ tests/PodMod.pm
 tests/accessor
 tests/alias
 tests/alias1
+tests/bigint
 tests/branch_return_sub
 tests/change.t
 tests/cond_and
@@ -195,6 +202,7 @@ tests/cond_or
 tests/cond_or.pl
 tests/cond_xor
 tests/cop
+tests/dbm_cond
 tests/default_param
 tests/deparse
 tests/destroy
@@ -220,6 +228,7 @@ tests/module2
 tests/module_ignore
 tests/module_import
 tests/module_relative
+tests/moo_cond
 tests/moose_basic
 tests/moose_cond
 tests/moose_constraint
@@ -228,6 +237,7 @@ tests/overloaded
 tests/pod
 tests/pod_nocp
 tests/random/dir/file
+tests/readonly
 tests/require
 tests/skip
 tests/sort
