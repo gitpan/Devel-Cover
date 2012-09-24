@@ -10,7 +10,7 @@ package Devel::Cover::DB;
 use strict;
 use warnings;
 
-our $VERSION = '0.95'; # VERSION
+our $VERSION = '0.96'; # VERSION
 
 use Devel::Cover::Criterion;
 use Devel::Cover::DB::File;
@@ -48,6 +48,8 @@ $Devel::Cover::DB::Ignore_filenames =
         (?: (?: rw-accessor | ro-accessor ) \s for )
         | # Template Toolkit
         (?: Parser\.yp )
+        | # perl generated
+        (?: \/loader\/0x )
       /x;
 
 sub new
@@ -995,7 +997,7 @@ Devel::Cover::DB - Code coverage metrics for Perl
 
 =head1 VERSION
 
-version 0.95
+version 0.96
 
 =head1 SYNOPSIS
 

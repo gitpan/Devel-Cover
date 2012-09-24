@@ -2,7 +2,7 @@ package Devel::Cover::Report::Text2;
 use strict;
 use warnings;
 
-our $VERSION = '0.95'; # VERSION
+our $VERSION = '0.96'; # VERSION
 
 use Devel::Cover::DB;
 use Devel::Cover::Truth_Table;
@@ -171,7 +171,7 @@ Devel::Cover::Report::Test2 - Text backend for Devel::Cover
 
 =head1 VERSION
 
-version 0.95
+version 0.96
 
 =head1 SYNOPSIS
 

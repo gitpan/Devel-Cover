@@ -10,14 +10,14 @@ package Devel::Cover::DB::IO;
 use strict;
 use warnings;
 
-our $VERSION = '0.95'; # VERSION
+our $VERSION = '0.96'; # VERSION
 
 my $Format;
 
 BEGIN
 {
     $Format = "JSON"     if              eval "use JSON; 1";
-    $Format = "JSON"     if !$Format and eval "use JSON:PP; 1";
+    $Format = "JSON"     if !$Format and eval "use JSON::PP; 1";
     $Format = "Storable" if !$Format and eval "use Storable; 1";
     die "Can't load either JSON or Storable" unless $Format;
 }
@@ -46,7 +46,7 @@ Devel::Cover::DB::IO - IO routines for Devel::Cover::DB
 
 =head1 VERSION
 
-version 0.95
+version 0.96
 
 =head1 SYNOPSIS
 

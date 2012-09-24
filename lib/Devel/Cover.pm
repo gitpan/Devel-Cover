@@ -10,7 +10,7 @@ package Devel::Cover;
 use strict;
 use warnings;
 
-our $VERSION = '0.95'; # VERSION
+our $VERSION = '0.96'; # VERSION
 our $LVERSION = do { eval '$VERSION' || "0.001" };  # for development purposes
 
 use DynaLoader ();
@@ -559,6 +559,9 @@ my $find_filename = qr/
 
 sub use_file
 {
+    # If we're in global destruction, forget it.
+    return unless $find_filename;
+
     my ($file) = @_;
 
     # print STDERR "use_file($file)\n";
@@ -1310,7 +1313,7 @@ Devel::Cover - Code coverage metrics for Perl
 
 =head1 VERSION
 
-version 0.95
+version 0.96
 
 =head1 SYNOPSIS
 

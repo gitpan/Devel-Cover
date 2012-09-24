@@ -10,7 +10,7 @@ package Devel::Cover::DB::Digests;
 use strict;
 use warnings;
 
-our $VERSION = '0.95'; # VERSION
+our $VERSION = '0.96'; # VERSION
 
 use Devel::Cover::DB::Structure;
 use Devel::Cover::DB::IO;
@@ -101,7 +101,7 @@ Devel::Cover::DB::Digests - store digests for Devel::Cover::DB
 
 =head1 VERSION
 
-version 0.95
+version 0.96
 
 =head1 SYNOPSIS
 
