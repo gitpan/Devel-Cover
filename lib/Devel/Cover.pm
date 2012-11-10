@@ -10,7 +10,7 @@ package Devel::Cover;
 use strict;
 use warnings;
 
-our $VERSION = '0.96'; # VERSION
+our $VERSION = '0.97'; # VERSION
 our $LVERSION = do { eval '$VERSION' || "0.001" };  # for development purposes
 
 use DynaLoader ();
@@ -26,10 +26,11 @@ use B::Deparse;
 
 use Carp;
 use Config;
-use Cwd "abs_path";
+use Cwd qw" abs_path getcwd ";
 use File::Spec;
 
 use Devel::Cover::Dumper;
+use Devel::Cover::Util 'remove_contained_paths';
 
 BEGIN
 {
@@ -135,6 +136,8 @@ BEGIN
     }
 
     @Inc = map { -d $_ ? ($_ eq "." ? $_ : Cwd::abs_path($_)) : () } @Inc;
+
+    @Inc = remove_contained_paths( getcwd, @Inc );
 
     @Ignore = ("/Devel/Cover[./]") unless $Self_cover = $ENV{DEVEL_COVER_SELF};
     # $^P = 0x004 | 0x010 | 0x100 | 0x200;
@@ -1313,7 +1316,7 @@ Devel::Cover - Code coverage metrics for Perl
 
 =head1 VERSION
 
-version 0.96
+version 0.97
 
 =head1 SYNOPSIS
 

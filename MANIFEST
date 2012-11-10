@@ -53,8 +53,12 @@ lib/Devel/Cover/Test.pm
 lib/Devel/Cover/Time.pm
 lib/Devel/Cover/Truth_Table.pm
 lib/Devel/Cover/Tutorial.pod
+lib/Devel/Cover/Util.pm
 lib/Devel/Cover/Web.pm
 t/internal/criteria.t
+t/internal/inc_filter.t
+t/internal/inc_filter/cwd/lib/.dummy
+t/internal/inc_filter/cwd_lib/.dummy
 t/internal/launch.t
 t/internal/subprocess.t
 t/regexp/regexp_eval.t
@@ -257,6 +261,7 @@ utils/create_all_gold
 utils/create_gold
 utils/install/System.pm
 utils/install/buildperl
+utils/install_dev_modules
 utils/install_modules
 utils/makeh
 utils/run_cpancover
