@@ -58,8 +58,7 @@
    "release_status" : "stable",
    "resources" : {
       "bugtracker" : {
-         "mailto" : "bug-Devel-Cover@rt.cpan.org",
-         "web" : "http://rt.cpan.org/NoAuth/Bugs.html?Dist=Devel-Cover"
+         "web" : "https://github.com/pjcj/Devel--Cover/issues"
       },
       "homepage" : "http://www.pjcj.net/perl.html",
       "license" : [
@@ -72,7 +71,7 @@
       },
       "x_mailing_list" : "http://lists.perl.org/list/perl-qa.html"
    },
-   "version" : "0.97",
+   "version" : "0.98",
    "x_Dist_Zilla" : {
       "perl" : {
          "version" : "5.016002"

@@ -36,11 +36,11 @@ requires:
   perl: 5.006001
 resources:
   X_mailing_list: http://lists.perl.org/list/perl-qa.html
-  bugtracker: http://rt.cpan.org/NoAuth/Bugs.html?Dist=Devel-Cover
+  bugtracker: https://github.com/pjcj/Devel--Cover/issues
   homepage: http://www.pjcj.net/perl.html
   license: http://dev.perl.org/licenses
   repository: http://github.com/pjcj/Devel--Cover
-version: 0.97
+version: 0.98
 x_Dist_Zilla:
   perl:
     version: 5.016002

@@ -1,5 +1,14 @@
 Devel::Cover history
 
+Release 0.98 - 25 November 2012
+ - Fix links on html_basic report.
+ - Fix setting Inc under taint mode (Guillaume Aubert) (guthub 26, 33).
+ - Test against 5.17.6.
+ - Improve warnings from Devel::Cover and reduce duplicates.
+ - Make cover -test -nodelete work.
+ - Run cpancover with 5.16.2.
+ - Prefer bugs on github rather than RT.
+
 Release 0.97 - 10 November 2012
  - Filter paths contained in CWD out of @Inc (Christian Walde) (github 32).
  - Test against 5.12.5, 5.14.3, 5.16.2, and 5.17.5.

@@ -18,7 +18,7 @@ use File::Copy;
 
 $| = 1;
 
-my $Version = "0.97";
+my $Version = "0.98";
 my $Author  = 'paul@pjcj.net';
 my @perlbug = ("perlbug", "-a", $Author,
                           "-s", "Installation of Devel::Cover $Version");
@@ -435,8 +435,7 @@ GEOM = 260x85+0+0
 diff : out
 \t \$(PERL) utils/makeh strip_criterion 'time' \$(TEST).out
 \t \$(PERL) utils/makeh strip_criterion ' pod' \$(TEST).out
-\t gold="`\$(PERL) -Mblib -MDevel::Cover::Test -e '\$\$t = Devel::Cover::Test->new(qq(\$(TEST))); print join qq(.), \$\$t->cover_gold'`"
-\t gvim -geom \$(GEOM) -d -font \$(FONT) "\$(gold)" \$(TEST).out
+\t gold="`\$(PERL) -Mblib -MDevel::Cover::Test -e '\$\$t = Devel::Cover::Test->new(qq(\$(TEST))); print join qq(.), \$\$t->cover_gold'`" && gvim -geom \$(GEOM) -d -font \$(FONT) "\$\$gold" \$(TEST).out
 
 gold : pure_all
 \t \$(PERL) utils/create_gold \$(TEST)
