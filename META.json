@@ -71,7 +71,7 @@
       },
       "x_mailing_list" : "http://lists.perl.org/list/perl-qa.html"
    },
-   "version" : "0.98",
+   "version" : "0.99",
    "x_Dist_Zilla" : {
       "perl" : {
          "version" : "5.016002"
@@ -205,7 +205,7 @@
          {
             "class" : "Dist::Zilla::Plugin::Git::Check",
             "name" : "Git::Check",
-            "version" : "2.002"
+            "version" : "2.006"
          },
          {
             "class" : "Dist::Zilla::Plugin::NextRelease",
@@ -215,12 +215,12 @@
          {
             "class" : "Dist::Zilla::Plugin::Git::Commit",
             "name" : "Git::Commit",
-            "version" : "2.002"
+            "version" : "2.006"
          },
          {
             "class" : "Dist::Zilla::Plugin::Git::Tag",
             "name" : "Git::Tag",
-            "version" : "2.002"
+            "version" : "2.006"
          },
          {
             "class" : "Dist::Zilla::Plugin::TestRelease",

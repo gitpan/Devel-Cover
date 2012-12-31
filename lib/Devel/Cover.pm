@@ -10,7 +10,7 @@ package Devel::Cover;
 use strict;
 use warnings;
 
-our $VERSION = '0.98'; # VERSION
+our $VERSION = '0.99'; # VERSION
 our $LVERSION = do { eval '$VERSION' || "0.001" };  # for development purposes
 
 use DynaLoader ();
@@ -69,6 +69,7 @@ my $Pod = $INC{"Pod/Coverage/CountParents.pm"} ? "Pod::Coverage::CountParents" :
 my %Pod;                                 # Pod coverage data.
 
 my @Cvs;                                 # All the Cvs we want to cover.
+my %Cvs;                                 # All the Cvs we want to cover.
 my @Subs;                                # All the subs we want to cover.
 my $Cv;                                  # Cv we are looking in.
 my $Sub_name;                            # Name of the sub we are looking in.
@@ -144,7 +145,7 @@ BEGIN
 
     @Inc = map { -d $_ ? ($_ eq "." ? $_ : Cwd::abs_path($_)) : () } @Inc;
 
-    @Inc = remove_contained_paths( getcwd, @Inc );
+    @Inc = remove_contained_paths(getcwd, @Inc);
 
     @Ignore = ("/Devel/Cover[./]") unless $Self_cover = $ENV{DEVEL_COVER_SELF};
     # $^P = 0x004 | 0x010 | 0x100 | 0x200;
@@ -604,6 +605,7 @@ sub use_file
         unless $Files{$file} || $Silent
                              || $file =~ $Devel::Cover::DB::Ignore_filenames;
 
+    add_cvs();  # add CVs now in case of symbol table manipulation
     $Files{$file}
 }
 
@@ -629,12 +631,14 @@ sub B::GV::find_cv
     return unless $$cv;
 
     # print STDERR "find_cv $$cv\n" if check_file($cv);
-    push @Cvs, $cv if check_file($cv);
-    push @Cvs, grep check_file($_), $cv->PADLIST->ARRAY->ARRAY
-        if $cv->can("PADLIST") &&
-           $cv->PADLIST->can("ARRAY") &&
-           $cv->PADLIST->ARRAY &&
-           $cv->PADLIST->ARRAY->can("ARRAY");
+    $Cvs{$cv} ||= $cv if check_file($cv);
+    if ($cv->can("PADLIST") &&
+        $cv->PADLIST->can("ARRAY") &&
+        $cv->PADLIST->ARRAY &&
+        $cv->PADLIST->ARRAY->can("ARRAY"))
+    {
+        $Cvs{$_} ||= $_ for grep check_file($_), $cv->PADLIST->ARRAY->ARRAY;
+    }
 };
 
 sub sub_info
@@ -666,11 +670,16 @@ sub sub_info
     ($name, $start)
 }
 
+sub add_cvs
+{
+    $Cvs{$_} ||= $_ for grep check_file($_), B::main_cv->PADLIST->ARRAY->ARRAY;
+}
+
 sub check_files
 {
     # print STDERR "Checking files\n";
 
-    @Cvs = grep check_file($_), B::main_cv->PADLIST->ARRAY->ARRAY;
+    add_cvs();
 
     my %seen_pkg;
     my %seen_cv;
@@ -692,11 +701,13 @@ sub check_files
         ($line, $name)
     };
 
+    # print Dumper \%Cvs;
+
     @Cvs = map  $_->[0],
            sort { $a->[1] <=> $b->[1] || $a->[2] cmp $b->[2] }
            map  [ $_, $l->($_) ],
            grep !$seen_cv{$$_}++,
-           @Cvs;
+           values %Cvs;
 
     # Hack to bump up the refcount of the subs.  If we don't do this then the
     # subs in some modules don't seem to be around when we get to looking at
@@ -1323,7 +1334,7 @@ Devel::Cover - Code coverage metrics for Perl
 
 =head1 VERSION
 
-version 0.98
+version 0.99
 
 =head1 SYNOPSIS
 
@@ -1337,7 +1348,7 @@ or
  HARNESS_PERL_SWITCHES=-MDevel::Cover make test
  cover
 
-To get coverage for an uninstalled module which uses Module::Build (0.26 or
+To get coverage for an uninstalled module which uses L<Module::Build> (0.26 or
 later):
 
  ./Build testcover
@@ -1385,7 +1396,7 @@ easily create your own.
 
 The F<gcov2perl> program can be used to convert gcov files to C<Devel::Cover>
 databases.  This allows you to display your C or XS code coverage together
-with your Perl coverage, or to use any of the Devel::Cvoer reports to display
+with your Perl coverage, or to use any of the Devel::Cover reports to display
 your C coverage data.
 
 You may find that the coverage results don't match your expectations.  This
@@ -1397,7 +1408,7 @@ Code coverage data are collected by replacing perl ops with functions which
 count how many times the ops are executed.  These data are then mapped back to
 reality using the B compiler modules.  There is also a statement profiling
 facility which should not be relied on.  For proper profiling use
-Devel::NYTProf.  Previous versions of Devel::Cover collected coverage data by
+L<Devel::NYTProf>.  Previous versions of Devel::Cover collected coverage data by
 replacing perl's runops function.  It is still possible to switch to that mode
 of operation, but this now gets little testing and will probably be removed
 soon.  You probably don't care about any of this.
@@ -1502,7 +1513,7 @@ information as possible.
 
 You can specify options to some coverage criteria.  At the moment only pod
 coverage takes any options.  These are the parameters which are passed into
-the Pod::Coverage constructor.  The extra options are separated by dashes, and
+the L<Pod::Coverage> constructor.  The extra options are separated by dashes, and
 you may specify as many as you wish.  For example, to specify that all
 subroutines containing xx are private, call Devel::Cover with the option
 -coverage,pod-also_private-xx.
@@ -1560,15 +1571,15 @@ Devel::Cover maintainers only.
 
 Some code and ideas cribbed from:
 
- Devel::OpProf
- B::Concise
- B::Deparse
+ L<Devel::OpProf>
+ L<B::Concise>
+ L<B::Deparse>
 
 =head1 SEE ALSO
 
- Devel::Cover::Tutorial
- B
- Pod::Coverage
+ L<Devel::Cover::Tutorial>
+ L<B>
+ L<Pod::Coverage>
 
 =head1 LIMITATIONS
 
@@ -1604,23 +1615,23 @@ Modules used by Devel::Cover while gathering coverage:
 
 =over 4
 
-=item * B
+=item * L<B>
 
-=item * B::Debug
+=item * L<B::Debug>
 
-=item * B::Deparse
+=item * L<B::Deparse>
 
-=item * Carp
+=item * L<Carp>
 
-=item * Cwd
+=item * L<Cwd>
 
-=item * Digest::MD5
+=item * L<Digest::MD5>
 
-=item * File::Path
+=item * L<File::Path>
 
-=item * File::Spec
+=item * L<File::Spec>
 
-=item * Storable
+=item * L<Storable>
 
 =back
 
@@ -1635,8 +1646,10 @@ CV.  Hints, tips or patches to resolve this will be gladly accepted.
 Almost certainly.
 
 See the BUGS file, the TODO file and the bug trackers at
-https://rt.cpan.org/Public/Dist/Display.html?Name=Devel-Cover and
-https://github.com/pjcj/Devel--Cover/issues?sort=created&direction=desc&state=open
+L<https://github.com/pjcj/Devel--Cover/issues?sort=created&direction=desc&state=open>
+and L<https://rt.cpan.org/Public/Dist/Display.html?Name=Devel-Cover>
+
+Please report new bugs on Github.
 
 =head1 LICENCE
 

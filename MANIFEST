@@ -158,6 +158,7 @@ test_output/cover/pod.5.008
 test_output/cover/pod_nocp.5.006001
 test_output/cover/pod_nocp.5.008
 test_output/cover/readonly.5.008002
+test_output/cover/redefine_sub.5.006001
 test_output/cover/require.5.006001
 test_output/cover/require.5.008
 test_output/cover/skip.5.006001
@@ -242,6 +243,7 @@ tests/pod
 tests/pod_nocp
 tests/random/dir/file
 tests/readonly
+tests/redefine_sub
 tests/require
 tests/skip
 tests/sort

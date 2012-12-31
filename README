@@ -61,7 +61,7 @@ DESCRIPTION
     The gcov2perl program can be used to convert gcov files to
     "Devel::Cover" databases.  This allows you to display your C or XS code
     coverage together with your Perl coverage, or to use any of the
-    Devel::Cvoer reports to display your C coverage data.
+    Devel::Cover reports to display your C coverage data.
 
     You may find that the coverage results don't match your expectations. 
     This could be due to a bug in Devel::Cover, but code coverage can be
