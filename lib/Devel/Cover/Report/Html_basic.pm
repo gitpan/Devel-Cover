@@ -1,4 +1,4 @@
-# Copyright 2001-2012, Paul Johnson (paul@pjcj.net)
+# Copyright 2001-2013, Paul Johnson (paul@pjcj.net)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -10,7 +10,7 @@ package Devel::Cover::Report::Html_basic;
 use strict;
 use warnings;
 
-our $VERSION = '0.99'; # VERSION
+our $VERSION = '1.00'; # VERSION
 our $LVERSION = do { eval '$VERSION' || "0.001" };  # for development purposes
 
 use Devel::Cover::DB;
@@ -257,15 +257,15 @@ sub print_branches
 
             push @branches,
                 {
-                    number     => $count == 1 ? $location : "",
-                    parts      =>
+                    number => $count == 1 ? $location : "",
+                    parts  =>
                     [
                         map { text  => $b->value($_),
                               class => class($b->value($_), $b->error($_),
                                              "branch") },
                             0 .. $b->total - 1
                     ],
-                    text       => $text,
+                    text   => $text,
                 };
         }
     }
@@ -298,16 +298,16 @@ sub print_conditions
 
             push @{$r{$c->type}},
                 {
-                    number     => $count{$c->type} == 1 ? $location : "",
-                    condition  => $c,
-                    parts      =>
+                    number    => $count{$c->type} == 1 ? $location : "",
+                    condition => $c,
+                    parts     =>
                     [
                         map { text  => $c->value($_),
                               class => class($c->value($_), $c->error($_),
                                              "condition") },
                             0 .. $c->total - 1
                     ],
-                    text       => $text,
+                    text      => $text,
                 };
         }
     }
@@ -379,12 +379,14 @@ sub get_options
 {
     my ($self, $opt) = @_;
     $opt->{option}{outputfile} = "coverage.html";
+    $opt->{option}{restrict}   = 1;
     $threshold->{$_} = $opt->{"report_$_"} for
         grep { defined $opt->{"report_$_"} } qw( c0 c1 c2 );
     die "Invalid command line options" unless
         GetOptions($opt->{option},
                    qw(
                        outputfile=s
+                       restrict!
                      ));
 }
 
@@ -466,7 +468,7 @@ package Devel::Cover::Report::Html_basic::Template::Provider;
 use strict;
 use warnings;
 
-our $VERSION = '0.99'; # VERSION
+our $VERSION = '1.00'; # VERSION
 
 use base "Template::Provider";
 
@@ -568,6 +570,37 @@ $Templates{summary} = <<'EOT';
     </tr>
 </table>
 <div><br></br></div>
+
+[% IF R.options.option.restrict %]
+<script language=javascript>
+
+function filter_files(filter_by) {
+    var allelements = document.getElementsByTagName("tr");
+    var re_now      = new RegExp(filter_by, "i");
+    for (var i = 0; i < allelements.length; i++) {
+        if (allelements[i].className) {
+            if (filter_by == "" || allelements[i].className == "Total" ||
+                (filter_by.length && re_now.test(allelements[i].className))) {
+                allelements[i].style.display = "table-row";
+            } else if (filter_by.length &&
+                       !re_now.test(allelements[i].className)) {
+                allelements[i].style.display = "none";
+            }
+        }
+    }
+}
+
+</script>
+
+<form name=filterform
+      action='javascript:filter_files(document.forms["filterform"]["filterfield"].value)'>
+    Restrict to regex:
+    <input type=text name=filterfield><input type=submit>
+</form>
+
+<br />
+[% END %]
+
 <table class="sortable" id="coverage_table">
     <thead>
         <tr>
@@ -581,7 +614,7 @@ $Templates{summary} = <<'EOT';
 
     <tfoot>
     [% FOREACH file = files %]
-        <tr align="center" valign="top">
+        <tr align="center" valign="top" class="[% file %]">
             <td align="left">
                 [% IF R.exists.$file %]
                    <a href="[% R.filenames.$file %].html"> [% file %] </a>
@@ -787,7 +820,7 @@ Devel::Cover::Report::Html_basic - HTML backend for Devel::Cover
 
 =head1 VERSION
 
-version 0.99
+version 1.00
 
 =head1 SYNOPSIS
 
@@ -799,6 +832,13 @@ This module provides a HTML reporting mechanism for coverage data.  It
 is designed to be called from the C<cover> program. It will add syntax
 highlighting if C<PPI::HTML> or C<Perl::Tidy> is installed.
 
+=head1 OPTIONS
+
+The following command line options are supported:
+
+ -outputfile           - name of output file             (default coverage.html)
+ -restrict             - add restrict to regex form      (default on)
+
 =head1 SEE ALSO
 
  Devel::Cover
@@ -809,7 +849,7 @@ Huh?
 
 =head1 LICENCE
 
-Copyright 2001-2012, Paul Johnson (paul@pjcj.net)
+Copyright 2001-2013, Paul Johnson (paul@pjcj.net)
 
 This software is free.  It is licensed under the same terms as Perl itself.
 

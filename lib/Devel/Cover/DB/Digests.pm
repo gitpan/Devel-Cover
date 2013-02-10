@@ -1,4 +1,4 @@
-# Copyright 2011-2012, Paul Johnson (paul@pjcj.net)
+# Copyright 2011-2013, Paul Johnson (paul@pjcj.net)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -10,7 +10,7 @@ package Devel::Cover::DB::Digests;
 use strict;
 use warnings;
 
-our $VERSION = '0.99'; # VERSION
+our $VERSION = '1.00'; # VERSION
 
 use Devel::Cover::DB::Structure;
 use Devel::Cover::DB::IO;
@@ -76,7 +76,7 @@ sub canonical_file
         my $dfile = $self->get($digest);
         if ($dfile && $dfile ne $file)
         {
-            warn "Devel::Cover: Adding coverage for $file to $dfile\n"
+            print STDERR "Devel::Cover: Adding coverage for $file to $dfile\n"
                 unless $Devel::Cover::Silent;
             $cfile = $dfile;
         }
@@ -101,7 +101,7 @@ Devel::Cover::DB::Digests - store digests for Devel::Cover::DB
 
 =head1 VERSION
 
-version 0.99
+version 1.00
 
 =head1 SYNOPSIS
 
@@ -145,7 +145,7 @@ Huh?
 
 =head1 LICENCE
 
-Copyright 2011-2012, Paul Johnson (paul@pjcj.net)
+Copyright 2011-2013, Paul Johnson (paul@pjcj.net)
 
 This software is free.  It is licensed under the same terms as Perl itself.
 

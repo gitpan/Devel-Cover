@@ -3,7 +3,7 @@ BEGIN {require 5.006}
 use strict;
 use warnings;
 
-our $VERSION = '0.99'; # VERSION
+our $VERSION = '1.00'; # VERSION
 
 use Exporter;
 
@@ -30,7 +30,7 @@ Devel::Cover::Report::Html_Common - Common code for HTML reporters
 
 =head1 VERSION
 
-version 0.99
+version 1.00
 
 =head1 DESCRIPTION
 

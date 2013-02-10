@@ -1,5 +1,5 @@
 /*
- * Copyright 2001-2012, Paul Johnson (paul@pjcj.net)
+ * Copyright 2001-2013, Paul Johnson (paul@pjcj.net)
  *
  * This software is free.  It is licensed under the same terms as Perl itself.
  *
@@ -244,6 +244,9 @@ static int check_if_collecting(pTHX_ COP *cop)
 {
     dMY_CXT;
 
+#if !NO_TAINT_SUPPORT
+    int tainted = PL_tainted;
+#endif
     char *file = CopFILE(cop);
     int in_re_eval = strnEQ(file, "(reeval ", 8);
     NDEB(D(L, "check_if_collecting at: %s:%ld\n", file, CopLINE(cop)));
@@ -319,6 +322,9 @@ static int check_if_collecting(pTHX_ COP *cop)
     }
 #endif
 
+#if !NO_TAINT_SUPPORT
+    PL_tainted = tainted;
+#endif
     return MY_CXT.collecting_here;
 }
 
@@ -818,12 +824,15 @@ static void cover_logop(pTHX)
                 }
 
 #if PERL_VERSION > 14
+                NDEB(D(L, "Getting next\n"));
                 next = (PL_op->op_type == OP_XOR)
                     ? PL_op->op_next
                     : right->op_next;
 #else
                 next = PL_op->op_next;
 #endif
+                if (PL_op->op_type == OP_XOR && !next)
+                    return;  /* in fold_constants */
                 NDEB(op_dump(PL_op));
                 NDEB(op_dump(next));
 

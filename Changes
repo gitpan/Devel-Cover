@@ -1,5 +1,12 @@
 Devel::Cover history
 
+Release 1.00 - 10 February 2013
+ - Fix segv in constant folding of xor ops (gitbub 40).
+ - Fix various problems running Devel::Cover under tainting (github 41).
+ - Add JavaScript to filter results in html_basic (David Cantrell) (github 42).
+   Use -norestrict option to keep previous behaviour.
+ - Document ability to mark code as uncoverable (github 45).
+
 Release 0.99 - 31 December 2012
  - Improve documentation (Olaf Alders) (github 34).
  - Thank Bytemark for the cpancover server.

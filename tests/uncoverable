@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# Copyright 2004-2012, Paul Johnson (paul@pjcj.net)
+# Copyright 2004-2013, Paul Johnson (paul@pjcj.net)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -23,9 +23,9 @@ if ($x && !$y)
 }
 
 # uncoverable branch true
-# uncoverable condition left
 # uncoverable condition right
-if (!$x || !$y)
+# uncoverable condition false
+if (!$x && $y)
 {
     # uncoverable statement count:1
     # uncoverable statement count:2

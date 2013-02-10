@@ -1,4 +1,4 @@
-# Copyright 2001-2012, Paul Johnson (paul@pjcj.net)
+# Copyright 2001-2013, Paul Johnson (paul@pjcj.net)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -10,7 +10,7 @@ package Devel::Cover::Criterion;
 use strict;
 use warnings;
 
-our $VERSION = '0.99'; # VERSION
+our $VERSION = '1.00'; # VERSION
 
 use Devel::Cover::Statement;
 use Devel::Cover::Branch;
@@ -27,6 +27,7 @@ use Devel::Cover::Pod;
 sub coverage    { $_[0][0] }
 sub information { $_[0][1] }
 
+sub uncoverable { "n/a" }
 sub covered     { "n/a" }
 sub total       { "n/a" }
 sub percentage  { "n/a" }
@@ -77,7 +78,7 @@ Devel::Cover::Criterion - Code coverage metrics for Perl
 
 =head1 VERSION
 
-version 0.99
+version 1.00
 
 =head1 SYNOPSIS
 
@@ -101,7 +102,7 @@ Huh?
 
 =head1 LICENCE
 
-Copyright 2001-2012, Paul Johnson (paul@pjcj.net)
+Copyright 2001-2013, Paul Johnson (paul@pjcj.net)
 
 This software is free.  It is licensed under the same terms as Perl itself.
 

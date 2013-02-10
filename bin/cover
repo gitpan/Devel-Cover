@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# Copyright 2001-2012, Paul Johnson (paul@pjcj.net)
+# Copyright 2001-2013, Paul Johnson (paul@pjcj.net)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -12,7 +12,7 @@ require 5.6.1;
 use strict;
 use warnings;
 
-our $VERSION = '0.99'; # VERSION
+our $VERSION = '1.00'; # VERSION
 
 use Devel::Cover::DB;
 
@@ -394,7 +394,7 @@ cover - report coverage statistics
 
 =head1 VERSION
 
-version 0.99
+version 1.00
 
 =head1 SYNOPSIS
 
@@ -423,6 +423,8 @@ The following reports are currently available:
 
  text                  - detailed textual summary
  html                  - detailed HTML reports
+ html_basic            - detailed HTML reports with syntax highlighting
+ compilation           - output in a format similar to Perl
 
 =head1 OPTIONS
 
@@ -543,7 +545,7 @@ See the BUGS file.
 
 =head1 LICENCE
 
-Copyright 2001-2012, Paul Johnson (paul@pjcj.net)
+Copyright 2001-2013, Paul Johnson (paul@pjcj.net)
 
 This software is free.  It is licensed under the same terms as Perl itself.
 

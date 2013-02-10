@@ -1,4 +1,4 @@
-# Copyright 2004-2012, Paul Johnson (paul@pjcj.net)
+# Copyright 2004-2013, Paul Johnson (paul@pjcj.net)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -20,7 +20,7 @@ use Devel::Cover::Dumper;
 # For comprehensive debug logging.
 use constant DEBUG => 0;
 
-our $VERSION = '0.99'; # VERSION
+our $VERSION = '1.00'; # VERSION
 our $AUTOLOAD;
 
 sub new
@@ -279,7 +279,9 @@ sub write
     for my $file (sort keys %{$self->{f}})
     {
         $self->{f}{$file}{file} = $file;
-        unless ($self->{f}{$file}{digest})
+        my $digest = $self->{f}{$file}{digest};
+        $digest = $1 if $digest =~ /(.*)/; # ie tainting.
+        unless ($digest)
         {
             warn "Can't find digest for $file"
                 unless $Devel::Cover::Silent ||
@@ -288,11 +290,10 @@ sub write
                         $file =~ q|/Devel/Cover[./]|);
             next;
         }
-        my $df_final = "$dir/$self->{f}{$file}{digest}";
-        my $df_temp = "$dir/.$self->{f}{$file}{digest}.$$";
+        my $df_final = "$dir/$digest";
+        my $df_temp = "$dir/.$digest.$$";
         # TODO - determine if Structure has changed to save writing it.
         # my $f = $df; my $n = 1; $df = $f . "." . $n++ while -e $df;
-        # print STDERR "Writing [$file] to [$df]\n";
         my $io = Devel::Cover::DB::IO->new;
         $io->write($self->{f}{$file}, $df_temp); # unless -e $df;
         unless (rename $df_temp, $df_final) {
@@ -377,6 +378,7 @@ sub read_all
     opendir D, $dir or return;
     for my $d (sort grep $_ !~ /\./, readdir D)
     {
+        $d = $1 if $d =~ /(.*)/; # Die tainting.
         $self->read($d);
     }
     closedir D or die "Can't closedir $dir: $!";
@@ -393,7 +395,7 @@ Devel::Cover::DB::Structure - Internal: abstract structure of a source file
 
 =head1 VERSION
 
-version 0.99
+version 1.00
 
 =head1 SYNOPSIS
 
@@ -414,7 +416,7 @@ Huh?
 
 =head1 LICENCE
 
-Copyright 2004-2012, Paul Johnson (paul@pjcj.net)
+Copyright 2004-2013, Paul Johnson (paul@pjcj.net)
 
 This software is free.  It is licensed under the same terms as Perl itself.
 

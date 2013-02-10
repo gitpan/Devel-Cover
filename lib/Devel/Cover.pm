@@ -1,4 +1,4 @@
-# Copyright 2001-2012, Paul Johnson (paul@pjcj.net)
+# Copyright 2001-2013, Paul Johnson (paul@pjcj.net)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -10,7 +10,7 @@ package Devel::Cover;
 use strict;
 use warnings;
 
-our $VERSION = '0.99'; # VERSION
+our $VERSION = '1.00'; # VERSION
 our $LVERSION = do { eval '$VERSION' || "0.001" };  # for development purposes
 
 use DynaLoader ();
@@ -1334,7 +1334,7 @@ Devel::Cover - Code coverage metrics for Perl
 
 =head1 VERSION
 
-version 0.99
+version 1.00
 
 =head1 SYNOPSIS
 
@@ -1362,6 +1362,8 @@ If you want to get coverage for a program:
  perl -MDevel::Cover yourprog args
  cover
 
+To alter default values:
+
  perl -MDevel::Cover=-db,cover_db,-coverage,statement,time yourprog args
 
 =head1 DESCRIPTION
@@ -1369,19 +1371,18 @@ If you want to get coverage for a program:
 This module provides code coverage metrics for Perl.  Code coverage metrics
 describe how thoroughly tests exercise code.  By using Devel::Cover you can
 discover areas of code not exercised by your tests and determine which tests
-to create to increase coverage.  Code coverage can be considered as an
-indirect measure of quality.
+to create to increase coverage.  Code coverage can be considered an indirect
+measure of quality.
 
 Although it is still being developed, Devel::Cover is now quite stable and
 provides many of the features to be expected in a useful coverage tool.
 
 Statement, branch, condition, subroutine, and pod coverage information is
-reported.  Statement coverage data should be reasonable.  Branch and condition
-coverage data should be mostly accurate too, although not always what one
-might initially expect.  Subroutine coverage should be as accurate as
-statement coverage.  Pod coverage comes from L<Pod::Coverage>.  If
-L<Pod::Coverage::CountParents> is available it will be used instead.  Coverage
-data for other criteria are not yet collected.
+reported.  Statement and subroutine coverage data should be accurate.  Branch
+and condition coverage data should be mostly accurate too, although not always
+what one might initially expect.  Pod coverage comes from L<Pod::Coverage>.
+If L<Pod::Coverage::CountParents> is available it will be used instead.
+Coverage data for other criteria are not yet collected.
 
 The F<cover> program can be used to generate coverage reports.  Devel::Cover
 ships with a number of different reports including various types of HTML
@@ -1389,20 +1390,15 @@ output, textual reports, a report to display missing coverage in the same
 format as compilation errors and a report to display coverage information
 within the Vim editor.
 
-It is possible to add annotations to reports, for example you could add a
-column to an HTML report showing who last changed a line, as determined by git
-blame.  Some annotation modules are shipped with Devel::Cover and you can
-easily create your own.
+It is possible to add annotations to reports, for example you can add a column
+to an HTML report showing who last changed a line, as determined by git blame.
+Some annotation modules are shipped with Devel::Cover and you can easily
+create your own.
 
 The F<gcov2perl> program can be used to convert gcov files to C<Devel::Cover>
 databases.  This allows you to display your C or XS code coverage together
 with your Perl coverage, or to use any of the Devel::Cover reports to display
 your C coverage data.
-
-You may find that the coverage results don't match your expectations.  This
-could be due to a bug in Devel::Cover, but code coverage can be unintuitive to
-newcomers, and especially so with Perl, so you may want to reconsider your
-expectations as well.
 
 Code coverage data are collected by replacing perl ops with functions which
 count how many times the ops are executed.  These data are then mapped back to
@@ -1414,11 +1410,11 @@ of operation, but this now gets little testing and will probably be removed
 soon.  You probably don't care about any of this.
 
 The most appropriate mailing list on which to discuss this module would be
-perl-qa.  Discussion has migrated there from perl-qa-metrics which is now
-defunct.  See L<http://lists.perl.org/list/perl-qa.html>.
+perl-qa.  See L<http://lists.perl.org/list/perl-qa.html>.
 
 The Devel::Cover repository can be found at
-L<http://github.com/pjcj/Devel--Cover>.
+L<http://github.com/pjcj/Devel--Cover>.  This is also where problems should be
+reported.
 
 =head1 REQUIREMENTS AND RECOMMENDED MODULES
 
@@ -1431,8 +1427,13 @@ L<http://github.com/pjcj/Devel--Cover>.
 Perl 5.7 is unsupported.  Perl 5.8.8 or greater is recommended.  Perl 5.8.7
 has problems and may crash.  Whilst Perl 5.6 should mostly work you will
 probably miss out on coverage information which would be available using a
-more modern version and will likely run into bugs in perl.  Different versions
-of perl may give slightly different results due to changes in the op tree.
+more modern version and will likely run into bugs in perl.  Devel::Cover
+support for unsupported Perl versions may be removed at any time, but I try to
+keep older versions running provided this does not cause undue difficulty i
+other areas.
+
+Different versions of perl may give slightly different results due to changes
+in the op tree.
 
 =item * The ability to compile XS extensions.
 
@@ -1471,11 +1472,15 @@ Some of Devel::Cover's own tests require it.
 
 =item * L<Test::Differences>
 
-if the tests fail and you would like nice output telling you why.
+Needed if the tests fail and you would like nice output telling you why.
 
-=item * L<Template>, and L<Parallel::Iterator>
+=item * L<Template> and L<Parallel::Iterator>
 
 Needed if you want to run cpancover.
+
+=item * L<JSON>,r L<JSON::PP> or L<JSON::XS>
+
+JSON is used to store the coverage database if it is available.
 
 =back
 
@@ -1513,8 +1518,8 @@ information as possible.
 
 You can specify options to some coverage criteria.  At the moment only pod
 coverage takes any options.  These are the parameters which are passed into
-the L<Pod::Coverage> constructor.  The extra options are separated by dashes, and
-you may specify as many as you wish.  For example, to specify that all
+the L<Pod::Coverage> constructor.  The extra options are separated by dashes,
+and you may specify as many as you wish.  For example, to specify that all
 subroutines containing xx are private, call Devel::Cover with the option
 -coverage,pod-also_private-xx.
 
@@ -1553,19 +1558,150 @@ multiple times, but they can also take multiple comma separated arguments.  In
 any case you should not add a space after the comma, unless you want the
 argument to start with that literal space.
 
+=head1 UNCOVERABLE CRITERIA
+
+Sometimes you have code which is uncoverable for some reason.  Perhaps it is
+an else clause that cannot be reached, or a check for an error condition that
+should never happen.  You can tell Devel::Cover that certain criteria are
+uncoverable and then they are not counted as errors when they are not
+exercised.  In fact, they are counted as errors if they are exercised.
+
+This feature should only be used as something of a last resort.  Ideally you
+would find some way of exercising all your code.  But if you have analysed
+your code and determined that you are not going to be able to exercise it, it
+may be better to record that fact in some formal fashion and stop Devel::Cover
+complaining about it, so that real problems are not lost in the noise.
+
+There are two ways to specify a construct as uncoverable, one invasive and one
+non-invasive.
+
+=head2 Invasive specification
+
+You can use special comments in your code to specify uncoverable criteria.
+Comment are of the form:
+
+ # uncoverable <criterion> [details]
+
+The keyword "uncoverable" must be the first text in the comment.  It should be
+followed by the name of the coverage criterion which is uncoverable.  There
+may then be further information depending on the nature of the uncoverable
+construct.
+
+=head3 Statements
+
+The "uncoverable" comment should appear on either the same line as the
+statement, of on the line before it:
+
+    $impossible++;  # uncoverable statement
+    # uncoverable statement
+    it_has_all_gone_horribly_wrong();
+
+If there are multiple statements (or any other criterion) on a line you can
+specify which statement is uncoverable by using the "count" attribute,
+count:n, which indicates that the uncoverable statement is the nth statement
+on the line.
+
+    # uncoverable statement count:1
+    # uncoverable statement count:2
+    cannot_run_this(); or_this();
+
+=head3 Branches
+
+The "uncoverable" comment should specify whether the "true" or "false" branch
+is uncoverable.
+
+    # uncoverable branch true
+    if (pi == 3)
+
+Both branches may be uncoverable:
+
+    # uncoverable branch true
+    # uncoverable branch false
+    if (impossible_thing_happened_one_way()) {
+        handle_it_one_way();      # uncoverable statement
+    } else {
+        handle_it_another_way();  # uncoverable statement
+    }
+
+=head3 Conditions
+
+Because of the way in which Perl short-circuits boolean operations, there are
+three ways in which such conditionals can be uncoverable.  In the case of C<
+$x && $y> for example, the left operator may never be true, the right operator
+may never be true, and the whole operation may never be false.  These
+conditions may be modelled thus:
+
+    # uncoverable branch true
+    # uncoverable condition left
+    # uncoverable condition false
+    if ($x && !$y)
+    {
+        $x++;  # uncoverable statement
+    }
+
+    # uncoverable branch true
+    # uncoverable condition right
+    # uncoverable condition false
+    if (!$x && $y)
+    {
+    }
+
+C<Or> conditionals are handled in a similar fashion (TODO - provide some
+examples) but C<xor> conditionals are not properly handled yet.
+
+=head3 Subroutines
+
+A subroutine should be marked as uncoverable at the point where the first
+statement is marked as uncoverable.  Ideally all other criteria in the
+subroutine would be marked as uncoverable automatically, but that isn't the
+case at the moment.
+
+    sub z
+    {
+        # uncoverable subroutine
+        $y++; # uncoverable statement
+    }
+
+=head2 Non-invasive specification
+
+If you can't, or don't want to add coverage comments to your code, you can
+specify the uncoverable information in a separate file.  My default this file
+is L<.uncoverable> but you can override that.
+
+The interface to managing this file is the L<cover> program, and the options
+are:
+
+ -uncoverable_file
+ -add_uncoverable_point
+ -delete_uncoverable_point
+ -clean_uncoverable_points
+
+Of these, only the first two are implemented at the moment.  The parameter for
+-add_uncoverable_point is a string composed of up to seven space separated
+elements: "$file $criterion $line $count $type $class $note".
+
+TODO - more information and examples.
+
 =head1 ENVIRONMENT
+
+=head2 User variables
 
 The -silent option is turned on when Devel::Cover is invoked via
 $HARNESS_PERL_SWITCHES or $PERL5OPT.  Devel::Cover tries to do the right thing
 when $MOD_PERL is set.  $DEVEL_COVER_OPTIONS is appended to any options passed
 into Devel::Cover.
 
+=head2 Develeoper variables
+
 When running Devel::Cover's own test suite, $DEVEL_COVER_DEBUG turns on
 debugging information, $DEVEL_COVER_GOLDEN_VERSION overrides Devel::Cover's
 own idea of which golden results it should test against, and
-$DEVEL_COVER_NO_COVERAGE runs the tests without collecting coverage.  The
-environment variables described in this paragraph are of interest to
-Devel::Cover maintainers only.
+$DEVEL_COVER_NO_COVERAGE runs the tests without collecting coverage.
+$DEVEL_COVER_DB_FORMAT may be set to either "JSON" or "Storable" to override
+the default choice of DB format (JSON if available, otherwise Storable).
+$DEVEL_COVER_IO_OPTIONS provides fine-grained control over the DB format.  For
+example, setting it to "pretty" when the format is JSON will store the DB in a
+readable JSON format.
 
 =head1 ACKNOWLEDGEMENTS
 
@@ -1631,7 +1767,7 @@ Modules used by Devel::Cover while gathering coverage:
 
 =item * L<File::Spec>
 
-=item * L<Storable>
+=item * L<Storable> or L<JSON>
 
 =back
 
@@ -1653,7 +1789,7 @@ Please report new bugs on Github.
 
 =head1 LICENCE
 
-Copyright 2001-2012, Paul Johnson (paul@pjcj.net)
+Copyright 2001-2013, Paul Johnson (paul@pjcj.net)
 
 This software is free.  It is licensed under the same terms as Perl itself.
 
