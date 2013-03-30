@@ -10,7 +10,7 @@ package Devel::Cover;
 use strict;
 use warnings;
 
-our $VERSION = '1.00'; # VERSION
+our $VERSION = '1.01'; # VERSION
 our $LVERSION = do { eval '$VERSION' || "0.001" };  # for development purposes
 
 use DynaLoader ();
@@ -754,7 +754,6 @@ sub _report
         "did you require instead of use Devel::Cover?\n"
         unless defined $Dir;
 
-
     my @collected = get_coverage();
     return unless @collected;
     set_coverage("none") unless $Self_cover;
@@ -969,7 +968,7 @@ sub add_condition_cover
         my $name = $r->name;
         $name = $r->first->name if $name eq "sassign";
         # TODO - exec?  any others?
-        # print STDERR "Name [$name]\n";
+        # print STDERR "Name [$name]", Dumper $c;
         if ($c->[5] || $name =~ $Const_right)
         {
             $c = [ $c->[3], $c->[1] + $c->[2] ];
@@ -981,7 +980,7 @@ sub add_condition_cover
             @$c = @{$c}[$type eq "or" ? (3, 2, 1) : (3, 1, 2)];
             $count = 3;
         }
-        # print STDERR "$type 3 $name [@$c] $File:$Line\n";
+        # print STDERR "$type 3 $name [", join(",", @$c), "] $File:$Line\n";
     }
     elsif ($type eq "xor")
     {
@@ -1045,14 +1044,18 @@ sub deparse
 
         my $name = $op->can("name") ? $op->name : "Unknown";
 
-        # print STDERR "$class:$name at $File:$Line\n";
+        # print STDERR "$class:$name ($$op) at $File:$Line\n";
+        # print STDERR "[$Seen{statement}{$$op}] [$Seen{other}{$$op}]\n";
+        # use Carp "cluck"; cluck("from here");
 
-        {
+        unless ($Seen{statement}{$$op} || $Seen{other}{$$op}) {
             # Collect everything under here.
             local ($File, $Line) = ($File, $Line);
+            # print STDERR "Collecting $$op under $File:$Line\n";
             $deparse = eval { local $^W; $Original{deparse}->($self, @_) };
             $deparse =~ s/^\010+//mg if defined $deparse;
             $deparse = "Deparse error: $@" if $@;
+            # print STDERR "Collected $$op under $File:$Line\n";
             # print STDERR "Collect Deparse $op $$op => <$deparse>\n";
         }
 
@@ -1060,6 +1063,7 @@ sub deparse
 
         if ($class eq "COP" && $Coverage{statement})
         {
+            # print STDERR "COP $$op, seen [$Seen{statement}{$$op}]\n";
             add_statement_cover($op) unless $Seen{statement}{$$op}++;
         }
         elsif (!$null && $name eq "null"
@@ -1070,11 +1074,13 @@ sub deparse
             # get at the file and line number, but we need to get dirty.
 
             bless $op, "B::COP";
+            # print STDERR "null $$op, seen [$Seen{statement}{$$op}]\n";
             add_statement_cover($op) unless $Seen{statement}{$$op}++;
             bless $op, "B::$class";
         }
         elsif ($Seen{other}{$$op}++)
         {
+            # print STDERR "seen [$Seen{other}{$$op}]\n";
             return ""  # Only report on each op once.
         }
         elsif ($name eq "cond_expr")
@@ -1117,12 +1123,15 @@ sub deparse
     else
     {
         local ($File, $Line) = ($File, $Line);
+        # print STDERR "Starting plain deparse at $File:$Line\n";
         $deparse = eval { local $^W; $Original{deparse}->($self, @_) };
         $deparse =~ s/^\010+//mg if defined $deparse;
         $deparse = "Deparse error: $@" if $@;
+        # print STDERR "Ending plain deparse at $File:$Line\n";
         # print STDERR "Deparse => <$deparse>\n";
     }
 
+    # print STDERR "Returning [$deparse]\n";
     $deparse
 }
 
@@ -1334,7 +1343,7 @@ Devel::Cover - Code coverage metrics for Perl
 
 =head1 VERSION
 
-version 1.00
+version 1.01
 
 =head1 SYNOPSIS
 
@@ -1478,7 +1487,7 @@ Needed if the tests fail and you would like nice output telling you why.
 
 Needed if you want to run cpancover.
 
-=item * L<JSON>,r L<JSON::PP> or L<JSON::XS>
+=item * L<JSON>, L<JSON::PP> or L<JSON::XS>
 
 JSON is used to store the coverage database if it is available.
 
@@ -1578,7 +1587,7 @@ non-invasive.
 =head2 Invasive specification
 
 You can use special comments in your code to specify uncoverable criteria.
-Comment are of the form:
+Comments are of the form:
 
  # uncoverable <criterion> [details]
 
@@ -1691,7 +1700,7 @@ $HARNESS_PERL_SWITCHES or $PERL5OPT.  Devel::Cover tries to do the right thing
 when $MOD_PERL is set.  $DEVEL_COVER_OPTIONS is appended to any options passed
 into Devel::Cover.
 
-=head2 Develeoper variables
+=head2 Developer variables
 
 When running Devel::Cover's own test suite, $DEVEL_COVER_DEBUG turns on
 debugging information, $DEVEL_COVER_GOLDEN_VERSION overrides Devel::Cover's

@@ -10,7 +10,7 @@ package Devel::Cover::Criterion;
 use strict;
 use warnings;
 
-our $VERSION = '1.00'; # VERSION
+our $VERSION = '1.01'; # VERSION
 
 use Devel::Cover::Statement;
 use Devel::Cover::Branch;
@@ -78,7 +78,7 @@ Devel::Cover::Criterion - Code coverage metrics for Perl
 
 =head1 VERSION
 
-version 1.00
+version 1.01
 
 =head1 SYNOPSIS
 

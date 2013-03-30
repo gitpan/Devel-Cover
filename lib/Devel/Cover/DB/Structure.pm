@@ -20,16 +20,13 @@ use Devel::Cover::Dumper;
 # For comprehensive debug logging.
 use constant DEBUG => 0;
 
-our $VERSION = '1.00'; # VERSION
+our $VERSION = '1.01'; # VERSION
 our $AUTOLOAD;
 
 sub new
 {
     my $class = shift;
-    my $self  =
-    {
-        @_
-    };
+    my $self  = { @_ };
     bless $self, $class
 }
 
@@ -51,11 +48,7 @@ sub AUTOLOAD
         my $c = $criterion eq "time" ? "statement" : $criterion;
         if (grep $_ eq $c, qw( sub_name file line ))
         {
-            *$func = sub
-            {
-                my $self = shift;
-                $self->{$c}
-            }
+            *$func = sub { shift->{$c} };
         }
         else
         {
@@ -280,7 +273,7 @@ sub write
     {
         $self->{f}{$file}{file} = $file;
         my $digest = $self->{f}{$file}{digest};
-        $digest = $1 if $digest =~ /(.*)/; # ie tainting.
+        $digest = $1 if $digest && $digest =~ /(.*)/; # ie tainting.
         unless ($digest)
         {
             warn "Can't find digest for $file"
@@ -395,7 +388,7 @@ Devel::Cover::DB::Structure - Internal: abstract structure of a source file
 
 =head1 VERSION
 
-version 1.00
+version 1.01
 
 =head1 SYNOPSIS
 

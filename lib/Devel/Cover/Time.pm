@@ -10,7 +10,7 @@ package Devel::Cover::Time;
 use strict;
 use warnings;
 
-our $VERSION = '1.00'; # VERSION
+our $VERSION = '1.01'; # VERSION
 
 use base "Devel::Cover::Criterion";
 
@@ -47,7 +47,7 @@ Devel::Cover::Time - Code coverage metrics for Perl
 
 =head1 VERSION
 
-version 1.00
+version 1.01
 
 =head1 SYNOPSIS
 

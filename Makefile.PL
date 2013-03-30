@@ -18,7 +18,7 @@ use File::Copy;
 
 $| = 1;
 
-my $Version = "1.00";
+my $Version = "1.01";
 my $Author  = 'paul@pjcj.net';
 my @perlbug = ("perlbug", "-a", $Author,
                           "-s", "Installation of Devel::Cover $Version");
@@ -370,8 +370,8 @@ sub MY::postamble
          vim);
 
     qq[
-tags :
-\t ctags --recurse .
+tags : pure_all
+\t ctags --recurse --exclude=blib --exclude=Devel-Cover-* .
 
 README : lib/Devel/Cover.pm
 \t TERMCAP= COLUMNS=80 pod2text -s lib/Devel/Cover.pm | \\
@@ -396,6 +396,7 @@ ppm : ppd pure_all
 TAINT =
 TAINT = -T
 COVER_OPTIONS =
+PERL5OPT =
 
 _run : pure_all
 \t \$(PERL) \$(TAINT) -Iblib/lib -Iblib/arch -MDevel::Cover=-merge,0,`\$(PERL) -e '\$\$l = qx|grep __COVER__ \$\$ARGV[0]|; \$\$l =~ /__COVER__\\s+criteria\\s+(.*)/; (\$\$c = \$\$1 || "all") =~ s/\\s+/,/g; \$\$p = "\$\$1," if \$\$l =~ /__COVER__\\s+test_parameters\\s+(.*)/; print "\$\$p-coverage,\$\$c"' tests/\$(TEST)`,\$(COVER_OPTIONS) tests/\$(TEST)
