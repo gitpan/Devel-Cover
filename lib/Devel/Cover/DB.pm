@@ -10,7 +10,7 @@ package Devel::Cover::DB;
 use strict;
 use warnings;
 
-our $VERSION = '1.01'; # VERSION
+our $VERSION = '1.02'; # VERSION
 
 use Devel::Cover::Criterion;
 use Devel::Cover::DB::File;
@@ -897,7 +897,7 @@ sub cover
     my $st = Devel::Cover::DB::Structure->new(base => $self->{base})->read_all;
     my @runs = sort { $self->{runs}{$b}{start} <=> $self->{runs}{$a}{start} }
                     keys %{$self->{runs}};
-    # print STDERR "runs: ", Dumper $self->{runs};
+    # print STDERR "runs: ", Dumper \@runs
 
     my %warned;
     for my $run (@runs)
@@ -967,11 +967,19 @@ sub cover
     $self->{cover}
 }
 
+sub run_keys
+{
+    my $self = shift;
+    $self->cover unless $self->{cover_valid};
+    sort { $self->{runs}{$b}{start} <=> $self->{runs}{$a}{start} }
+         keys %{$self->{runs}};
+}
+
 sub runs
 {
     my $self = shift;
     $self->cover unless $self->{cover_valid};
-    values %{$self->{runs}}
+    @{$self->{runs}}{$self->run_keys}
 }
 
 package Devel::Cover::DB::Run;
@@ -1000,7 +1008,7 @@ Devel::Cover::DB - Code coverage metrics for Perl
 
 =head1 VERSION
 
-version 1.01
+version 1.02
 
 =head1 SYNOPSIS
 
@@ -1008,7 +1016,6 @@ version 1.01
 
  my $db = Devel::Cover::DB->new(db => "my_coverage_db");
  $db->print_summary([$file1, $file2], ["statement", "pod"]);
- $db->print_details;
 
 =head1 DESCRIPTION
 

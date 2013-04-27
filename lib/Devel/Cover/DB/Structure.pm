@@ -20,7 +20,7 @@ use Devel::Cover::Dumper;
 # For comprehensive debug logging.
 use constant DEBUG => 0;
 
-our $VERSION = '1.01'; # VERSION
+our $VERSION = '1.02'; # VERSION
 our $AUTOLOAD;
 
 sub new
@@ -225,6 +225,7 @@ sub digest
         print STDERR "Devel::Cover: Warning: can't open $file " .
                                              "for MD5 digest: $!\n"
             unless lc $file eq "-e" or
+                      $Devel::Cover::Silent or
                       $file =~ $Devel::Cover::DB::Ignore_filenames;
         # require "Cwd"; warn Carp::longmess("in " . Cwd::cwd());
     }
@@ -273,7 +274,7 @@ sub write
     {
         $self->{f}{$file}{file} = $file;
         my $digest = $self->{f}{$file}{digest};
-        $digest = $1 if $digest && $digest =~ /(.*)/; # ie tainting.
+        $digest = $1 if defined $digest && $digest =~ /(.*)/; # ie tainting.
         unless ($digest)
         {
             warn "Can't find digest for $file"
@@ -388,7 +389,7 @@ Devel::Cover::DB::Structure - Internal: abstract structure of a source file
 
 =head1 VERSION
 
-version 1.01
+version 1.02
 
 =head1 SYNOPSIS
 

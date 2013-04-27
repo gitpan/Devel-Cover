@@ -12,7 +12,7 @@ require 5.6.1;
 use strict;
 use warnings;
 
-our $VERSION = '1.01'; # VERSION
+our $VERSION = '1.02'; # VERSION
 
 use Devel::Cover::DB;
 
@@ -205,6 +205,7 @@ sub main
         exit 0
     }
 
+    my $test_result = 0;
     if ($Options->{test})
     {
         # TODO - make this a little robust
@@ -233,12 +234,12 @@ sub main
         if ($Options->{gcov})
         {
             my $t = $] > 5.7 ? undef : time;
-            my $xs = sub { utime $t, $t, $_ if /\.(xs|c|h)$/ };
+            my $xs = sub { utime $t, $t, $_ if /\.(xs|cc?|hh?)$/ };
             File::Find::find({ wanted => $xs, no_chdir => 0 }, ".");
         }
         # print STDERR "$_: $ENV{$_}\n" for qw(PERL5OPT HARNESS_PERL_SWITCHES);
         print STDERR "cover: running $test\n";
-        system $test;
+        $test_result = system $test;
         $Options->{report} ||= "html";
     }
 
@@ -246,7 +247,7 @@ sub main
     {
         my $gc = sub
         {
-            return unless /\.(xs|c|h)$/;
+            return unless /\.(xs|cc?|hh?)$/;
 
             my ($name) = /([^\/]+$)/;
 
@@ -266,7 +267,7 @@ sub main
         {
             return unless /\.gcov$/;
             my $xs = $_;
-            return if $xs =~ s/\.(c|h)\.gcov$/.xs.gcov/ && -e $xs;
+            return if $xs =~ s/\.(cc?|hh?)\.gcov$/.xs.gcov/ && -e $xs;
             s/^\.\///;
             push @gc, $_;
         };
@@ -366,7 +367,7 @@ sub main
     $db->print_summary($Options->{file}, $Options->{coverage}, {force => 1})
         if $Options->{summary};
 
-    return unless length $Options->{report};
+    exit $test_result unless length $Options->{report};
 
     $format->report($db, $Options);
 
@@ -382,6 +383,8 @@ sub main
                          "$Options->{report} report.\n"
         }
     }
+
+    exit $test_result;
 }
 
 main
@@ -394,7 +397,7 @@ cover - report coverage statistics
 
 =head1 VERSION
 
-version 1.01
+version 1.02
 
 =head1 SYNOPSIS
 
@@ -532,6 +535,8 @@ The following exit values are returned:
 0   All operations were completed successfully.
 
 >0  An error occurred.
+
+With the -test option the exit status of the underlying test run is retuened.
 
 =head1 SEE ALSO
 

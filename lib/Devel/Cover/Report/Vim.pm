@@ -10,7 +10,7 @@ package Devel::Cover::Report::Vim;
 use strict;
 use warnings;
 
-our $VERSION = '1.01'; # VERSION
+our $VERSION = '1.02'; # VERSION
 our $LVERSION = do { eval '$VERSION' || "0.001" };  # for development purposes
 
 use Devel::Cover::DB;
@@ -84,7 +84,7 @@ package Devel::Cover::Report::Vim::Template::Provider;
 use strict;
 use warnings;
 
-our $VERSION = '1.01'; # VERSION
+our $VERSION = '1.02'; # VERSION
 
 use base "Template::Provider";
 
@@ -313,7 +313,7 @@ Devel::Cover::Report::Vim - Backend for displaying coverage data in Vim
 
 =head1 VERSION
 
-version 1.01
+version 1.02
 
 =head1 SYNOPSIS
 

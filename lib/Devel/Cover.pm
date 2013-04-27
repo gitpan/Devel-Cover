@@ -10,7 +10,7 @@ package Devel::Cover;
 use strict;
 use warnings;
 
-our $VERSION = '1.01'; # VERSION
+our $VERSION = '1.02'; # VERSION
 our $LVERSION = do { eval '$VERSION' || "0.001" };  # for development purposes
 
 use DynaLoader ();
@@ -107,7 +107,7 @@ BEGIN
               ($ENV{PERL5OPT}              || "") =~ /Devel::Cover/;
     *OUT = $ENV{DEVEL_COVER_DEBUG} ? *STDERR : *STDOUT;
 
-    if ($^X =~ /httpd$/)
+    if ($^X =~ /(apache2|httpd)$/)
     {
         # mod_perl < 2.0.8
         @Inc = @Devel::Cover::Inc::Inc;
@@ -1333,7 +1333,10 @@ sub get_cover
     $de
 }
 
-1
+"
+We have normality, I repeat we have normality.
+Anything you still can’t cope with is therefore your own problem.
+"
 
 __END__
 
@@ -1343,7 +1346,7 @@ Devel::Cover - Code coverage metrics for Perl
 
 =head1 VERSION
 
-version 1.01
+version 1.02
 
 =head1 SYNOPSIS
 
