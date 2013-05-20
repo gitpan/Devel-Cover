@@ -10,7 +10,7 @@ package Devel::Cover;
 use strict;
 use warnings;
 
-our $VERSION = '1.02'; # VERSION
+our $VERSION = '1.03'; # VERSION
 our $LVERSION = do { eval '$VERSION' || "0.001" };  # for development purposes
 
 use DynaLoader ();
@@ -1048,6 +1048,8 @@ sub deparse
         # print STDERR "[$Seen{statement}{$$op}] [$Seen{other}{$$op}]\n";
         # use Carp "cluck"; cluck("from here");
 
+        return "" if $name eq "padrange";
+
         unless ($Seen{statement}{$$op} || $Seen{other}{$$op}) {
             # Collect everything under here.
             local ($File, $Line) = ($File, $Line);
@@ -1346,7 +1348,7 @@ Devel::Cover - Code coverage metrics for Perl
 
 =head1 VERSION
 
-version 1.02
+version 1.03
 
 =head1 SYNOPSIS
 

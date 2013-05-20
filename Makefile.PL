@@ -18,7 +18,7 @@ use File::Copy;
 
 $| = 1;
 
-my $Version = "1.02";
+my $Version = "1.03";
 my $Author  = 'paul@pjcj.net';
 my @perlbug = ("perlbug", "-a", $Author,
                           "-s", "Installation of Devel::Cover $Version");
@@ -270,7 +270,7 @@ Browser::Open is used to launch a web browser when the -launch flag is
 specified with HTML report formats. You can download Browser::Open from CPAN.
 EOM
 
-my $latest_tested = "5.016002";
+my $latest_tested = "5.018000";
 print <<EOM if $] > $latest_tested;
 
 Devel::Cover $Version has not been tested with perl $].

@@ -8,7 +8,7 @@ build_requires:
 configure_requires:
   ExtUtils::MakeMaker: 0
 dynamic_config: 0
-generated_by: 'Dist::Zilla version 4.300034, CPAN::Meta::Converter version 2.130880'
+generated_by: 'Dist::Zilla version 4.300034, CPAN::Meta::Converter version 2.120921'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -40,10 +40,10 @@ resources:
   homepage: http://www.pjcj.net/perl.html
   license: http://dev.perl.org/licenses
   repository: http://github.com/pjcj/Devel--Cover
-version: 1.02
+version: 1.03
 x_Dist_Zilla:
   perl:
-    version: 5.016003
+    version: 5.018000
   plugins:
     -
       class: Dist::Zilla::Plugin::VersionFromScript

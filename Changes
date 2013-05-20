@@ -1,5 +1,8 @@
 Devel::Cover history
 
+Release 1.03 - 20 May 2013
+ - Fixes for correct operation with 5.17.11, 5.18.0 and 5.19.0.
+
 Release 1.02 - 28 April 2013
  - Make -silent even quieter (Sergiy Borodych) (guthub 49).
  - mod_perl2 on Debian sets $^X to apache2 (Lasse Makholm) (github 47).

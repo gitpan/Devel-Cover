@@ -18,7 +18,7 @@ package Devel::Cover::Report::Compilation;
 use strict;
 use warnings;
 
-our $VERSION = '1.02'; # VERSION
+our $VERSION = '1.03'; # VERSION
 
 use Devel::Cover::DB;
 
@@ -147,7 +147,7 @@ Devel::Cover::Report::Compilation - backend for Devel::Cover
 
 =head1 VERSION
 
-version 1.02
+version 1.03
 
 =head1 SYNOPSIS
 
