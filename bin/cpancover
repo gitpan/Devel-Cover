@@ -12,7 +12,7 @@ require 5.6.1;
 use strict;
 use warnings;
 
-our $VERSION = '1.03'; # VERSION
+our $VERSION = '1.04'; # VERSION
 
 use Devel::Cover::DB;
 use Devel::Cover::Dumper;
@@ -281,41 +281,41 @@ sub class
 
 sub write_csv
 {
-	my ($data) = @_;
+        my ($data) = @_;
 
-	open(my $fh, ">", "$Options->{outputdir}/cpan_cover.csv")
-		or die "cannot open > cpan_cover.txt: $!";
-	# release, distribution,link,
-	#	branch_class,branch_details,branch_pc,
-	#	conditon_class,condition_details,condition_pc,
-	#	pod_class,pod_details,pod_pc,
-	#	statement_class,statement_details,statement_pc,
-	#	subroutine_class,subroutine_details,subroutetine_pc,
-	#	total_class,total_details,total_pc
-	# TODO GET DSTRIBUTION
-	my @header = qw/release distribution link
-					branch_class branch_details branch_pc
-					condition_class condition_details condition_pc
-					pod_class pod_details pod_pc
-					statement_class statement_details statement_pc
-					subroutine_class subroutine_detials sbroutine_pc
-					total_class total_details total_pc/;
-	print $fh join(",", @header ) . "\n";
-	foreach my $release  (keys %{$data->{vals}} ) {
+        open(my $fh, ">", "$Options->{outputdir}/cpan_cover.csv")
+                or die "cannot open > cpan_cover.txt: $!";
+        # release, distribution,link,
+        #       branch_class,branch_details,branch_pc,
+        #       conditon_class,condition_details,condition_pc,
+        #       pod_class,pod_details,pod_pc,
+        #       statement_class,statement_details,statement_pc,
+        #       subroutine_class,subroutine_details,subroutetine_pc,
+        #       total_class,total_details,total_pc
+        # TODO GET DSTRIBUTION
+        my @header = qw/release distribution link
+                                        branch_class branch_details branch_pc
+                                        condition_class condition_details condition_pc
+                                        pod_class pod_details pod_pc
+                                        statement_class statement_details statement_pc
+                                        subroutine_class subroutine_detials sbroutine_pc
+                                        total_class total_details total_pc/;
+        print $fh join(",", @header ) . "\n";
+        foreach my $release  (keys %{$data->{vals}} ) {
 
-		my $line = [];
-		push @$line, $release,
-		push @$line, '';
-		push @$line, $data->{vals}{$release}{link};
+                my $line = [];
+                push @$line, $release,
+                push @$line, '';
+                push @$line, $data->{vals}{$release}{link};
 
-		foreach my $level1 ( qw/branch condition pod statement/ ) {
-			foreach my $level2 ( qw/class details pc/ ) {
-				push @$line, $data->{vals}{$release}{$level1}{$level2};
-			} 			
-		}
-		print $fh join ( ",",@$line)."\n";
-	}
-	close $fh;
+                foreach my $level1 ( qw/branch condition pod statement/ ) {
+                        foreach my $level2 ( qw/class details pc/ ) {
+                                push @$line, $data->{vals}{$release}{$level1}{$level2};
+                        }
+                }
+                print $fh join ( ",",@$line)."\n";
+        }
+        close $fh;
     print "\n\nWrote cpan_cover.csv output to $Options->{outputdir}/cpan_cover.csv\n";
 }
 
@@ -374,7 +374,7 @@ sub write_html
     write_stylesheet;
     $Template->process("summary", $vars, $f) or die $Template->error();
     write_csv($vars);
-	
+
     print "done.\n";
     print "\n\nWrote cpancover output to $f\n";
 }
@@ -413,7 +413,7 @@ package Devel::Cover::Cpancover::Template::Provider;
 use strict;
 use warnings;
 
-our $VERSION = '1.03'; # VERSION
+our $VERSION = '1.04'; # VERSION
 
 use base "Template::Provider";
 
@@ -510,6 +510,11 @@ Coverage information from <a href="https://metacpan.org/module/Devel::Cover">
 </a> by <a href="http://pjcj.net">Paul Johnson</a>.
 
 <br/>
+
+<a href="http://cpancover.com/blead/latest/coverage.html">Core coverage</a>
+(under development)
+
+<br/>
 <br/>
 
 This server generously donated by
@@ -530,7 +535,7 @@ cpancover - report coverage statistics on CPAN modules
 
 =head1 VERSION
 
-version 1.03
+version 1.04
 
 =head1 SYNOPSIS
 
