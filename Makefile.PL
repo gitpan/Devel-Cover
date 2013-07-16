@@ -18,7 +18,7 @@ use File::Copy;
 
 $| = 1;
 
-my $Version = "1.04";
+my $Version = "1.05";
 my $Author  = 'paul@pjcj.net';
 my @perlbug = ("perlbug", "-a", $Author,
                           "-s", "Installation of Devel::Cover $Version");
@@ -334,7 +334,11 @@ WriteMakefile
                                      "README *.gcov *.out"
                         },
     dist             => { COMPRESS => "gzip --best --force"                   },
-    test             => { TESTS    => "t/*/*.t"                               },
+    test             => {
+                            TESTS    => $ENV{DEVEL_COVER_NO_TESTS}
+                                          ? ""
+                                          : "t/*/*.t"
+                        },
     realclean        => $] < 5.008008 ?
                         {
                             FILES => "lib/Devel/Cover/Inc.pm",

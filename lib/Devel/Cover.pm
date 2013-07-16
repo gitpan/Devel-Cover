@@ -10,7 +10,7 @@ package Devel::Cover;
 use strict;
 use warnings;
 
-our $VERSION = '1.04'; # VERSION
+our $VERSION = '1.05'; # VERSION
 our $LVERSION = do { eval '$VERSION' || "0.001" };  # for development purposes
 
 use DynaLoader ();
@@ -1135,7 +1135,8 @@ sub deparse
         local ($File, $Line) = ($File, $Line);
         # print STDERR "Starting plain deparse at $File:$Line\n";
         $deparse = eval { local $^W; $Original{deparse}->($self, @_) };
-        $deparse =~ s/^\010+//mg if defined $deparse;
+        $deparse = "" unless defined $deparse;
+        $deparse =~ s/^\010+//mg;
         $deparse = "Deparse error: $@" if $@;
         # print STDERR "Ending plain deparse at $File:$Line\n";
         # print STDERR "Deparse => <$deparse>\n";
@@ -1359,7 +1360,7 @@ Devel::Cover - Code coverage metrics for Perl
 
 =head1 VERSION
 
-version 1.04
+version 1.05
 
 =head1 SYNOPSIS
 
@@ -1529,8 +1530,8 @@ information as possible.
                        cwd).
  -ignore RE          - Set REs of files to ignore (default "/Devel/Cover\b").
  +ignore RE          - Append to REs of files to ignore.
- -inc path           - Set prefixes of files to ignore (default @INC).
- +inc path           - Append to prefixes of files to ignore.
+ -inc path           - Set prefixes of files to include (default @INC).
+ +inc path           - Append to prefixes of files to include.
  -merge val          - Merge databases, for multiple test benches (default on).
  -select RE          - Set REs of files to select (default none).
  +select RE          - Append to REs of files to select.
@@ -1732,15 +1733,27 @@ readable JSON format.
 
 Some code and ideas cribbed from:
 
- L<Devel::OpProf>
- L<B::Concise>
- L<B::Deparse>
+=over 4
+
+=item * L<Devel::OpProf>
+
+=item * L<B::Concise>
+
+=item * L<B::Deparse>
+
+=back
 
 =head1 SEE ALSO
 
- L<Devel::Cover::Tutorial>
- L<B>
- L<Pod::Coverage>
+=over 4
+
+=item * L<Devel::Cover::Tutorial>
+
+=item * L<B>
+
+=item * L<Pod::Coverage>
+
+=back
 
 =head1 LIMITATIONS
 
