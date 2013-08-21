@@ -10,7 +10,7 @@ package Devel::Cover::Util;
 use strict;
 use warnings;
 
-our $VERSION = '1.06'; # VERSION
+our $VERSION = '1.07'; # VERSION
 
 use Cwd 'abs_path';
 use File::Spec;
@@ -56,7 +56,7 @@ Devel::Cover::Util - Utility subroutines for Devel::Cover
 
 =head1 VERSION
 
-version 1.06
+version 1.07
 
 =head1 SYNOPSIS
 

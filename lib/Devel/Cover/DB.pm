@@ -10,7 +10,7 @@ package Devel::Cover::DB;
 use strict;
 use warnings;
 
-our $VERSION = '1.06'; # VERSION
+our $VERSION = '1.07'; # VERSION
 
 use Devel::Cover::Criterion;
 use Devel::Cover::DB::File;
@@ -87,12 +87,16 @@ sub all_criteria_short { @{$_[0]->{all_criteria_short}} }
 
 sub read
 {
-    my $self      = shift;
-    my ($file)    = @_;
+    my $self   = shift;
+    my ($file) = @_;
 
-    my $io        = Devel::Cover::DB::IO->new;
-    my $db        = $io->read($file);
-    $self->{runs} = $db->{runs};
+    my $io = Devel::Cover::DB::IO->new;
+    my $db = eval { $io->read($file) };
+    if ($@ or !$db) {
+        warn $@;
+    } else {
+        $self->{runs} = $db->{runs};
+    }
     $self
 }
 
@@ -1008,7 +1012,7 @@ Devel::Cover::DB - Code coverage metrics for Perl
 
 =head1 VERSION
 
-version 1.06
+version 1.07
 
 =head1 SYNOPSIS
 
