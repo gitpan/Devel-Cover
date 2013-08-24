@@ -180,7 +180,7 @@ sub error {
 package Devel::Cover::Truth_Table;
 use warnings;
 use strict;
-our $VERSION = '1.07'; # VERSION
+our $VERSION = '1.08'; # VERSION
 
 #-------------------------------------------------------------------------------
 # Subroutine : new()
@@ -384,7 +384,7 @@ sub html {
 #    0  1  1  |        1
 #    1  X  1  |        1
 #
-# Note that we don't have to calulate the result, it's taken directly
+# Note that we don't have to calculate the result, it's taken directly
 # from table B. We can do this because we've replaced b1 with an
 # something that evaluates to the same thing.
 #
@@ -467,7 +467,7 @@ Devel::Cover::Truth_Table - Truth tables for coverage objects.
 
 =head1 VERSION
 
-version 1.07
+version 1.08
 
 =head1 SYNOPSIS
 

@@ -20,7 +20,7 @@ use Devel::Cover::Dumper;
 # For comprehensive debug logging.
 use constant DEBUG => 0;
 
-our $VERSION = '1.07'; # VERSION
+our $VERSION = '1.08'; # VERSION
 our $AUTOLOAD;
 
 sub new
@@ -87,7 +87,7 @@ sub debuglog {
 
     local $\;
     # One log file per process, as we're potentially dumping out large amounts,
-    # and might excede the atomic write size of the OS.
+    # and might exceed the atomic write size of the OS.
     open my $fh, '>>', "$dir/$$" or confess "Can't open $dir/$$: $!";
     print $fh "----------------" . gmtime() . "----------------\n";
     print $fh ref $_ ? Dumper($_) : $_;
@@ -389,7 +389,7 @@ Devel::Cover::DB::Structure - Internal: abstract structure of a source file
 
 =head1 VERSION
 
-version 1.07
+version 1.08
 
 =head1 SYNOPSIS
 

@@ -12,7 +12,7 @@ require 5.6.1;
 use strict;
 use warnings;
 
-our $VERSION = '1.07'; # VERSION
+our $VERSION = '1.08'; # VERSION
 
 use Devel::Cover::DB;
 
@@ -429,7 +429,7 @@ cover - report coverage statistics
 
 =head1 VERSION
 
-version 1.07
+version 1.08
 
 =head1 SYNOPSIS
 
@@ -570,7 +570,7 @@ The following exit values are returned:
 
 >0  An error occurred.
 
-With the -test option the exit status of the underlying test run is retuened.
+With the -test option the exit status of the underlying test run is returned.
 
 =head1 SEE ALSO
 

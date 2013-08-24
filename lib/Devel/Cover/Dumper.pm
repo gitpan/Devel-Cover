@@ -13,14 +13,15 @@ package  # Private module
 use strict qw<vars subs>; # no refs
 use warnings;
 
-our $VERSION = '1.07'; # VERSION
+our $VERSION = '1.08'; # VERSION
 
 sub import
 {
     my $caller = caller;
     if (defined &{"${caller}::Dumper"} && \&{"${caller}::Dumper"} != \&Dumper) {
         require Carp;
-        Carp::croak("Data::Dumper previously imported. Use instead Devel::Cover::Dumper");
+        Carp::croak("Data::Dumper previously imported.  " .
+                    "Use Devel::Cover::Dumper instead.");
     }
     *{"${caller}::Dumper"} = \&Dumper;
 }
@@ -37,13 +38,15 @@ sub Dumper
 
 __END__
 
+=encoding utf8
+
 =head1 NAME
 
 Devel::Cover::Dumper - Internal module for debugging purposes
 
 =head1 VERSION
 
-version 1.07
+version 1.08
 
 =head1 SYNOPSIS
 

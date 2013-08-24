@@ -10,7 +10,7 @@ package Devel::Cover::DB::IO;
 use strict;
 use warnings;
 
-our $VERSION = '1.07'; # VERSION
+our $VERSION = '1.08'; # VERSION
 
 my $Format;
 
@@ -46,7 +46,7 @@ Devel::Cover::DB::IO - IO routines for Devel::Cover::DB
 
 =head1 VERSION
 
-version 1.07
+version 1.08
 
 =head1 SYNOPSIS
 
@@ -76,7 +76,7 @@ Contructs the IO object.
 
  my $data = $io->read($file);
 
-Returns a perl data structure representingthe data read from $file.
+Returns a perl data structure representing the data read from $file.
 
 =head2 write
 
