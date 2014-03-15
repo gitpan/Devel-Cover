@@ -1,4 +1,4 @@
-# Copyright 2002-2013, Paul Johnson (paul@pjcj.net)
+# Copyright 2002-2014, Paul Johnson (paul@pjcj.net)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -10,7 +10,7 @@ package Devel::Cover::Test;
 use strict;
 use warnings;
 
-our $VERSION = '1.08'; # VERSION
+our $VERSION = '1.09'; # VERSION
 
 use Carp;
 
@@ -51,6 +51,13 @@ sub new
     }, $class;
 
     $self->get_params
+}
+
+
+sub set_test {
+    my $self = shift;
+    my ($test) = @_;
+    $self->{test} = $test;
 }
 
 sub shell_quote
@@ -234,6 +241,7 @@ sub run_test
     }
 
     my ($base, $v) = $self->cover_gold;
+    # print STDERR "[$base,$v]\n";
     return 1 unless $v;  # assume we are generating the golden results
     my $gold = "$base.$v";
 
@@ -434,7 +442,7 @@ Devel::Cover::Test - Internal module for testing
 
 =head1 VERSION
 
-version 1.08
+version 1.09
 
 =head1 METHODS
 
@@ -533,7 +541,7 @@ Huh?
 
 =head1 LICENCE
 
-Copyright 2001-2013, Paul Johnson (paul@pjcj.net)
+Copyright 2001-2014, Paul Johnson (paul@pjcj.net)
 
 This software is free.  It is licensed under the same terms as Perl itself.
 

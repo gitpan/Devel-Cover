@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# Copyright 2002-2013, Paul Johnson (paul@pjcj.net)
+# Copyright 2002-2014, Paul Johnson (paul@pjcj.net)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -12,7 +12,7 @@ require 5.6.1;
 use strict;
 use warnings;
 
-our $VERSION = '1.08'; # VERSION
+our $VERSION = '1.09'; # VERSION
 
 use Devel::Cover::DB;
 use Devel::Cover::Dumper;
@@ -407,7 +407,7 @@ package Devel::Cover::Cpancover::Template::Provider;
 use strict;
 use warnings;
 
-our $VERSION = '1.08'; # VERSION
+our $VERSION = '1.09'; # VERSION
 
 use base "Template::Provider";
 
@@ -529,11 +529,17 @@ cpancover - report coverage statistics on CPAN modules
 
 =head1 VERSION
 
-version 1.08
+version 1.09
 
 =head1 SYNOPSIS
 
  cpancover -help -info -version
+           -collect -redo_cpancover_html -redo_html -force
+           -module module_name
+           -directory /path/to/dir
+           -outputdir /path/to/dir
+           -outputfile filename.html
+           -report report_name
 
 =head1 DESCRIPTION
 
@@ -545,11 +551,22 @@ The following command line options are supported:
  -h -help              - show help
  -i -info              - show documentation
  -v -version           - show version
+ -collect              - collect coverage from modules       (on)
+ -directory            - location of the modules             ($cwd)
+ -force                - recollect coverage                  (off)
+ -module               - modules to use                      (all in $directory)
+ -outputdir            - where to store output               ($directory)
+ -outputfile           - top level index                     (coverage.html)
+ -redo_cpancover_html  - don't set default modules           (off)
+ -redo_html            - force html generation for modules   (off)
+ -report               - report to use                       (html_basic)
 
 =head1 DETAILS
 
 
 =head1 REQUIREMENTS
+
+Collect coverage for results and create html, csv and json output.
 
 The modules L<Template> and L<Parallel::Iterator> are required.
 
@@ -573,7 +590,7 @@ The following exit values are returned:
 
 =head1 LICENCE
 
-Copyright 2002-2013, Paul Johnson (paul@pjcj.net)
+Copyright 2002-2014, Paul Johnson (paul@pjcj.net)
 
 This software is free.  It is licensed under the same terms as Perl itself.
 

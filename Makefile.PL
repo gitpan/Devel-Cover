@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# Copyright 2001-2013, Paul Johnson (paul@pjcj.net)
+# Copyright 2001-2014, Paul Johnson (paul@pjcj.net)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -18,7 +18,7 @@ use File::Copy;
 
 $| = 1;
 
-my $Version = "1.08";
+my $Version = "1.09";
 my $Author  = 'paul@pjcj.net';
 my @perlbug = ("perlbug", "-a", $Author,
                           "-s", "Installation of Devel::Cover $Version");
@@ -31,7 +31,7 @@ my @inc     = sort keys %inc;
 open I, ">lib/Devel/Cover/Inc.pm"
     or die "Cannot open lib/Devel/Cover/Inc.pm: $!";
 print I <<"EOI";
-# Copyright 2001-2013, Paul Johnson (paul\@pjcj.net)
+# Copyright 2001-2014, Paul Johnson (paul\@pjcj.net)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -107,7 +107,7 @@ for my $t (readdir D)
     print T <<EOT;
 #!$^X
 
-# Copyright 2002-2013, Paul Johnson (paul\@pjcj.net)
+# Copyright 2002-2014, Paul Johnson (paul\@pjcj.net)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -278,7 +278,14 @@ Browser::Open is used to launch a web browser when the -launch flag is
 specified with HTML report formats. You can download Browser::Open from CPAN.
 EOM
 
-my $latest_tested = "5.018001";
+check "CGI", <<EOM;
+CGI is used to run the Html_minimal report.  It used to be a part of the perl
+core, but as of perl 5.20 it will need to be downloaded from CPAN.  If you
+would like to use the Html_minimal report, please install CGI.  Otherwise,
+other reports will be available as usual.
+EOM
+
+my $latest_tested = "5.018002";
 print <<EOM if $] > $latest_tested;
 
 Devel::Cover $Version has not been tested with perl $].

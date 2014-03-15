@@ -1,4 +1,4 @@
-# Copyright 2001-2013, Paul Johnson (paul@pjcj.net)
+# Copyright 2001-2014, Paul Johnson (paul@pjcj.net)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -10,7 +10,7 @@ package Devel::Cover;
 use strict;
 use warnings;
 
-our $VERSION = '1.08'; # VERSION
+our $VERSION = '1.09'; # VERSION
 our $LVERSION = do { eval '$VERSION' || "0.001" };  # for development purposes
 
 use DynaLoader ();
@@ -28,11 +28,11 @@ use B::Deparse;
 
 use Carp;
 use Config;
-use Cwd qw" abs_path getcwd ";
+use Cwd qw( abs_path getcwd );
 use File::Spec;
 
 use Devel::Cover::Dumper;
-use Devel::Cover::Util 'remove_contained_paths';
+use Devel::Cover::Util "remove_contained_paths";
 
 BEGIN
 {
@@ -639,9 +639,9 @@ sub B::GV::find_cv
 
     # print STDERR "find_cv $$cv\n" if check_file($cv);
     $Cvs{$cv} ||= $cv if check_file($cv);
-    if ($cv->can("PADLIST") &&
+    if ($cv->can("PADLIST")        &&
         $cv->PADLIST->can("ARRAY") &&
-        $cv->PADLIST->ARRAY &&
+        $cv->PADLIST->ARRAY        &&
         $cv->PADLIST->ARRAY->can("ARRAY"))
     {
         $Cvs{$_} ||= $_
@@ -1363,7 +1363,7 @@ Devel::Cover - Code coverage metrics for Perl
 
 =head1 VERSION
 
-version 1.08
+version 1.09
 
 =head1 SYNOPSIS
 
@@ -1830,7 +1830,7 @@ Please report new bugs on Github.
 
 =head1 LICENCE
 
-Copyright 2001-2013, Paul Johnson (paul@pjcj.net)
+Copyright 2001-2014, Paul Johnson (paul@pjcj.net)
 
 This software is free.  It is licensed under the same terms as Perl itself.
 

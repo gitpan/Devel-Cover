@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# Copyright 2002-2013, Paul Johnson (paul@pjcj.net)
+# Copyright 2002-2014, Paul Johnson (paul@pjcj.net)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -39,7 +39,7 @@ my $run_test = sub
 
     $test->run_command($test->test_command);
 
-    sleep 1;
+    # sleep 1;
 
     copy($fg, $ft) or die "Cannot copy $fg to $ft: $!";
 

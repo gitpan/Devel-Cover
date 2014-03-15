@@ -1,4 +1,4 @@
-# Copyright 2005-2013, Paul Johnson (paul@pjcj.net)
+# Copyright 2005-2014, Paul Johnson (paul@pjcj.net)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -10,7 +10,7 @@ package Devel::Cover::Annotation::Git;
 use strict;
 use warnings;
 
-our $VERSION = '1.08'; # VERSION
+our $VERSION = '1.09'; # VERSION
 
 use Getopt::Long;
 
@@ -136,7 +136,7 @@ Devel::Cover::Annotation::Git - Annotate with git information
 
 =head1 VERSION
 
-version 1.08
+version 1.09
 
 =head1 SYNOPSIS
 
@@ -157,7 +157,7 @@ Huh?
 
 =head1 LICENCE
 
-Copyright 2005-2013, Paul Johnson (paul@pjcj.net)
+Copyright 2005-2014, Paul Johnson (paul@pjcj.net)
 
 This software is free.  It is licensed under the same terms as Perl itself.
 

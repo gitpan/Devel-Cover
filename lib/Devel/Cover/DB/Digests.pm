@@ -1,4 +1,4 @@
-# Copyright 2011-2013, Paul Johnson (paul@pjcj.net)
+# Copyright 2011-2014, Paul Johnson (paul@pjcj.net)
 
 # This software is free.  It is licensed under the same terms as Perl itself.
 
@@ -10,7 +10,7 @@ package Devel::Cover::DB::Digests;
 use strict;
 use warnings;
 
-our $VERSION = '1.08'; # VERSION
+our $VERSION = '1.09'; # VERSION
 
 use Devel::Cover::DB::Structure;
 use Devel::Cover::DB::IO;
@@ -101,7 +101,7 @@ Devel::Cover::DB::Digests - store digests for Devel::Cover::DB
 
 =head1 VERSION
 
-version 1.08
+version 1.09
 
 =head1 SYNOPSIS
 
@@ -145,7 +145,7 @@ Huh?
 
 =head1 LICENCE
 
-Copyright 2011-2013, Paul Johnson (paul@pjcj.net)
+Copyright 2011-2014, Paul Johnson (paul@pjcj.net)
 
 This software is free.  It is licensed under the same terms as Perl itself.
 
