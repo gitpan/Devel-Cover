@@ -9,4 +9,6 @@ package E3;
 
 print "E3\n";
 
+sub E3 { print "E3::E3\n" }
+
 1

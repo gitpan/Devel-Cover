@@ -20,7 +20,7 @@ use Devel::Cover::Dumper;
 # For comprehensive debug logging.
 use constant DEBUG => 0;
 
-our $VERSION = '1.09'; # VERSION
+our $VERSION = '1.10'; # VERSION
 our $AUTOLOAD;
 
 sub new
@@ -379,6 +379,13 @@ sub read_all
     $self
 }
 
+sub merge
+{
+    my $self   = shift;
+    my ($from) = @_;
+    Devel::Cover::DB::_merge_hash($self->{f}, $from->{f});
+}
+
 1
 
 __END__
@@ -389,7 +396,7 @@ Devel::Cover::DB::Structure - Internal: abstract structure of a source file
 
 =head1 VERSION
 
-version 1.09
+version 1.10
 
 =head1 SYNOPSIS
 

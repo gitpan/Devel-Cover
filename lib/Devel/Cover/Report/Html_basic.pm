@@ -10,13 +10,14 @@ package Devel::Cover::Report::Html_basic;
 use strict;
 use warnings;
 
-our $VERSION = '1.09'; # VERSION
+our $VERSION = '1.10'; # VERSION
 our $LVERSION = do { eval '$VERSION' || "0.001" };  # for development purposes
 
 use Devel::Cover::DB;
 use Devel::Cover::Html_Common "launch";
 use Devel::Cover::Web "write_file";
 
+use CGI;
 use Getopt::Long;
 use Template 2.00;
 
@@ -315,7 +316,8 @@ sub print_conditions
     my @types = map
                {
                    name       => do { my $n = $_; $n =~ s/_/ /g; $n },
-                   headers    => $r{$_}[0]{condition}->headers,
+                   headers    => [ map { CGI::escapeHTML($_) }
+				   @{$r{$_}[0]{condition}->headers || []} ],
                    conditions => $r{$_},
                }, sort keys %r;
 
@@ -468,7 +470,7 @@ package Devel::Cover::Report::Html_basic::Template::Provider;
 use strict;
 use warnings;
 
-our $VERSION = '1.09'; # VERSION
+our $VERSION = '1.10'; # VERSION
 
 use base "Template::Provider";
 
@@ -569,11 +571,11 @@ $Templates{summary} = <<'EOT';
         <td class="sv c3">[% R.c3 | html %]%</td>
     </tr>
 </table>
-<div><br></br></div>
+<div><br /></div>
 
 [% IF R.options.option.restrict %]
-<script language=javascript>
-
+<script type="text/javascript">
+<!-- hide
 function filter_files(filter_by) {
     var allelements = document.getElementsByTagName("tr");
     var re_now      = new RegExp(filter_by, "i");
@@ -589,13 +591,13 @@ function filter_files(filter_by) {
         }
     }
 }
-
+// -->
 </script>
 
-<form name=filterform
+<form name="filterform"
       action='javascript:filter_files(document.forms["filterform"]["filterfield"].value)'>
     Restrict to regex:
-    <input type=text name=filterfield><input type=submit>
+    <input type="text" name="filterfield" /><input type="submit" />
 </form>
 
 <br />
@@ -820,7 +822,7 @@ Devel::Cover::Report::Html_basic - HTML backend for Devel::Cover
 
 =head1 VERSION
 
-version 1.09
+version 1.10
 
 =head1 SYNOPSIS
 

@@ -12,7 +12,7 @@ use warnings;
 
 use Fcntl ":flock";
 
-our $VERSION = '1.09'; # VERSION
+our $VERSION = '1.10'; # VERSION
 
 my $Format;
 
@@ -74,7 +74,7 @@ Devel::Cover::DB::IO::JSON - JSON based IO routines for Devel::Cover::DB
 
 =head1 VERSION
 
-version 1.09
+version 1.10
 
 =head1 SYNOPSIS
 

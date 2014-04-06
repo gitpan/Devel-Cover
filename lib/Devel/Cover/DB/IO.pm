@@ -10,13 +10,14 @@ package Devel::Cover::DB::IO;
 use strict;
 use warnings;
 
-our $VERSION = '1.09'; # VERSION
+our $VERSION = '1.10'; # VERSION
 
 my $Format;
 
 BEGIN
 {
-    $Format = "JSON"     if              eval "use JSON; 1";
+    $Format = "Sereal"   if eval "use Sereal::Decoder; use Sereal::Encoder; 1";
+    $Format = "JSON"     if !$Format and eval "use JSON; 1";
     $Format = "JSON"     if !$Format and eval "use JSON::PP; 1";
     $Format = "Storable" if !$Format and eval "use Storable; 1";
     die "Can't load either JSON or Storable" unless $Format;
@@ -27,8 +28,9 @@ sub new
     my $class = shift;
 
     my $format = $ENV{DEVEL_COVER_DB_FORMAT} || $Format;
+    ($format) = $format =~ /(.*)/;  # die tainting
     die "Devel::Cover: Unrecognised DB format: $format"
-        unless $format =~ /^(?:Storable|JSON)$/;
+        unless $format =~ /^(?:Storable|JSON|Sereal)$/;
 
     $class .= "::$format";
     eval "use $class; 1" or die "Devel::Cover: $@";
@@ -46,7 +48,7 @@ Devel::Cover::DB::IO - IO routines for Devel::Cover::DB
 
 =head1 VERSION
 
-version 1.09
+version 1.10
 
 =head1 SYNOPSIS
 
