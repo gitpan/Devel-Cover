@@ -1,5 +1,9 @@
 Devel::Cover history
 
+Release 1.11 - 13 April 2014
+ - Tests should pass when all run in parallel (Kent Fredric) (github 69).
+ - Fix problems with using Sereal as DB format.
+
 Release 1.10 - 6 April 2014
  - Test against 5.19.10.
  - Add Sereal backend and use it if available.

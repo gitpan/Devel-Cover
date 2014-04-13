@@ -10,7 +10,7 @@ package Devel::Cover::Report::Sort;
 use strict;
 use warnings;
 
-our $VERSION = '1.10'; # VERSION
+our $VERSION = '1.11'; # VERSION
 
 use Devel::Cover::DB;
 
@@ -78,7 +78,7 @@ Devel::Cover::Report::Sort - backend for Devel::Cover
 
 =head1 VERSION
 
-version 1.10
+version 1.11
 
 =head1 SYNOPSIS
 

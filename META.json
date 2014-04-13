@@ -71,7 +71,7 @@
       },
       "x_mailing_list" : "http://lists.perl.org/list/perl-qa.html"
    },
-   "version" : "1.10",
+   "version" : "1.11",
    "x_Dist_Zilla" : {
       "perl" : {
          "version" : "5.018002"
