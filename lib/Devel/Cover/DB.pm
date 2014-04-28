@@ -10,7 +10,7 @@ package Devel::Cover::DB;
 use strict;
 use warnings;
 
-our $VERSION = '1.12'; # VERSION
+our $VERSION = '1.13'; # VERSION
 
 use Devel::Cover::Criterion;
 use Devel::Cover::DB::File;
@@ -433,7 +433,8 @@ sub print_summary
     {
         my ($part, $criterion) = @_;
         $options{$criterion} && exists $part->{$criterion}
-            ? sprintf "%4.1f", $part->{$criterion}{percentage}
+            ? do { my $x = sprintf "%5.2f", $part->{$criterion}{percentage};
+                   chop $x; $x }
             : "n/a"
     };
 
@@ -1015,7 +1016,7 @@ Devel::Cover::DB - Code coverage metrics for Perl
 
 =head1 VERSION
 
-version 1.12
+version 1.13
 
 =head1 SYNOPSIS
 

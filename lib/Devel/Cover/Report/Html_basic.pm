@@ -10,7 +10,7 @@ package Devel::Cover::Report::Html_basic;
 use strict;
 use warnings;
 
-our $VERSION = '1.12'; # VERSION
+our $VERSION = '1.13'; # VERSION
 our $LVERSION = do { eval '$VERSION' || "0.001" };  # for development purposes
 
 use Devel::Cover::DB;
@@ -68,7 +68,7 @@ sub get_summary
     $vals{class} = class($c->{percentage}, $c->{error}, $criterion);
 
     return \%vals unless defined $c->{percentage};
-    $vals{pc}       = sprintf "%4.1f", $c->{percentage};
+    $vals{pc} = do { my $x = sprintf "%5.2f", $c->{percentage}; chop $x; $x };
     $vals{covered}  = $c->{covered} || 0;
     $vals{total}    = $c->{total};
     $vals{details}  = "$vals{covered} / $vals{total}";
@@ -470,7 +470,7 @@ package Devel::Cover::Report::Html_basic::Template::Provider;
 use strict;
 use warnings;
 
-our $VERSION = '1.12'; # VERSION
+our $VERSION = '1.13'; # VERSION
 
 use base "Template::Provider";
 
@@ -822,7 +822,7 @@ Devel::Cover::Report::Html_basic - HTML backend for Devel::Cover
 
 =head1 VERSION
 
-version 1.12
+version 1.13
 
 =head1 SYNOPSIS
 

@@ -8,7 +8,7 @@ use Devel::Cover::DB;
 use Devel::Cover::Html_Common "launch";
 use Devel::Cover::Truth_Table;
 
-our $VERSION = '1.12'; # VERSION
+our $VERSION = '1.13'; # VERSION
 our $LVERSION = do { eval '$VERSION' || "0.001" };  # for development purposes
 
 #-------------------------------------------------------------------------------
@@ -42,9 +42,13 @@ sub get_summary_for_file {
     for my $c (@$show) {
         if (exists $data->{$c}) {
             $summary{$c} = {
-                percent => sprintf("%4.1f", $data->{$c}{percentage}),
-                ratio   => sprintf("%d / %d",
-                    $data->{$c}{covered} || 0, $data->{$c}{total} || 0),
+                percent => do {
+                    my $x = sprintf "%5.2f", $data->{$c}{percentage};
+                    chop $x;
+                    $x
+                },
+                ratio   => sprintf("%d / %d", $data->{$c}{covered} || 0,
+                                              $data->{$c}{total} || 0),
                 error   => $data->{$c}{error},
             };
         }
@@ -759,7 +763,7 @@ Devel::Cover::Report::Html_minimal - HTML backend for Devel::Cover
 
 =head1 VERSION
 
-version 1.12
+version 1.13
 
 =head1 SYNOPSIS
 

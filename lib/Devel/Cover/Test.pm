@@ -10,7 +10,7 @@ package Devel::Cover::Test;
 use strict;
 use warnings;
 
-our $VERSION = '1.12'; # VERSION
+our $VERSION = '1.13'; # VERSION
 
 use Carp;
 
@@ -392,7 +392,7 @@ Devel::Cover::Test - Internal module for testing
 
 =head1 VERSION
 
-version 1.12
+version 1.13
 
 =head1 METHODS
 

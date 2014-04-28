@@ -190,7 +190,7 @@ test_output/cover/overload_bool.5.006001
 test_output/cover/overload_bool.5.008
 test_output/cover/overload_bool2.5.006001
 test_output/cover/overload_bool2.5.008
-test_output/cover/overload_bool2.5.008006
+test_output/cover/overload_bool2.5.010000
 test_output/cover/overloaded.5.006001
 test_output/cover/overloaded.5.008
 test_output/cover/padrange.5.006001
@@ -229,6 +229,8 @@ test_output/cover/taint.5.006001
 test_output/cover/taint.5.008
 test_output/cover/trivial.5.006001
 test_output/cover/uncoverable.5.006001
+test_output/cover/v-58x.5.006001
+test_output/cover/v-58x.5.008
 test_output/cover/xor_constant_fold.5.006001
 tests/.uncoverable
 tests/Accessor_maker.pm
@@ -313,6 +315,7 @@ tests/t2
 tests/taint
 tests/trivial
 tests/uncoverable
+tests/v-58x
 tests/xor_constant_fold
 utils/Devel/Cover/BuildUtils.pm
 utils/all_versions

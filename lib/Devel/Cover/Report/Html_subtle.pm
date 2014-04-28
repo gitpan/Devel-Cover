@@ -2,7 +2,7 @@ package Devel::Cover::Report::Html_subtle;
 use strict;
 use warnings;
 
-our $VERSION = '1.12'; # VERSION
+our $VERSION = '1.13'; # VERSION
 
 use Devel::Cover::DB;
 use Devel::Cover::Html_Common "launch";
@@ -77,7 +77,8 @@ sub print_summary {
         my $part = $db->{summary}{$file};
         for my $criterion (@showing) {
             my $pc = exists $part->{$criterion}
-            ? sprintf "%4.1f", $part->{$criterion}{percentage}
+            ? do { my $x = sprintf "%5.2f", $part->{$criterion}{percentage};
+                   chop $x; $x }
             : "n/a";
 
             if ($pc ne 'n/a') {
@@ -399,7 +400,7 @@ package Devel::Cover::Report::Html_subtle::Template::Provider;
 use strict;
 use warnings;
 
-our $VERSION = '1.12'; # VERSION
+our $VERSION = '1.13'; # VERSION
 
 use base "Template::Provider";
 
@@ -718,7 +719,7 @@ Devel::Cover::Report::Html_subtle - HTML backend for Devel::Cover
 
 =head1 VERSION
 
-version 1.12
+version 1.13
 
 =head1 SYNOPSIS
 
