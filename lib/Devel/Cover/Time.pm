@@ -10,7 +10,7 @@ package Devel::Cover::Time;
 use strict;
 use warnings;
 
-our $VERSION = '1.13'; # VERSION
+our $VERSION = '1.14'; # VERSION
 
 use base "Devel::Cover::Criterion";
 
@@ -20,8 +20,7 @@ sub total       { 1 }
 sub percentage  { ${$_[0]} ? 100 : 0 }
 sub error       { 0 }
 
-sub calculate_summary
-{
+sub calculate_summary {
     my $self = shift;
     my ($db, $file) = @_;
 
@@ -29,8 +28,7 @@ sub calculate_summary
     $db->{summary}{Total}{time}{total} += $$self;
 }
 
-sub calculate_percentage
-{
+sub calculate_percentage {
     my $class = shift;
     my ($db, $s) = @_;
     my $t = $db->{summary}{Total}{time}{total};
@@ -47,7 +45,7 @@ Devel::Cover::Time - Code coverage metrics for Perl
 
 =head1 VERSION
 
-version 1.13
+version 1.14
 
 =head1 SYNOPSIS
 

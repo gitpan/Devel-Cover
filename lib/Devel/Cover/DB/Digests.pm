@@ -10,18 +10,16 @@ package Devel::Cover::DB::Digests;
 use strict;
 use warnings;
 
-our $VERSION = '1.13'; # VERSION
+our $VERSION = '1.14'; # VERSION
 
 use Devel::Cover::DB::Structure;
 use Devel::Cover::DB::IO;
 
 my $File = "digests";
 
-sub new
-{
+sub new {
     my $class = shift;
-    my $self  =
-    {
+    my $self  = {
         digests => {},
         @_
     };
@@ -34,54 +32,45 @@ sub new
     $self
 }
 
-sub read
-{
+sub read {
     my $self = shift;
     my $io = Devel::Cover::DB::IO->new;
     $self->{digests} = $io->read($self->{file}) if -e $self->{file};
     $self
 }
 
-sub write
-{
+sub write {
     my $self = shift;
     my $io = Devel::Cover::DB::IO->new;
     $io->write($self->{digests}, $self->{file});
     $self
 }
 
-sub get
-{
+sub get {
     my $self = shift;
     my ($digest) = @_;
     $self->{digests}{$digest}
 }
 
-sub set
-{
+sub set {
     my $self = shift;
     my ($file, $digest) = @_;
     $self->{digests}{$digest} = $file;
 }
 
-sub canonical_file
-{
+sub canonical_file {
     my $self = shift;
     my ($file) = @_;
 
     my $cfile = $file;
     my $digest = Devel::Cover::DB::Structure->digest($file);
-    if ($digest)
-    {
+    if ($digest) {
         my $dfile = $self->get($digest);
-        if ($dfile && $dfile ne $file)
-        {
+        if ($dfile && $dfile ne $file) {
             print STDERR "Devel::Cover: Adding coverage for $file to $dfile\n"
                 unless $Devel::Cover::Silent;
             $cfile = $dfile;
-        }
-        else
-        {
+        } else {
             $self->set($file, $digest);
         }
     }
@@ -101,7 +90,7 @@ Devel::Cover::DB::Digests - store digests for Devel::Cover::DB
 
 =head1 VERSION
 
-version 1.13
+version 1.14
 
 =head1 SYNOPSIS
 

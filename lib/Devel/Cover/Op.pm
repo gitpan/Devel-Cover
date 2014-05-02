@@ -12,7 +12,7 @@ require 5.8.0;  # My patches to B::Concise didn't get released till 5.8.0.
 use strict;
 use warnings;
 
-our $VERSION = '1.13'; # VERSION
+our $VERSION = '1.14'; # VERSION
 
 use Devel::Cover::Dumper;
 
@@ -42,43 +42,34 @@ my %style =
 
 my @Options;
 
-sub import
-{
+sub import {
     my $class = shift;
     set_style(@{$style{concise}});
-    for (@_)
-    {
+    for (@_) {
         /-(.*)/ && exists $style{$1}
             ? set_style(@{$style{$1}})
             : push @Options, $_;
     }
 
     my $final = 1;
-    add_callback
-    (
-        sub
-        {
-            my ($h, $op, $format, $level) = @_;
-            my $key = Devel::Cover::get_key($op);
-            # print Dumper Devel::Cover::coverage unless $d++;
-            if ($h->{seq})
-            {
-                my ($s, $b, $c) =
-                  map Devel::Cover::coverage($final ? $final-- : 0)->{$_}{$key},
-                      qw(statement branch condition);
-                local $" = ",";
-                no warnings "uninitialized";
-                $h->{cover} = $s ? "s[$s]"  :
-                              $b ? "b[@$b]" :
-                              $c ? "c[@$c]" :
-                              "";
-            }
-            else
-            {
-                $h->{cover} = "";
-            }
+    add_callback(sub {
+        my ($h, $op, $format, $level) = @_;
+        my $key = Devel::Cover::get_key($op);
+        # print Dumper Devel::Cover::coverage unless $d++;
+        if ($h->{seq}) {
+            my ($s, $b, $c) =
+              map Devel::Cover::coverage($final ? $final-- : 0)->{$_}{$key},
+                  qw(statement branch condition);
+            local $" = ",";
+            no warnings "uninitialized";
+            $h->{cover} = $s ? "s[$s]"  :
+                          $b ? "b[@$b]" :
+                          $c ? "c[@$c]" :
+                          "";
+        } else {
+            $h->{cover} = "";
         }
-    );
+    });
 }
 
 END { B::Concise::compile(@Options)->() }
@@ -93,7 +84,7 @@ Devel::Cover::Op - B::Concise with coverage data
 
 =head1 VERSION
 
-version 1.13
+version 1.14
 
 =head1 SYNOPSIS
 

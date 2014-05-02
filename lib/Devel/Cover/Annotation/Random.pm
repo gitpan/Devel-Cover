@@ -10,18 +10,16 @@ package Devel::Cover::Annotation::Random;
 use strict;
 use warnings;
 
-our $VERSION = '1.13'; # VERSION
+our $VERSION = '1.14'; # VERSION
 
 use Getopt::Long;
 
-sub new
-{
+sub new {
     my $class = shift;
     bless {@_}, $class
 }
 
-sub get_options
-{
+sub get_options {
     my ($self, $opt) = @_;
     $self->{count} = 1;
     die "Bad option" unless
@@ -31,28 +29,24 @@ sub get_options
                      ));
 }
 
-sub count
-{
+sub count {
     my $self = shift;
     $self->{count}
 }
 
-sub header
-{
+sub header {
     my $self = shift;
     my ($annotation) = @_;
     "rnd$annotation"
 }
 
-sub width
-{
+sub width {
     my $self = shift;
     my ($annotation) = @_;
     length $self->header($annotation)
 }
 
-sub text
-{
+sub text {
     my $self = shift;
     my ($file, $line, $annotation) = @_;
     return "" unless $line;
@@ -61,15 +55,13 @@ sub text
     $self->{annotation}{$file}[$line][$annotation]
 }
 
-sub error
-{
+sub error {
     my $self = shift;
     my ($file, $line, $annotation) = @_;
     !$self->text($file, $line, $annotation)
 }
 
-sub class
-{
+sub class {
     my $self = shift;
     my ($file, $line, $annotation) = @_;
     return "" unless $line;
@@ -86,7 +78,7 @@ Devel::Cover::Annotation::Random - Example annotation for formatters
 
 =head1 VERSION
 
-version 1.13
+version 1.14
 
 =head1 SYNOPSIS
 

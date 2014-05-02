@@ -14,20 +14,18 @@ use Fcntl ":flock";
 use Sereal::Decoder;
 use Sereal::Encoder;
 
-our $VERSION = '1.13'; # VERSION
+our $VERSION = '1.14'; # VERSION
 
 my $Decoder;
 my $Encoder;
 
-sub new
-{
+sub new {
     my $class = shift;
     my $self  = { @_ };
     bless $self, $class
 }
 
-sub read
-{
+sub read {
     my $self   = shift;
     my ($file) = @_;
 
@@ -44,8 +42,7 @@ sub read
     $data
 }
 
-sub write
-{
+sub write {
     my $self = shift;
     my ($data, $file) = @_;
 
@@ -67,7 +64,7 @@ Devel::Cover::DB::IO::Sereal - Sereal based IO routines for Devel::Cover::DB
 
 =head1 VERSION
 
-version 1.13
+version 1.14
 
 =head1 SYNOPSIS
 

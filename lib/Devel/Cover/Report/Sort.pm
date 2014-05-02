@@ -10,18 +10,16 @@ package Devel::Cover::Report::Sort;
 use strict;
 use warnings;
 
-our $VERSION = '1.13'; # VERSION
+our $VERSION = '1.14'; # VERSION
 
 use Devel::Cover::DB;
 
-sub print_sort
-{
+sub print_sort {
     my ($db, $options) = @_;
     my %runs;
     my @collected = grep $_ ne "time", @{$options->{coverage}};
     # use Devel::Cover::Dumper; print Dumper [$db->runs];
-    for my $r (sort {$a->{start} <=> $b->{start}} $db->runs)
-    {
+    for my $r (sort {$a->{start} <=> $b->{start}} $db->runs) {
         print "Run:          ", $r->run,  "\n";
         print "Perl version: ", $r->perl, "\n";
         print "OS:           ", $r->OS,   "\n";
@@ -33,21 +31,17 @@ sub print_sort
         my $run = $runs{$r->run};
         # use Devel::Cover::Dumper; print Dumper $run;
         my $vec = $r->vec;
-        for my $file (@{$options->{file}})
-        {
+        for my $file (@{$options->{file}}) {
             # print "$file\n";
-            for my $criterion (@collected)
-            {
+            for my $criterion (@collected) {
                 my ($v, $sz) = @{$vec->{$file}{$criterion}}{"vec", "size"};
                 $sz |= 0;
                 printf "$file:%10s %5d: ", $criterion, $sz;
-                unless($sz)
-                {
+                unless($sz) {
                     print "\n";
                     next;
                 }
-                for (0 .. $sz - 1)
-                {
+                for (0 .. $sz - 1) {
                     print vec $v, $_, 1;
                     vec($run->{vec}, $run->{size}++, 1) = vec $v, $_, 1;
                 }
@@ -62,8 +56,7 @@ sub print_sort
     }
 }
 
-sub report
-{
+sub report {
     my ($pkg, $db, $options) = @_;
     print_sort($db, $options);
 }
@@ -78,7 +71,7 @@ Devel::Cover::Report::Sort - backend for Devel::Cover
 
 =head1 VERSION
 
-version 1.13
+version 1.14
 
 =head1 SYNOPSIS
 

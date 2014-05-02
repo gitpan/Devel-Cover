@@ -10,7 +10,7 @@ package Devel::Cover::Test;
 use strict;
 use warnings;
 
-our $VERSION = '1.13'; # VERSION
+our $VERSION = '1.14'; # VERSION
 
 use Carp;
 
@@ -43,6 +43,7 @@ sub new {
         debug            => $ENV{DEVEL_COVER_DEBUG} || 0,
         differences      => $differences,
         no_coverage      => $ENV{DEVEL_COVER_NO_COVERAGE} || 0,
+        delay_after_run  => 0,
         %params
     }, $class;
 
@@ -184,6 +185,11 @@ sub run_command {
         print STDERR if $self->{debug};
     }
     close T or die "Cannot close $command: $!";
+
+    if ($self->{delay_after_run}) {
+        eval { select undef, undef, undef, $self->{delay_after_run}; 1 } or
+            sleep int $self->{delay_after_run} + 1;
+    }
 
     1
 }
@@ -392,7 +398,7 @@ Devel::Cover::Test - Internal module for testing
 
 =head1 VERSION
 
-version 1.13
+version 1.14
 
 =head1 METHODS
 

@@ -12,28 +12,23 @@ use warnings;
 
 use Storable;
 
-our $VERSION = '1.13'; # VERSION
+our $VERSION = '1.14'; # VERSION
 
-sub new
-{
+sub new {
     my $class = shift;
     my $self  = { @_ };
     bless $self, $class
 }
 
-sub read
-{
+sub read {
     my $self   = shift;
     my ($file) = @_;
-
     Storable::lock_retrieve($file)
 }
 
-sub write
-{
+sub write {
     my $self = shift;
     my ($data, $file) = @_;
-
     Storable::lock_nstore($data, $file);
     $self
 }
@@ -48,7 +43,7 @@ Devel::Cover::DB::IO::Storable - Storable based IO routines for Devel::Cover::DB
 
 =head1 VERSION
 
-version 1.13
+version 1.14
 
 =head1 SYNOPSIS
 

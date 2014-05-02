@@ -12,26 +12,23 @@ use warnings;
 
 use Fcntl ":flock";
 
-our $VERSION = '1.13'; # VERSION
+our $VERSION = '1.14'; # VERSION
 
 my $Format;
 
-BEGIN
-{
+BEGIN {
     $Format = "JSON"     if              eval "use JSON; 1";
     $Format = "JSON::PP" if !$Format and eval "use JSON::PP; 1";
     die "Can't load either JSON or JSON::PP" unless $Format;
 }
 
-sub new
-{
+sub new {
     my $class = shift;
     my $self  = { @_ };
     bless $self, $class
 }
 
-sub read
-{
+sub read {
     my $self   = shift;
     my ($file) = @_;
 
@@ -49,8 +46,7 @@ sub read
     $data
 }
 
-sub write
-{
+sub write {
     my $self = shift;
     my ($data, $file) = @_;
 
@@ -74,7 +70,7 @@ Devel::Cover::DB::IO::JSON - JSON based IO routines for Devel::Cover::DB
 
 =head1 VERSION
 
-version 1.13
+version 1.14
 
 =head1 SYNOPSIS
 

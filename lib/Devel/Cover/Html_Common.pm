@@ -3,7 +3,7 @@ BEGIN {require 5.006}
 use strict;
 use warnings;
 
-our $VERSION = '1.13'; # VERSION
+our $VERSION = '1.14'; # VERSION
 
 use Exporter;
 
@@ -16,8 +16,7 @@ sub launch {
     my $outfile = "$opt->{outputdir}/$opt->{option}{outputfile}";
     if (eval { require Browser::Open }) {
         Browser::Open::open_browser($outfile);
-    }
-    else {
+    } else {
         print STDERR "Devel::Cover: -launch requires Browser::Open\n";
     }
 }
@@ -30,7 +29,7 @@ Devel::Cover::Report::Html_Common - Common code for HTML reporters
 
 =head1 VERSION
 
-version 1.13
+version 1.14
 
 =head1 DESCRIPTION
 
@@ -52,4 +51,5 @@ function to enable the -launch flag for that report type.
 Devel::Cover
 
 =cut
+
 1;
