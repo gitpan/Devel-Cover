@@ -8,7 +8,7 @@ build_requires:
 configure_requires:
   ExtUtils::MakeMaker: '0'
 dynamic_config: 0
-generated_by: 'Dist::Zilla version 5.013, CPAN::Meta::Converter version 2.140640'
+generated_by: 'Dist::Zilla version 5.019, CPAN::Meta::Converter version 2.140640'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -21,7 +21,10 @@ no_index:
     - utils
 recommends:
   Browser::Open: '0'
+  Capture::Tiny: '0'
+  Class::XSAccessor: '0'
   JSON::PP: '0'
+  Moo: '0'
   PPI::HTML: '1.07'
   Parallel::Iterator: '0'
   Perl::Tidy: '20060719'
@@ -29,6 +32,7 @@ recommends:
   Pod::Coverage::CountParents: '0'
   Template: '2.00'
   Test::Differences: '0'
+  namespace::clean: '0'
   perl: '5.008002'
 requires:
   Digest::MD5: '0'
@@ -40,10 +44,10 @@ resources:
   homepage: http://www.pjcj.net/perl.html
   license: http://dev.perl.org/licenses
   repository: http://github.com/pjcj/Devel--Cover
-version: '1.14'
+version: '1.15'
 x_Dist_Zilla:
   perl:
-    version: '5.018002'
+    version: '5.020000'
   plugins:
     -
       class: Dist::Zilla::Plugin::VersionFromScript
@@ -56,15 +60,15 @@ x_Dist_Zilla:
     -
       class: Dist::Zilla::Plugin::GatherDir
       name: GatherDir
-      version: '5.013'
+      version: '5.019'
     -
       class: Dist::Zilla::Plugin::ManifestSkip
       name: ManifestSkip
-      version: '5.013'
+      version: '5.019'
     -
       class: Dist::Zilla::Plugin::ExecDir
       name: ExecDir
-      version: '5.013'
+      version: '5.019'
     -
       class: Dist::Zilla::Plugin::OurPkgVersion
       name: OurPkgVersion
@@ -72,31 +76,31 @@ x_Dist_Zilla:
     -
       class: Dist::Zilla::Plugin::PodVersion
       name: PodVersion
-      version: '5.013'
+      version: '5.019'
     -
       class: Dist::Zilla::Plugin::MetaYAML
       name: MetaYAML
-      version: '5.013'
+      version: '5.019'
     -
       class: Dist::Zilla::Plugin::MetaJSON
       name: MetaJSON
-      version: '5.013'
+      version: '5.019'
     -
       class: Dist::Zilla::Plugin::MetaConfig
       name: MetaConfig
-      version: '5.013'
+      version: '5.019'
     -
       class: Dist::Zilla::Plugin::MetaResources
       name: MetaResources
-      version: '5.013'
+      version: '5.019'
     -
       class: Dist::Zilla::Plugin::MetaNoIndex
       name: MetaNoIndex
-      version: '5.013'
+      version: '5.019'
     -
       class: Dist::Zilla::Plugin::Manifest
       name: Manifest
-      version: '5.013'
+      version: '5.019'
     -
       class: Dist::Zilla::Plugin::Prereqs
       config:
@@ -104,7 +108,7 @@ x_Dist_Zilla:
           phase: runtime
           type: requires
       name: Prereqs
-      version: '5.013'
+      version: '5.019'
     -
       class: Dist::Zilla::Plugin::Prereqs
       config:
@@ -112,7 +116,7 @@ x_Dist_Zilla:
           phase: runtime
           type: recommends
       name: Recommends
-      version: '5.013'
+      version: '5.019'
     -
       class: Dist::Zilla::Plugin::Prereqs
       config:
@@ -120,7 +124,7 @@ x_Dist_Zilla:
           phase: configure
           type: requires
       name: ConfigureRequires
-      version: '5.013'
+      version: '5.019'
     -
       class: Dist::Zilla::Plugin::Prereqs
       config:
@@ -128,7 +132,7 @@ x_Dist_Zilla:
           phase: test
           type: requires
       name: TestRequires
-      version: '5.013'
+      version: '5.019'
     -
       class: Dist::Zilla::Plugin::Prereqs
       config:
@@ -136,73 +140,110 @@ x_Dist_Zilla:
           phase: test
           type: recommends
       name: TestRecommends
-      version: '5.013'
+      version: '5.019'
     -
       class: Dist::Zilla::Plugin::Run::Test
+      config:
+        Dist::Zilla::Role::TestRunner:
+          default_jobs: 1
       name: Run::Test
       version: '0.021'
     -
       class: Dist::Zilla::Plugin::Git::Check
+      config:
+        Dist::Zilla::Plugin::Git::Check:
+          untracked_files: die
+        Dist::Zilla::Role::Git::DirtyFiles:
+          allow_dirty:
+            - dist.ini
+            - Changes
+          allow_dirty_match: []
+          changelog: Changes
+        Dist::Zilla::Role::Git::Repo:
+          repo_root: .
       name: Git::Check
-      version: '2.020'
+      version: '2.022'
     -
       class: Dist::Zilla::Plugin::NextRelease
       name: NextRelease
-      version: '5.013'
+      version: '5.019'
     -
       class: Dist::Zilla::Plugin::Git::Commit
+      config:
+        Dist::Zilla::Plugin::Git::Commit:
+          add_files_in: []
+          commit_msg: v%v%n%n%c
+          time_zone: local
+        Dist::Zilla::Role::Git::DirtyFiles:
+          allow_dirty:
+            - dist.ini
+            - Changes
+          allow_dirty_match: []
+          changelog: Changes
+        Dist::Zilla::Role::Git::Repo:
+          repo_root: .
       name: Git::Commit
-      version: '2.020'
+      version: '2.022'
     -
       class: Dist::Zilla::Plugin::Git::Tag
+      config:
+        Dist::Zilla::Plugin::Git::Tag:
+          branch: ~
+          signed: 0
+          tag: v1.15
+          tag_format: v%v
+          tag_message: v%v
+          time_zone: local
+        Dist::Zilla::Role::Git::Repo:
+          repo_root: .
       name: Git::Tag
-      version: '2.020'
+      version: '2.022'
     -
       class: Dist::Zilla::Plugin::TestRelease
       name: TestRelease
-      version: '5.013'
+      version: '5.019'
     -
       class: Dist::Zilla::Plugin::ConfirmRelease
       name: ConfirmRelease
-      version: '5.013'
+      version: '5.019'
     -
       class: Dist::Zilla::Plugin::UploadToCPAN
       name: UploadToCPAN
-      version: '5.013'
+      version: '5.019'
     -
       class: Dist::Zilla::Plugin::FinderCode
       name: ':InstallModules'
-      version: '5.013'
+      version: '5.019'
     -
       class: Dist::Zilla::Plugin::FinderCode
       name: ':IncModules'
-      version: '5.013'
+      version: '5.019'
     -
       class: Dist::Zilla::Plugin::FinderCode
       name: ':TestFiles'
-      version: '5.013'
+      version: '5.019'
     -
       class: Dist::Zilla::Plugin::FinderCode
       name: ':ExecFiles'
-      version: '5.013'
+      version: '5.019'
     -
       class: Dist::Zilla::Plugin::FinderCode
       name: ':ShareFiles'
-      version: '5.013'
+      version: '5.019'
     -
       class: Dist::Zilla::Plugin::FinderCode
       name: ':MainModule'
-      version: '5.013'
+      version: '5.019'
     -
       class: Dist::Zilla::Plugin::FinderCode
       name: ':AllFiles'
-      version: '5.013'
+      version: '5.019'
     -
       class: Dist::Zilla::Plugin::FinderCode
       name: ':NoFiles'
-      version: '5.013'
+      version: '5.019'
   zilla:
     class: Dist::Zilla::Dist::Builder
     config:
       is_trial: '0'
-    version: '5.013'
+    version: '5.019'

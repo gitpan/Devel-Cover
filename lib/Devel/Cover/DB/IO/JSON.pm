@@ -12,7 +12,7 @@ use warnings;
 
 use Fcntl ":flock";
 
-our $VERSION = '1.14'; # VERSION
+our $VERSION = '1.15'; # VERSION
 
 my $Format;
 
@@ -24,7 +24,7 @@ BEGIN {
 
 sub new {
     my $class = shift;
-    my $self  = { @_ };
+    my $self  = { options => "", @_ };
     bless $self, $class
 }
 
@@ -70,7 +70,7 @@ Devel::Cover::DB::IO::JSON - JSON based IO routines for Devel::Cover::DB
 
 =head1 VERSION
 
-version 1.14
+version 1.15
 
 =head1 SYNOPSIS
 

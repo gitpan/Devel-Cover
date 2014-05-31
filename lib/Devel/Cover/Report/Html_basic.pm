@@ -10,7 +10,7 @@ package Devel::Cover::Report::Html_basic;
 use strict;
 use warnings;
 
-our $VERSION = '1.14'; # VERSION
+our $VERSION = '1.15'; # VERSION
 our $LVERSION = do { eval '$VERSION' || "0.001" };  # for development purposes
 
 use Devel::Cover::DB;
@@ -371,7 +371,11 @@ sub report {
     my $le = sub { ($_[0] >   0 ? "<" : "=") . " $_[0]" };
     my $ge = sub { ($_[0] < 100 ? ">" : "") . "= $_[0]" };
 
+    my $fname = (sort keys %{$db->{runs}})[0] or return;
+    my $run   = $db->{runs}{$fname};
+
     %R = (
+        module  => { name => $run->name, version => $run->version },
         db      => $db,
         date    => do {
             my ($sec, $min, $hour, $mday, $mon, $year) = localtime;
@@ -428,7 +432,7 @@ package Devel::Cover::Report::Html_basic::Template::Provider;
 use strict;
 use warnings;
 
-our $VERSION = '1.14'; # VERSION
+our $VERSION = '1.15'; # VERSION
 
 use base "Template::Provider";
 
@@ -504,6 +508,14 @@ $Templates{summary} = <<'EOT';
 
 <h1> Coverage Summary </h1>
 <table>
+    <tr>
+        <td class="sh" align="right">Module</td>
+        <td class="sv" align="left" colspan="4">[% R.module.name %]</td>
+    </tr>
+    <tr>
+        <td class="sh" align="right">Version</td>
+        <td class="sv" align="left" colspan="4">[% R.module.version %]</td>
+    </tr>
     <tr>
         <td class="sh" align="right">Database:</td>
         <td class="sv" align="left" colspan="4">[% R.db.db %]</td>
@@ -779,7 +791,7 @@ Devel::Cover::Report::Html_basic - HTML backend for Devel::Cover
 
 =head1 VERSION
 
-version 1.14
+version 1.15
 
 =head1 SYNOPSIS
 

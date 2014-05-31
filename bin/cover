@@ -12,7 +12,7 @@ require 5.6.1;
 use strict;
 use warnings;
 
-our $VERSION = '1.14'; # VERSION
+our $VERSION = '1.15'; # VERSION
 
 use Devel::Cover::DB;
 
@@ -85,15 +85,27 @@ sub get_options {
     $Options->{report} ||= "html" unless exists $Options->{write};
 
     # handle comma seperated ops, like -coverage branch,statement
-    @{$Options->{coverage}} = split(/,/, join(",", @{$Options->{coverage}}));
 
     # also accept them in the same format they're output
     my %coverage_abbrev = (
-        stmt => 'statement',
-        bran => 'branch',
-        cond => 'condition',
-        sub  => 'subroutine',
+        stmt => "statement",
+        bran => "branch",
+        cond => "condition",
+        sub  => "subroutine",
     );
+
+    my %coverage_allowed = map {$_ => 1} values %coverage_abbrev, "time", "pod";
+
+    # expanding 'default' to all available
+    @{$Options->{coverage}} = map {
+        $_ eq "default" ? (keys %coverage_allowed) : $_
+    } split(/,/, join(",", @{$Options->{coverage}}));
+
+    # delete exclusions from that list
+    for my $exclusion (grep /^-/, @{$Options->{coverage}}) {
+        $exclusion = substr($exclusion, 1);  # chop off leading -
+        $Options->{coverage} = [grep $_ ne $exclusion, @{$Options->{coverage}}];
+    }
 
     my %options_coverage = map {$_ => 1} @{$Options->{coverage}};
     while (my ($abbr, $full) = each %coverage_abbrev) {
@@ -104,7 +116,6 @@ sub get_options {
     @{$Options->{coverage}} = keys %options_coverage;
 
     # generating data may take time, so bail now if options are wrong
-    my %coverage_allowed = map {$_ => 1} values %coverage_abbrev, "time", "pod";
     for my $cov (@{$Options->{coverage}}) {
         die "Unrecognised -coverage: $cov" unless $coverage_allowed{$cov};
     }
@@ -142,7 +153,7 @@ sub mm_test_command {
 
 # Test command for Module::Build
 sub mb_test_command {
-    my $test = './Build test';
+    my $test = "./Build test";
     if ($Options->{gcov}) {
         my $o = gcov_args();
         $test .= qq{ "--extra_compiler_flags=-O0 $o" "--extra_linker_flags=$o"};
@@ -406,7 +417,7 @@ cover - report coverage statistics
 
 =head1 VERSION
 
-version 1.14
+version 1.15
 
 =head1 SYNOPSIS
 
@@ -488,7 +499,7 @@ via -report_c0 <integer>, -report_c1 <integer> and -report_c2 <integer>.:
 
 HTML reporting with syntax highlighting if L<PPI::HTML> or L<Perl::Tidy>
 module is detected. Like html|html_minimal reporting, percentage thresholds
-are color-coded and configurable.
+are colour-coded and configurable.
 
 =item text
 
@@ -516,16 +527,20 @@ default.
 
 Specify the -select, -select_re, -ignore, and -ignore_re options to report
 on specific files.  -select and -ignore are interpreted as shell globs;
--select_re and -ignore_re are interpeted as regular expressions.
+-select_re and -ignore_re are interpreted as regular expressions.
 
 Specify -coverage options to report on specific criteria.  By default all
 available information on all criteria in all files will be reported.
-Available coverage options are statement, branch, condition, subroutine, and
-pod.  However, if you know you only want coverage information for certain
-criteria it is better to only collect data for those criteria in the first
-place by specifying them at that point.  This will make the data collection
-and reporting processes faster and less memory intensive.  See the
-documentation for L<Devel::Cover> for more information.
+Available coverage options are statement, branch, condition, subroutine, pod,
+and default (which equates to all available options).  However, if you know
+you only want coverage information for certain criteria it is better to only
+collect data for those criteria in the first place by specifying them at that
+point.  This will make the data collection and reporting processes faster and
+less memory intensive.  See the documentation for L<Devel::Cover> for more
+information.
+
+If you want all *except* some criteria, then you can say something like
+'-coverage default,-pod'.
 
 The -test option will delete the databases and run your tests to generate
 new coverage data before reporting on it.  L<Devel::Cover> knows how to work

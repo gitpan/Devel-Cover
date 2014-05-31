@@ -10,7 +10,7 @@ package Devel::Cover;
 use strict;
 use warnings;
 
-our $VERSION = '1.14'; # VERSION
+our $VERSION = '1.15'; # VERSION
 our $LVERSION = do { eval '$VERSION' || "0.001" };  # for development purposes
 
 use DynaLoader ();
@@ -236,11 +236,7 @@ EOM
               "Ignoring packages in:",        join("\n    ", "", @Inc),    "\n"
             unless $Silent;
 
-        $Run{OS}    = $^O;
-        $Run{perl}  = $] < 5.010 ? join ".", map ord, split //, $^V
-                                 : sprintf "%vd", $^V;
-        $Run{run}   = $0;
-        $Run{start} = get_elapsed() / 1e6;
+        populate_run();
     }
 
     no warnings "void";  # avoid "Too late to run CHECK block" warning
@@ -386,7 +382,34 @@ sub import {
     }
 }
 
-sub cover_names_to_val {
+sub populate_run {
+    my $self = shift;
+
+    $Run{OS}   = $^O;
+    $Run{perl} = $] < 5.010 ? join ".", map ord, split //, $^V
+                            : sprintf "%vd", $^V;
+    $Run{dir}  = $Dir;
+    $Run{run}  = $0;
+
+    my $version;
+    my $mymeta = "$Dir/MYMETA.json";
+    if (-e $mymeta) {
+        eval {
+            require Devel::Cover::DB::IO::JSON;
+            my $io   = Devel::Cover::DB::IO::JSON->new;
+            my $json = $io->read($mymeta);
+            $Run{$_} = $json->{$_} for qw( name version abstract );
+        }
+    } elsif ($Dir =~ m|.*/([^/]+?)(\d+\.\d+)(?:-\w{6})$|) {
+        $Run{name}    = $1;
+        $Run{version} = $2;
+    }
+
+    $Run{start} = get_elapsed() / 1e6;
+}
+
+sub cover_names_to_val
+{
     my $val = 0;
     for my $c (@_) {
         if (exists $Criteria{$c}) {
@@ -1195,7 +1218,7 @@ Devel::Cover - Code coverage metrics for Perl
 
 =head1 VERSION
 
-version 1.14
+version 1.15
 
 =head1 SYNOPSIS
 
@@ -1648,6 +1671,9 @@ Modules used by Devel::Cover while gathering coverage:
 If you redefine a subroutine you may find that the original subroutine is not
 reported on.  This is because I haven't yet found a way to locate the original
 CV.  Hints, tips or patches to resolve this will be gladly accepted.
+
+The module Test::TestCoverage uses this technique and so should not be used in
+conjunction with Devel::Cover.
 
 =head1 BUGS
 

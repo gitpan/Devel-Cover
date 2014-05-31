@@ -10,7 +10,7 @@ package Devel::Cover::DB::File;
 use strict;
 use warnings;
 
-our $VERSION = '1.14'; # VERSION
+our $VERSION = '1.15'; # VERSION
 
 use Devel::Cover::Criterion;
 
@@ -59,7 +59,7 @@ Devel::Cover::DB::File - Code coverage metrics for Perl
 
 =head1 VERSION
 
-version 1.14
+version 1.15
 
 =head1 SYNOPSIS
 
