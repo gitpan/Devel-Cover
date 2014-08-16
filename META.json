@@ -75,7 +75,7 @@
       },
       "x_mailing_list" : "http://lists.perl.org/list/perl-qa.html"
    },
-   "version" : "1.15",
+   "version" : "1.16",
    "x_Dist_Zilla" : {
       "perl" : {
          "version" : "5.020000"
@@ -266,7 +266,7 @@
                "Dist::Zilla::Plugin::Git::Tag" : {
                   "branch" : null,
                   "signed" : 0,
-                  "tag" : "v1.15",
+                  "tag" : "v1.16",
                   "tag_format" : "v%v",
                   "tag_message" : "v%v",
                   "time_zone" : "local"

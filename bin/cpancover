@@ -10,7 +10,7 @@
 use 5.16.0;
 use warnings;
 
-our $VERSION = '1.15'; # VERSION
+our $VERSION = '1.16'; # VERSION
 
 use Devel::Cover::Collection;
 
@@ -143,7 +143,7 @@ cpancover - report coverage statistics on CPAN modules
 
 =head1 VERSION
 
-version 1.15
+version 1.16
 
 =head1 SYNOPSIS
 

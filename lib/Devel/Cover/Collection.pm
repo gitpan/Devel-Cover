@@ -10,7 +10,7 @@ package Devel::Cover::Collection;
 use 5.16.0;
 use warnings;
 
-our $VERSION = '1.15'; # VERSION
+our $VERSION = '1.16'; # VERSION
 
 use Devel::Cover::DB;
 use Devel::Cover::DB::IO::JSON;
@@ -96,7 +96,7 @@ sub _sys {
         }
     };
     if ($@) {
-        die "propogate: $@" unless $@ eq "alarm\n";   # propagate unexpected errors
+        die "propogate: $@" unless $@ eq "alarm\n";  # propagate unexpected errs
         warn "Timed out after $timeout seconds!\n";
         my $pgrp = getpgrp($pid);
         my $n = kill "-KILL", $pgrp;
@@ -154,9 +154,20 @@ sub build_modules {
 
 sub add_build_dirs {
     my $self = shift;
+    # say "add_build_dirs"; say for @{$self->build_dirs};
+    # say && system "ls -al $_" for "/remote_staging",
+                                  # map "$_/build", @{$self->cpan_dir};
+    my $exists = sub {
+        my $dir = "/remote_staging/" . (s|.*/||r =~ s/-\w{6}$/*/r);
+        # say "checking [$dir]";
+        my @files = glob $dir;
+        @files
+    };
     push @{$self->build_dirs},
+         grep { !$exists->() }
          grep -d,
          map glob("$_/build/*"), @{$self->cpan_dir};
+    # say "add_build_dirs"; say for @{$self->build_dirs};
 }
 
 sub run {
@@ -347,6 +358,52 @@ sub local_build {
     $self->generate_html;
 }
 
+sub failed_dir {
+    my $self = shift;
+    my $dir = $self->results_dir . "/__failed__";
+    -d $dir or mkdir $dir or die "Can't mkdir $dir: $!";
+    $dir
+}
+
+sub covered_dir {
+    my $self = shift;
+    my ($dir) = @_;
+    $self->results_dir . "/$dir"
+}
+
+sub failed_file {
+    my $self = shift;
+    my ($dir) = @_;
+    $self->failed_dir . "/$dir"
+}
+
+sub is_covered {
+    my $self = shift;
+    my ($dir) = @_;
+    -d $self->covered_dir($dir)
+}
+
+sub is_failed {
+    my $self = shift;
+    my ($dir) = @_;
+    -e $self->failed_file($dir)
+}
+
+sub set_covered {
+    my $self = shift;
+    my ($dir) = @_;
+    unlink $self->failed_file($dir);
+}
+
+sub set_failed {
+    my $self = shift;
+    my ($dir) = @_;
+    my $ff = $self->failed_file($dir);
+    open my $fh, ">", $ff or return warn "Can't open $ff: $!";
+    print $fh localtime;
+    close $fh or warn "Can't close $ff: $!";
+}
+
 sub cover_modules {
     my $self = shift;
 
@@ -360,10 +417,15 @@ sub cover_modules {
             my (undef, $module) = @_;
             my $dir = $module =~ s|.*/||r
                               =~ s/\.(?:zip|tgz|(?:tar\.(?:gz|bz2)))$//r;
-            if (-d $self->results_dir . "/$dir") {
+            if ($self->is_covered($dir)) {
+                $self->set_covered($dir);
                 say "$module already covered";
                 return;
+            } elsif ($self->is_failed($dir)) {
+                say "$module already failed";
+                return;
             }
+
             my $timeout = $self->local_timeout || $self->timeout || 30 * 60;
             # say "Setting alarm for $timeout seconds";
             my $name = sprintf("%s-%18.6f", $module, time)
@@ -374,13 +436,20 @@ sub cover_modules {
                 alarm $timeout;
                 system @command, $module, $name;
                 alarm 0;
-                say "$dir done";
             };
             if ($@) {
                 die "propogate: $@" unless $@ eq "alarm\n";  # unexpected errors
                 say "Timed out after $timeout seconds!";
                 $self->sys($self->docker, "kill", $name);
                 say "Killed docker container $name";
+            }
+
+            if ($self->is_covered($dir)) {
+                $self->set_covered($dir);
+                say "$dir done";
+            } else {
+                $self->set_failed($dir);
+                say "$dir failed";
             }
         },
         do { my %m; [sort grep !$m{$_}++, @{$self->modules}] }
@@ -507,7 +576,7 @@ package Devel::Cover::Collection::Template::Provider;
 use strict;
 use warnings;
 
-our $VERSION = '1.15'; # VERSION
+our $VERSION = '1.16'; # VERSION
 
 use base "Template::Provider";
 
@@ -612,6 +681,10 @@ Coverage information from <a href="https://metacpan.org/module/Devel::Cover">
 
 <br/>
 
+Please report problems with this site to the
+<a href="https://github.com/pjcj/Devel--Cover/issues">issue tracker</a>
+
+<br/>
 <a href="http://cpancover.com/blead/latest/coverage.html">Core coverage</a>
 (under development)
 
@@ -639,7 +712,7 @@ Devel::Cover::Collection - Code coverage for a collection of modules
 
 =head1 VERSION
 
-version 1.15
+version 1.16
 
 =head1 SYNOPSIS
 

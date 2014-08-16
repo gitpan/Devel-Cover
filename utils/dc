@@ -39,8 +39,8 @@ case "$1" in
                                   -workers $jobs "$@"
         ;;
     "cpancover-compress")
-        find $CPANCOVER_DIR -type f -not -name '*.gz' -not -name '*.json' \
-                            -exec gzip -f9 {} \;
+        find $CPANCOVER_DIR/ -type f -not -name '*.gz' -not -name '*.json' \
+                             -exec gzip -f9 {} \;
         ;;
     "cpancover-latest")
         $0 cpancover -latest
@@ -56,8 +56,11 @@ case "$1" in
         staging="${4:-$CPANCOVER_DIR}"
         mkdir -p $staging
         # echo $name
-        container=$($DOCKER run -d -v=/home/pjcj/g/perl/Devel--Cover:/dc:ro \
-                    -w=/dc --rm=false --name="$name" \
+        container=$($DOCKER run -d                                 \
+                    --volume=/home/pjcj/g/perl/Devel--Cover:/dc:ro \
+                    --volume=$CPANCOVER_STAGING:/remote_staging:ro \
+                    --workdir=/dc --rm=false --name="$name"        \
+                    --memory=1g                                    \
                     $DOCKER_IMAGE dc cpancover-build-module $module)
         # https://github.com/dotcloud/docker/issues/3986
         $DOCKER wait "$name"
@@ -91,6 +94,9 @@ case "$1" in
         ;;
     "cpancover-kill-docker")
         docker ps -a | tail -n +2 | awk '{ print $1 }' | xargs -r docker kill
+        ;;
+    "cpancover-rm-docker")
+        docker ps -a | tail -n +2 | awk '{ print $1 }' | xargs -r docker rm -f
         ;;
     "sereal_each_bug")
         perl="${2:-perl}"

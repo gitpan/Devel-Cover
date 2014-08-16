@@ -18,7 +18,7 @@ use File::Copy;
 
 $| = 1;
 
-my $Version = "1.15";
+my $Version = "1.16";
 my $Author  = 'paul@pjcj.net';
 my @perlbug = ("perlbug", "-a", $Author,
                           "-s", "Installation of Devel::Cover $Version");
@@ -369,9 +369,9 @@ EOM
 sub MY::postamble {
     my %tests;
     @tests{@tests} = map { (my $t = $_) =~ s/\W/_/g; "cover_db_$t" } @tests;
-    my @reports =
-      qw(compilation html_basic html_minimal html html_subtle sort text2 text
-         vim);
+    my @reports = qw(
+        compilation html_basic html_minimal html html_subtle sort text2 text vim
+    );
 
     qq[
 tags : pure_all
@@ -428,6 +428,9 @@ prove : pure_all
 t : pure_all
 \t \$(PERL) -Mblib bin/cover -delete
 \t exec make test HARNESS_OPTIONS=j`\$(PERL) -Iutils -MDevel::Cover::BuildUtils=nice_cpus -e 'print nice_cpus'`:c HARNESS_TIMER=1
+
+no_replace_ops_t : pure_all
+\t DEVEL_COVER_OPTIONS=-replace_ops,0 exec make t
 
 DB = cover_db
 
