@@ -39,12 +39,13 @@ requires:
   Storable: '0'
   perl: '5.006001'
 resources:
+  IRC: irc://irc.perl.org/#perl-qa
   Mailing_list: http://lists.perl.org/list/perl-qa.html
   bugtracker: https://github.com/pjcj/Devel--Cover/issues
   homepage: http://www.pjcj.net/perl.html
   license: http://dev.perl.org/licenses
   repository: http://github.com/pjcj/Devel--Cover
-version: '1.16'
+version: '1.17'
 x_Dist_Zilla:
   perl:
     version: '5.020000'
@@ -190,7 +191,7 @@ x_Dist_Zilla:
         Dist::Zilla::Plugin::Git::Tag:
           branch: ~
           signed: 0
-          tag: v1.16
+          tag: v1.17
           tag_format: v%v
           tag_message: v%v
           time_zone: local

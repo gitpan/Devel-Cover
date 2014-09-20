@@ -10,7 +10,7 @@
 use 5.16.0;
 use warnings;
 
-our $VERSION = '1.16'; # VERSION
+our $VERSION = '1.17'; # VERSION
 
 use Devel::Cover::Collection;
 
@@ -30,6 +30,7 @@ my $Options = {
     force           => 0,
     generate_html   => 0,
     latest          => 0,
+    local           => 0,
     local_build     => 0,
     module          => [],
     output_file     => "index.html",
@@ -50,6 +51,7 @@ sub get_options {
         help|h!
         info|i!
         latest!
+        local!
         local_build!
         module_file=s
         module=s
@@ -73,6 +75,7 @@ sub newcp {
         bin_dir         => $Options->{bin_dir},
         docker          => $Options->{docker},
         force           => $Options->{force},
+        local           => $Options->{local},
         modules         => $Options->{module},
         output_file     => $Options->{output_file},
         report          => $Options->{report},
@@ -143,7 +146,7 @@ cpancover - report coverage statistics on CPAN modules
 
 =head1 VERSION
 
-version 1.16
+version 1.17
 
 =head1 SYNOPSIS
 
@@ -154,6 +157,7 @@ version 1.16
            -outputdir /path/to/dir
            -outputfile filename.html
            -report report_name
+           -local
 
 =head1 DESCRIPTION
 
@@ -174,6 +178,7 @@ The following command line options are supported:
  -redo_cpancover_html  - don't set default modules           (off)
  -redo_html            - force html generation for modules   (off)
  -report               - report to use                       (html_basic)
+ -local                - use local (uninstalled) code        (off)
 
 =head1 DETAILS
 

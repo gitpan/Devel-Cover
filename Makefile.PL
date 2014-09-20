@@ -18,7 +18,7 @@ use File::Copy;
 
 $| = 1;
 
-my $Version = "1.16";
+my $Version = "1.17";
 my $Author  = 'paul@pjcj.net';
 my @perlbug = ("perlbug", "-a", $Author,
                           "-s", "Installation of Devel::Cover $Version");
@@ -272,7 +272,7 @@ available as usual.  Because HTML reports are expected, GCI has been added to
 the prerequisites.
 EOM
 
-my $latest_tested = "5.020000";
+my $latest_tested = "5.020001";
 print <<EOM if $] > $latest_tested;
 
 Devel::Cover $Version has not been tested with perl $].

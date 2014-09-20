@@ -10,7 +10,7 @@ CPANCOVER_STAGING=~/staging
 CPANCOVER_LATEST=$WEBDIR/latest
 CPANCOVER_DIR=$CPANCOVER_STAGING
 DOCKER=docker
-DOCKER_IMAGE=pjcj/devel-cover-git
+DOCKER_IMAGE=pjcj/cpancover
 
 case "$1" in
     "update-copyright")
@@ -35,12 +35,17 @@ case "$1" in
     "cpancover")
         shift;
         jobs=$($0 nice_cpus)
-        perl -Mblib bin/cpancover -results_dir $CPANCOVER_DIR \
-                                  -workers $jobs "$@"
+        if [ -z $CPANCOVER_LOCAL ]; then
+            cpancover=cpancover
+        else
+            cpancover="perl -Mblib bin/cpancover -local"
+        fi
+        $cpancover -results_dir $CPANCOVER_DIR -workers $jobs "$@"
         ;;
     "cpancover-compress")
-        find $CPANCOVER_DIR/ -type f -not -name '*.gz' -not -name '*.json' \
-                             -exec gzip -f9 {} \;
+        find $CPANCOVER_DIR/ -name __failed__ -prune -o \
+                               -type f -not -name '*.gz' -not -name '*.json' \
+                               -exec gzip -f9 {} \;
         ;;
     "cpancover-latest")
         $0 cpancover -latest
@@ -49,6 +54,17 @@ case "$1" in
         module="$2"
         $0 cpancover -local_build -docker $DOCKER -workers 1 "$module"
         $0 cpancover-compress
+        ;;
+    "cpancover-docker-shell")
+        staging="${4:-$CPANCOVER_DIR}"
+        mkdir -p $staging
+        # echo $name
+        $DOCKER run -it                                    \
+            --volume=/home/pjcj/g/perl/Devel--Cover:/dc:rw \
+            --volume=$CPANCOVER_STAGING:/remote_staging:rw \
+            --workdir=/dc --rm=false                       \
+            --memory=1g                                    \
+            $DOCKER_IMAGE /bin/bash
         ;;
     "cpancover-docker-module")
         module="$2"

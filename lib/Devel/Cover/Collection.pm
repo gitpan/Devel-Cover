@@ -10,7 +10,7 @@ package Devel::Cover::Collection;
 use 5.16.0;
 use warnings;
 
-our $VERSION = '1.16'; # VERSION
+our $VERSION = '1.17'; # VERSION
 
 use Devel::Cover::DB;
 use Devel::Cover::DB::IO::JSON;
@@ -28,7 +28,7 @@ use warnings FATAL => "all";  # be explicit since Moo sets this
 
 my %A = (
     ro  => [ qw( bin_dir cpancover_dir cpan_dir results_dir force output_file
-                 report timeout verbose workers docker                      ) ],
+                 report timeout verbose workers docker local                ) ],
     rwp => [ qw( build_dirs local_timeout modules module_file               ) ],
     rw  => [ qw(                                                            ) ],
 );
@@ -42,6 +42,7 @@ sub BUILDARGS {
         cpan_dir        => [grep -d, glob("~/.cpan ~/.local/share/.cpan")],
         docker          => "docker",
         force           => 0,
+        local           => 0,
         local_timeout   => 0,
         modules         => [],
         output_file     => "index.html",
@@ -57,6 +58,7 @@ sub BUILDARGS {
 sub _sys {
     my $self = shift;
     my ($non_buffered, @command) = @_;
+    # system @command; return ".";
     my ($output1, $output2) = ("", "");
     $output1 = "dc -> @command\n" if $self->verbose;
     my $timeout = $self->local_timeout || $self->timeout || 30 * 60;
@@ -196,8 +198,15 @@ sub run {
     $output .= "Testing $module in $build_dir\n";
     # say "\n$line\n$output$line\n"; return;
 
-    $ENV{DEVEL_COVER_TEST_OPTS} = "-Mblib=" . $self->bin_dir;
-    my @cmd = ($^X, $ENV{DEVEL_COVER_TEST_OPTS}, $self->bin_dir . "/cover");
+    # $self->sys($^X, "-V");
+    my @cmd;
+    if ($self->local) {
+        $ENV{DEVEL_COVER_OPTIONS} = "-ignore,/usr/local/lib/perl5";
+        $ENV{DEVEL_COVER_TEST_OPTS} = "-Mblib=" . $self->bin_dir;
+        @cmd = ($^X, $ENV{DEVEL_COVER_TEST_OPTS}, $self->bin_dir . "/cover");
+    } else {
+        @cmd = ($^X, $self->bin_dir . "/cover");
+    }
     $output .= $self->bsys(
         @cmd,          "-test",
         "-report",     $self->report,
@@ -400,7 +409,7 @@ sub set_failed {
     my ($dir) = @_;
     my $ff = $self->failed_file($dir);
     open my $fh, ">", $ff or return warn "Can't open $ff: $!";
-    print $fh localtime;
+    print $fh scalar localtime;
     close $fh or warn "Can't close $ff: $!";
 }
 
@@ -576,7 +585,7 @@ package Devel::Cover::Collection::Template::Provider;
 use strict;
 use warnings;
 
-our $VERSION = '1.16'; # VERSION
+our $VERSION = '1.17'; # VERSION
 
 use base "Template::Provider";
 
@@ -712,7 +721,7 @@ Devel::Cover::Collection - Code coverage for a collection of modules
 
 =head1 VERSION
 
-version 1.16
+version 1.17
 
 =head1 SYNOPSIS
 
